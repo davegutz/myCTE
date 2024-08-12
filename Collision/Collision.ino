@@ -58,7 +58,7 @@ void setup() {
   Serial.println();
   Serial.println("Acceleration in g's");
 
-  Serial.println("A\tB\tC\tX\tY\tZ");
+  Serial.println("T\tA\tB\tC\tX\tY\tZ");
 
 
 }
@@ -86,6 +86,7 @@ void loop()
   static float x = 0;
   static float y = 0;
   static float z = 0;
+  static float T = 0;
   boolean gyro_ready = false;
   boolean accel_ready = false;
 
@@ -96,6 +97,7 @@ void loop()
   read = ReadSensors->update(millis(), reset);
   chitchat = Talk->update(millis(), reset);
   elapsed = ReadSensors->now() - start;
+  T = ReadSensors->updateTime();
   control = ControlSync->update(millis(), reset);
   updating_plots = Plotting->update(millis(), reset);
 
@@ -104,6 +106,7 @@ void loop()
   // Read sensors
   if ( read )
   {
+    T = elapsed/1000.;
     if (IMU.accelerationAvailable())
     {
       IMU.readAcceleration(x, y, z);
@@ -118,6 +121,8 @@ void loop()
 
   if (updating_plots)
   {
+    Serial.print(T);
+    Serial.print('\t');
     Serial.print(a);
     Serial.print('\t');
     Serial.print(b);
