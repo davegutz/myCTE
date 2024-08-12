@@ -39,8 +39,8 @@ void setup() {
   Serial.println(" Hz");
   Serial.println();
   Serial.println("Acceleration in g's");
-  
-  Serial.println(""A\tB\tC\yX\tY\tZ");
+
+  Serial.println("A\tB\tC\tX\tY\tZ");
 
 
 }
@@ -85,5 +85,6 @@ void loop()
 
   gyro_ready = false;
   accel_ready = false;
+  delay(100);
 
 }
