@@ -33,7 +33,8 @@
 #define CONTROL_DELAY         100UL     // Control read wait, ms (100UL = 0.1 sec)
 #define PLOT_DELAY            100UL     // Plot wait, ms (100UL = 0.1 sec)
 #define TAU_FILT               0.05     // Tau filter, sec (0.05)
-#define G_MAX                   20.     // Max G value, g's (20.) 
+#define G_MAX                  100.     // Max G value, g's (20.) 
+#define W_MAX                  100.     // Max rotational value, deg/s (20.) 
 
 void setup() {
   Serial.begin(115200);
@@ -60,7 +61,7 @@ void setup() {
   Serial.println();
   Serial.println("Acceleration in g's");
 
-  Serial.println("T\tA\tB\tC\tX\tY\tZ");
+  Serial.println("T\ta_filt\tb_filt\tc_filt\tx_filt\ty_filt\tz_filt");
 
 
 }
@@ -84,9 +85,9 @@ void loop()
   static LagExp *A_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
   static LagExp *B_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
   static LagExp *C_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
-  static LagExp *X_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
-  static LagExp *Y_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
-  static LagExp *Z_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
+  static LagExp *X_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);  // Update time and time constant changed on the fly
+  static LagExp *Y_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);  // Update time and time constant changed on the fly
+  static LagExp *Z_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);  // Update time and time constant changed on the fly
   static float a = 0;
   static float b = 0;
   static float c = 0;
@@ -119,7 +120,6 @@ void loop()
   // Read sensors
   if ( read )
   {
-    T = elapsed/1000.;
     if (IMU.accelerationAvailable())
     {
       IMU.readAcceleration(x, y, z);
