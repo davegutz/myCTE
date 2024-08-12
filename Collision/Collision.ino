@@ -26,13 +26,14 @@
 
 // Dependent includes.   Easier to sp.debug code if remove unused include files
 #include "Sync.h"
+#include "myFilters.h"
 
 #define TALK_DELAY            313UL     // Talk wait, ms (313UL = 0.313 sec)
 #define READ_DELAY             10UL     // Sensor read wait, ms (10UL = 0.01 sec) Dr
 #define CONTROL_DELAY         100UL     // Control read wait, ms (100UL = 0.1 sec)
 #define PLOT_DELAY            100UL     // Plot wait, ms (100UL = 0.1 sec)
-
-
+#define TAU_FILT               0.05     // Tau filter, sec (0.05)
+#define G_MAX                   20.     // Max G value, g's (20.) 
 
 void setup() {
   Serial.begin(115200);
@@ -79,7 +80,7 @@ void loop()
   unsigned long long elapsed = 0;
   static boolean reset = true;
   static unsigned long long start = millis();
-
+  // LagExp *A_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
   static float a = 0;
   static float b = 0;
   static float c = 0;
@@ -87,6 +88,7 @@ void loop()
   static float y = 0;
   static float z = 0;
   static float T = 0;
+  static float a_filt = 0;
   boolean gyro_ready = false;
   boolean accel_ready = false;
 
@@ -117,13 +119,14 @@ void loop()
       IMU.readGyroscope(a, b, c);
       gyro_ready = true;
     }
+    // a_filt = A_Filt->calculate(a, reset, TAU_FILT, T);
   }
 
   if (updating_plots)
   {
     Serial.print(T);
     Serial.print('\t');
-    Serial.print(a);
+    Serial.print(a_filt);
     Serial.print('\t');
     Serial.print(b);
     Serial.print('\t');
