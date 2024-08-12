@@ -39,7 +39,8 @@ void setup() {
   Serial.begin(115200);
   while (!Serial);
 
-  if (!IMU.begin()) {
+  if ( !IMU.begin() )
+  {
     Serial.println("Failed to initialize IMU!");
 
     while (1);
@@ -80,7 +81,12 @@ void loop()
   unsigned long long elapsed = 0;
   static boolean reset = true;
   static unsigned long long start = millis();
-  // LagExp *A_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
+  static LagExp *A_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
+  static LagExp *B_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
+  static LagExp *C_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
+  static LagExp *X_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
+  static LagExp *Y_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
+  static LagExp *Z_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
   static float a = 0;
   static float b = 0;
   static float c = 0;
@@ -89,6 +95,11 @@ void loop()
   static float z = 0;
   static float T = 0;
   static float a_filt = 0;
+  static float b_filt = 0;
+  static float c_filt = 0;
+  static float x_filt = 0;
+  static float y_filt = 0;
+  static float z_filt = 0;
   boolean gyro_ready = false;
   boolean accel_ready = false;
 
@@ -119,7 +130,12 @@ void loop()
       IMU.readGyroscope(a, b, c);
       gyro_ready = true;
     }
-    // a_filt = A_Filt->calculate(a, reset, TAU_FILT, T);
+    a_filt = A_Filt->calculate(a, reset, TAU_FILT, T);
+    b_filt = B_Filt->calculate(b, reset, TAU_FILT, T);
+    c_filt = C_Filt->calculate(c, reset, TAU_FILT, T);
+    x_filt = X_Filt->calculate(x, reset, TAU_FILT, T);
+    y_filt = Y_Filt->calculate(y, reset, TAU_FILT, T);
+    z_filt = Z_Filt->calculate(z, reset, TAU_FILT, T);
   }
 
   if (updating_plots)
@@ -128,15 +144,15 @@ void loop()
     Serial.print('\t');
     Serial.print(a_filt);
     Serial.print('\t');
-    Serial.print(b);
+    Serial.print(b_filt);
     Serial.print('\t');
-    Serial.print(c);
+    Serial.print(c_filt);
     Serial.print('\t');
-    Serial.print(x);
+    Serial.print(x_filt);
     Serial.print('\t');
-    Serial.print(y);
+    Serial.print(y_filt);
     Serial.print('\t');
-    Serial.println(z);
+    Serial.println(z_filt);
   }
 
   gyro_ready = false;

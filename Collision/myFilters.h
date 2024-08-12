@@ -349,7 +349,7 @@ protected:
   double a_;
   double b_;
   double c_;
-  double rate_;
+  // double rate_;
   double lstate_;
   double rstate_;
 };
