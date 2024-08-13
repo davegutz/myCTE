@@ -27,6 +27,7 @@
 // Dependent includes.   Easier to sp.debug code if remove unused include files
 #include "Sync.h"
 #include "myFilters.h"
+#include <SafeString.h>
 
 #define TALK_DELAY            313UL     // Talk wait, ms (313UL = 0.313 sec)
 #define READ_DELAY             10UL     // Sensor read wait, ms (10UL = 0.01 sec) Dr
@@ -35,6 +36,11 @@
 #define TAU_FILT               0.05     // Tau filter, sec (0.05)
 #define G_MAX                  100.     // Max G value, g's (20.) 
 #define W_MAX                  100.     // Max rotational value, deg/s (20.) 
+
+// Global
+cSF(serial_str, 200, "");
+boolean string_cpt = false;
+boolean plotting = false;
 
 void setup() {
   Serial.begin(115200);
@@ -61,7 +67,7 @@ void setup() {
   Serial.println();
   Serial.println("Acceleration in g's");
 
-  Serial.println("T\ta_filt\tb_filt\tc_filt\tx_filt\ty_filt\tz_filt");
+  if ( plotting ) Serial.println("T\ta_filt\tb_filt\tc_filt\tx_filt\ty_filt\tz_filt");
 
 
 }
@@ -113,9 +119,14 @@ void loop()
   elapsed = ReadSensors->now() - start;
   T = ReadSensors->updateTime();
   control = ControlSync->update(millis(), reset);
-  updating_plots = Plotting->update(millis(), reset);
+  updating_plots = Plotting->update(millis(), reset) && plotting;
 
-
+  // Get serial input
+  if ( string_cpt )
+  {
+    Serial.println(serial_str);
+    string_cpt = false;
+  }
 
   // Read sensors
   if ( read )
@@ -138,7 +149,7 @@ void loop()
     z_filt = Z_Filt->calculate(z, reset, TAU_FILT, T);
   }
 
-  if (updating_plots)
+  if ( updating_plots )
   {
     Serial.print(T);
     Serial.print('\t');
@@ -162,3 +173,32 @@ void loop()
   if ( read ) reset = false;
 
 }  // loop
+
+
+/*
+  Special handler that uses built-in callback.
+  SerialEvent occurs whenever a new data comes in the
+  hardware serial RX.  This routine is run between each
+  time loop() runs, so using delay inside loop can delay
+  response.  Multiple bytes of data may be available.
+ */
+void serialEvent()
+{
+  while ( Serial.available() )
+  {
+    // get the new byte:
+    char inChar = (char)Serial.read();
+    // add it to the serial_str:
+    serial_str += inChar;
+    // if the incoming character is a newline, set a flag
+    // so the main loop can do something about it:
+    if (inChar=='\n' || inChar=='\0' || inChar==';' || inChar==',')
+    {
+      string_cpt = true;
+      // Remove whitespace
+      serial_str.trim();
+      serial_str.replace(" ","");
+      serial_str.replace("=","");
+    }
+  }
+}
