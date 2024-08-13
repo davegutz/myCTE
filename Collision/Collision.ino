@@ -44,6 +44,12 @@ cSF(serial_str, INPUT_BYTES, "");
 cSF(input_str, INPUT_BYTES, "");
 boolean string_cpt = false;
 boolean plotting = false;
+boolean monitoring = false;
+
+void print_header()
+{
+  Serial.println("T\ta_filt\tb_filt\tc_filt\tx_filt\ty_filt\tz_filt");
+}
 
 void setup() {
 
@@ -70,9 +76,6 @@ void setup() {
   Serial.println();
   Serial.println("Acceleration in g's");
 
-  if ( plotting ) Serial.println("T\ta_filt\tb_filt\tc_filt\tx_filt\ty_filt\tz_filt");
-
-
 }
 
 void loop()
@@ -84,7 +87,7 @@ void loop()
   static Sync *Talk = new Sync(TALK_DELAY);
   boolean read = false;
   static Sync *ReadSensors = new Sync(READ_DELAY);
-  boolean updating_plots;
+  boolean publishing;
   static Sync *Plotting = new Sync(PLOT_DELAY);
   boolean control;
   static Sync *ControlSync = new Sync(CONTROL_DELAY);
@@ -112,6 +115,7 @@ void loop()
   static float z_filt = 0;
   boolean gyro_ready = false;
   boolean accel_ready = false;
+  static boolean monitoring_past = monitoring;
 
 
   ///////////////////////////////////////////////////////////// Top of loop////////////////////////////////////////
@@ -122,15 +126,7 @@ void loop()
   elapsed = ReadSensors->now() - start;
   T = ReadSensors->updateTime();
   control = ControlSync->update(millis(), reset);
-  updating_plots = Plotting->update(millis(), reset) && plotting;
-
-  // Get serial input
-  if ( string_cpt )
-  {
-    Serial.println(serial_str);
-    serial_str = "";
-    string_cpt = false;
-  }
+  publishing = Plotting->update(millis(), reset) && ( plotting || monitoring );
 
   // Read sensors
   if ( read )
@@ -153,21 +149,26 @@ void loop()
     z_filt = Z_Filt->calculate(z, reset, TAU_FILT, T);
   }
 
-  if ( updating_plots )
+  if ( publishing )
   {
-    Serial.print(T);
-    Serial.print('\t');
-    Serial.print(a_filt);
-    Serial.print('\t');
-    Serial.print(b_filt);
-    Serial.print('\t');
-    Serial.print(c_filt);
-    Serial.print('\t');
-    Serial.print(x_filt);
-    Serial.print('\t');
-    Serial.print(y_filt);
-    Serial.print('\t');
-    Serial.println(z_filt);
+    if ( plotting || ( monitoring && ( monitoring != monitoring_past ) ) ) print_header();
+    monitoring_past = monitoring;
+    if ( monitoring || plotting )
+    {
+      Serial.print(T);
+      Serial.print('\t');
+      Serial.print(a_filt);
+      Serial.print('\t');
+      Serial.print(b_filt);
+      Serial.print('\t');
+      Serial.print(c_filt);
+      Serial.print('\t');
+      Serial.print(x_filt);
+      Serial.print('\t');
+      Serial.print(y_filt);
+      Serial.print('\t');
+      Serial.println(z_filt);
+    }
   }
 
   gyro_ready = false;
@@ -178,12 +179,24 @@ void loop()
 
   if ( chitchat )
   {
-    read_serial();
+    read_serial();  // returns one command at a time
     if ( input_str.length() )
     {
-      Serial.print("input_str=["); Serial.print(input_str); Serial.println("]");
-      input_str = "";    
+      switch ( input_str.charAt(0) )
+      {
+        case ( 'P' ):
+          plotting = !plotting;
+          monitoring = false;
+          break;
+        case ( 'M' ):
+          monitoring = !monitoring;
+          plotting = false;
+          break;
+        default:
+          Serial.print(input_str.charAt(0)); Serial.println(" unknown");
+      }
     }
+    input_str = "";
   }
 
 
