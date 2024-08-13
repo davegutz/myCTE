@@ -35,21 +35,19 @@
 #define PLOT_DELAY            100UL     // Plot wait, ms (100UL = 0.1 sec)
 #define TAU_FILT               0.05     // Tau filter, sec (0.05)
 #define G_MAX                  100.     // Max G value, g's (20.) 
-#define W_MAX                  100.     // Max rotational value, deg/s (20.) 
+#define W_MAX                  100.     // Max rotational value, deg/s (20.)
+#define INPUT_BYTES             200     // Serial input buffer sizes
+#define SERIAL_BAUD          115200     // Serial baud rate
 
 // Global
-// cSF(serial_str, 200, "");
-String serial_str;
-String input_str;
+cSF(serial_str, INPUT_BYTES, "");
+cSF(input_str, INPUT_BYTES, "");
 boolean string_cpt = false;
 boolean plotting = false;
 
 void setup() {
 
-  serial_str.reserve(200); serial_str = "";
-  input_str.reserve(200); input_str = "";
-
-  Serial.begin(115200);
+  Serial.begin(SERIAL_BAUD);
   while (!Serial);
 
   if ( !IMU.begin() )
@@ -241,7 +239,7 @@ void read_serial()
 }
 
 // Cleanup string for final processing by chitchat
-void finish_request(String &str)
+void finish_request(SafeString &str)
 {
   // Remove whitespace
   str.trim();
