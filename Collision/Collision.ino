@@ -38,18 +38,23 @@
 #define W_MAX                  100.     // Max rotational value, deg/s (20.) 
 
 // Global
-cSF(serial_str, 200, "");
+// cSF(serial_str, 200, "");
+String serial_str;
+String input_str;
 boolean string_cpt = false;
 boolean plotting = false;
 
 void setup() {
+
+  serial_str.reserve(200); serial_str = "";
+  input_str.reserve(200); input_str = "";
+
   Serial.begin(115200);
   while (!Serial);
 
   if ( !IMU.begin() )
   {
     Serial.println("Failed to initialize IMU!");
-
     while (1);
   }
 
@@ -125,6 +130,7 @@ void loop()
   if ( string_cpt )
   {
     Serial.println(serial_str);
+    serial_str = "";
     string_cpt = false;
   }
 
@@ -172,33 +178,87 @@ void loop()
   // Initialize complete once sensors and models started and summary written
   if ( read ) reset = false;
 
+  if ( chitchat )
+  {
+    read_serial();
+    if ( input_str.length() )
+    {
+      Serial.print("input_str=["); Serial.print(input_str); Serial.println("]");
+      input_str = "";    
+    }
+  }
+
+
 }  // loop
 
 
-/*
-  Special handler that uses built-in callback.
-  SerialEvent occurs whenever a new data comes in the
-  hardware serial RX.  This routine is run between each
-  time loop() runs, so using delay inside loop can delay
-  response.  Multiple bytes of data may be available.
- */
-void serialEvent()
+// Read serial for chitchat
+void read_serial()
 {
-  while ( Serial.available() )
+  boolean serial_ready = false;
+  serial_str = "";
+
+  // Each pass try to complete input from avaiable
+  while ( !serial_ready && Serial.available() )
   {
-    // get the new byte:
-    char inChar = (char)Serial.read();
-    // add it to the serial_str:
-    serial_str += inChar;
-    // if the incoming character is a newline, set a flag
-    // so the main loop can do something about it:
-    if (inChar=='\n' || inChar=='\0' || inChar==';' || inChar==',')
+    char in_char = (char)Serial.read();  // get the new byte
+
+    // Intake
+    // if the incoming character to finish, add a ';' and set flags so the main loop can do something about it:
+    if ( is_finished(in_char) )
     {
-      string_cpt = true;
-      // Remove whitespace
-      serial_str.trim();
-      serial_str.replace(" ","");
-      serial_str.replace("=","");
+        if ( serial_str.length() ) serial_str.concat(';');
+        serial_ready = true;
+        break;
     }
+
+    else if ( in_char == '\r' )
+    {
+        Serial.println("\n");  // scroll user terminal
+    }
+
+    else if ( in_char == '\b' && serial_str.length() )
+    {
+        Serial.print("\b \b");  // scroll user terminal
+        serial_str.remove(serial_str.length() -1 );  // backspace
+    }
+
+    else
+    {
+        serial_str += in_char;  // process new valid character
+    }
+
   }
+
+  // Pass info to serial_str
+  if ( serial_ready )
+  {
+    input_str += serial_str.c_str();
+    finish_request(input_str);
+    serial_ready = false;
+    serial_str = "";
+  }
+}
+
+// Cleanup string for final processing by chitchat
+void finish_request(String &str)
+{
+  // Remove whitespace
+  str.trim();
+  str.replace("\n", "");
+  str.replace("\0", "");
+  str.replace("", "");
+  str.replace(",", "");
+  str.replace(" ", "");
+  str.replace("=", "");
+  str.replace(";", "");
+}
+
+// Test for string completion character
+boolean is_finished(const char in_char)
+{
+    return  in_char == '\n' ||
+            in_char == '\0' ||
+            in_char == ';'  ||
+            in_char == ',';    
 }
