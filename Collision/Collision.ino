@@ -40,6 +40,7 @@
 #define W_MAX                  100.     // Max rotational value, deg/s (20.)
 #define INPUT_BYTES             200     // Serial input buffer sizes
 #define SERIAL_BAUD          115200     // Serial baud rate
+#define USE_EEPROM
 
 // Global
 cSF(serial_str, INPUT_BYTES, "");
@@ -48,21 +49,23 @@ boolean string_cpt = false;
 boolean plotting = false;
 boolean monitoring = false;
 
-// Create a structure that is big enough to contain a name
-// and a surname. The "valid" variable is set to "true" once
-// the structure is filled with actual data for the first time.
-typedef struct {
-  boolean valid;
-  char name[100];
-  char surname[100];
-} Person;
+#ifdef USE_EEPROM
+  // Reserve a portion of flash memory to store a "Person" and
+  // call it "my_flash_store".
+  // Create a structure that is big enough to contain a name
+  // and a surname. The "valid" variable is set to "true" once
+  // the structure is filled with actual data for the first time.
+  typedef struct {
+    boolean valid;
+    char name[100];
+    char surname[100];
+  } Person;
 
-// Reserve a portion of flash memory to store a "Person" and
-// call it "my_flash_store".
-FlashStorage(my_flash_store, Person);
-
-// Note: the area of flash memory reserved lost every time
-// the sketch is uploaded on the board.
+  FlashStorage(my_flash_store, Person);
+  // Create a "Person" variable and call it "owner"
+  Person owner;
+  // Note: the area of flash memory reserved lost every time the sketch is uploaded on the board.
+#endif
 
 // Setup
 void setup() {
@@ -77,53 +80,21 @@ void setup() {
     while (1);
   }
 
-  // Create a "Person" variable and call it "owner"
-  Person owner;
+  #ifdef USE_EEPROM
 
-  // Read the content of "my_flash_store" into the "owner" variable
-  owner = my_flash_store.read();
+    // Read the content of "my_flash_store" into the "owner" variable
+    owner = my_flash_store.read();
 
-  // If this is the first run the "valid" value should be "false"...
-  if (owner.valid == false) {
-
-    // ...in this case we ask for user data.
-    SERIAL_PORT_MONITOR.setTimeout(30000);
-    SERIAL_PORT_MONITOR.println("Insert your name:");
-    String name = SERIAL_PORT_MONITOR.readStringUntil('\n');
-    SERIAL_PORT_MONITOR.println("Insert your surname:");
-    String surname = SERIAL_PORT_MONITOR.readStringUntil('\n');
-
-    // Fill the "owner" structure with the data entered by the user...
-    name.toCharArray(owner.name, 100);
-    surname.toCharArray(owner.surname, 100);
-    // set "valid" to true, so the next time we know that we
-    // have valid data inside
-    owner.valid = true;
-
-    // ...and finally save everything into "my_flash_store"
-    my_flash_store.write(owner);
-
-    // Print a confirmation of the data inserted.
-    SERIAL_PORT_MONITOR.println();
-    SERIAL_PORT_MONITOR.print("Your name: ");
-    SERIAL_PORT_MONITOR.println(owner.name);
-    SERIAL_PORT_MONITOR.print("and your surname: ");
-    SERIAL_PORT_MONITOR.println(owner.surname);
-    SERIAL_PORT_MONITOR.println("have been saved. Thank you!");
-
-  }
-  else
-  {
-
-    // Say hello to the returning user!
-    SERIAL_PORT_MONITOR.println();
-    SERIAL_PORT_MONITOR.print("Hi ");
-    SERIAL_PORT_MONITOR.print(owner.name);
-    SERIAL_PORT_MONITOR.print(" ");
-    SERIAL_PORT_MONITOR.print(owner.surname);
-    SERIAL_PORT_MONITOR.println(", nice to see you again :-)");
-
-  }
+    // If this is the first run the "valid" value should be "false"...
+    if (owner.valid == false)
+    {
+      populate_owner();
+    }
+    else
+    {
+      homecoming();
+    }
+  #endif
 
   // Time to start serial monitor not Arduino IDE
   delay(5);
@@ -356,4 +327,45 @@ void say_hello()
   Serial.println(" Hz");
   Serial.println();
   Serial.println("Acceleration in g's");
+}
+
+// Populate owner structure first time
+void populate_owner()
+{
+  // ...in this case we ask for user data.
+  SERIAL_PORT_MONITOR.setTimeout(30000);
+  SERIAL_PORT_MONITOR.println("Insert your name:");
+  String name = SERIAL_PORT_MONITOR.readStringUntil('\n');
+  SERIAL_PORT_MONITOR.println("Insert your surname:");
+  String surname = SERIAL_PORT_MONITOR.readStringUntil('\n');
+
+  // Fill the "owner" structure with the data entered by the user...
+  name.toCharArray(owner.name, 100);
+  surname.toCharArray(owner.surname, 100);
+  // set "valid" to true, so the next time we know that we
+  // have valid data inside
+  owner.valid = true;
+
+  // ...and finally save everything into "my_flash_store"
+  my_flash_store.write(owner);
+
+  // Print a confirmation of the data inserted.
+  SERIAL_PORT_MONITOR.println();
+  SERIAL_PORT_MONITOR.print("Your name: ");
+  SERIAL_PORT_MONITOR.println(owner.name);
+  SERIAL_PORT_MONITOR.print("and your surname: ");
+  SERIAL_PORT_MONITOR.println(owner.surname);
+  SERIAL_PORT_MONITOR.println("have been saved. Thank you!");
+}
+
+// Prodigal son returns!
+void homecoming()
+{
+  // Say hello to the returning user!
+  SERIAL_PORT_MONITOR.println();
+  SERIAL_PORT_MONITOR.print("Hi ");
+  SERIAL_PORT_MONITOR.print(owner.name);
+  SERIAL_PORT_MONITOR.print(" ");
+  SERIAL_PORT_MONITOR.print(owner.surname);
+  SERIAL_PORT_MONITOR.println(", nice to see you again :-)");
 }
