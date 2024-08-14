@@ -28,7 +28,9 @@
 #include "Sync.h"
 #include "myFilters.h"
 #include <SafeString.h>
+#include "FlashStorage.h"
 
+// Constants; anything numeric (adjustable)
 #define TALK_DELAY            313UL     // Talk wait, ms (313UL = 0.313 sec)
 #define READ_DELAY             10UL     // Sensor read wait, ms (10UL = 0.01 sec) Dr
 #define CONTROL_DELAY         100UL     // Control read wait, ms (100UL = 0.1 sec)
@@ -46,13 +48,26 @@ boolean string_cpt = false;
 boolean plotting = false;
 boolean monitoring = false;
 
-void print_header()
-{
-  Serial.println("T\ta_filt\tb_filt\tc_filt\tx_filt\ty_filt\tz_filt");
-}
+// Create a structure that is big enough to contain a name
+// and a surname. The "valid" variable is set to "true" once
+// the structure is filled with actual data for the first time.
+typedef struct {
+  boolean valid;
+  char name[100];
+  char surname[100];
+} Person;
 
+// Reserve a portion of flash memory to store a "Person" and
+// call it "my_flash_store".
+FlashStorage(my_flash_store, Person);
+
+// Note: the area of flash memory reserved lost every time
+// the sketch is uploaded on the board.
+
+// Setup
 void setup() {
 
+  // Serial
   Serial.begin(SERIAL_BAUD);
   while (!Serial);
 
@@ -62,22 +77,64 @@ void setup() {
     while (1);
   }
 
-  delay(5);  // Time to start serial monitor not Arduino IDE
+  // Create a "Person" variable and call it "owner"
+  Person owner;
 
-  Serial.print("Gyroscope sample rate = ");
-  Serial.print(IMU.gyroscopeSampleRate());
-  Serial.println(" Hz");
-  Serial.println();
-  Serial.println("Gyroscope in degrees/second");
+  // Read the content of "my_flash_store" into the "owner" variable
+  owner = my_flash_store.read();
 
-  Serial.print("Accelerometer sample rate = ");
-  Serial.print(IMU.accelerationSampleRate());
-  Serial.println(" Hz");
-  Serial.println();
-  Serial.println("Acceleration in g's");
+  // If this is the first run the "valid" value should be "false"...
+  if (owner.valid == false) {
+
+    // ...in this case we ask for user data.
+    SERIAL_PORT_MONITOR.setTimeout(30000);
+    SERIAL_PORT_MONITOR.println("Insert your name:");
+    String name = SERIAL_PORT_MONITOR.readStringUntil('\n');
+    SERIAL_PORT_MONITOR.println("Insert your surname:");
+    String surname = SERIAL_PORT_MONITOR.readStringUntil('\n');
+
+    // Fill the "owner" structure with the data entered by the user...
+    name.toCharArray(owner.name, 100);
+    surname.toCharArray(owner.surname, 100);
+    // set "valid" to true, so the next time we know that we
+    // have valid data inside
+    owner.valid = true;
+
+    // ...and finally save everything into "my_flash_store"
+    my_flash_store.write(owner);
+
+    // Print a confirmation of the data inserted.
+    SERIAL_PORT_MONITOR.println();
+    SERIAL_PORT_MONITOR.print("Your name: ");
+    SERIAL_PORT_MONITOR.println(owner.name);
+    SERIAL_PORT_MONITOR.print("and your surname: ");
+    SERIAL_PORT_MONITOR.println(owner.surname);
+    SERIAL_PORT_MONITOR.println("have been saved. Thank you!");
+
+  }
+  else
+  {
+
+    // Say hello to the returning user!
+    SERIAL_PORT_MONITOR.println();
+    SERIAL_PORT_MONITOR.print("Hi ");
+    SERIAL_PORT_MONITOR.print(owner.name);
+    SERIAL_PORT_MONITOR.print(" ");
+    SERIAL_PORT_MONITOR.print(owner.surname);
+    SERIAL_PORT_MONITOR.println(", nice to see you again :-)");
+
+  }
+
+  // Time to start serial monitor not Arduino IDE
+  delay(5);
+
+  // Say 'Hello'
+  say_hello();
 
 }
 
+
+// Loop
 void loop()
 {
   // Synchronization
@@ -155,19 +212,7 @@ void loop()
     monitoring_past = monitoring;
     if ( monitoring || plotting )
     {
-      Serial.print(T);
-      Serial.print('\t');
-      Serial.print(a_filt);
-      Serial.print('\t');
-      Serial.print(b_filt);
-      Serial.print('\t');
-      Serial.print(c_filt);
-      Serial.print('\t');
-      Serial.print(x_filt);
-      Serial.print('\t');
-      Serial.print(y_filt);
-      Serial.print('\t');
-      Serial.println(z_filt);
+      publish_print(T, a_filt, b_filt, c_filt, x_filt, y_filt, z_filt);
     }
   }
 
@@ -272,4 +317,43 @@ boolean is_finished(const char in_char)
             in_char == '\0' ||
             in_char == ';'  ||
             in_char == ',';    
+}
+
+// Print publish
+void publish_print(const float T, const float a_filt, const float b_filt, const float c_filt, const float x_filt, const float y_filt, const float z_filt)
+{
+  Serial.print(T);
+  Serial.print('\t');
+  Serial.print(a_filt);
+  Serial.print('\t');
+  Serial.print(b_filt);
+  Serial.print('\t');
+  Serial.print(c_filt);
+  Serial.print('\t');
+  Serial.print(x_filt);
+  Serial.print('\t');
+  Serial.print(y_filt);
+  Serial.print('\t');
+  Serial.println(z_filt);
+}
+
+// Publish header
+void print_header()
+{
+  Serial.println("T\ta_filt\tb_filt\tc_filt\tx_filt\ty_filt\tz_filt");
+}
+
+// Say hello
+void say_hello()
+{
+  Serial.print("Gyroscope sample rate = ");
+  Serial.print(IMU.gyroscopeSampleRate());
+  Serial.println(" Hz");
+  Serial.println();
+  Serial.println("Gyroscope in degrees/second");
+  Serial.print("Accelerometer sample rate = ");
+  Serial.print(IMU.accelerationSampleRate());
+  Serial.println(" Hz");
+  Serial.println();
+  Serial.println("Acceleration in g's");
 }
