@@ -40,7 +40,7 @@
 #define W_MAX                  100.     // Max rotational value, deg/s (20.)
 #define INPUT_BYTES             200     // Serial input buffer sizes
 #define SERIAL_BAUD          115200     // Serial baud rate
-#define USE_EEPROM
+// #define USE_EEPROM
 
 // Global
 cSF(serial_str, INPUT_BYTES, "");
@@ -329,43 +329,45 @@ void say_hello()
   Serial.println("Acceleration in g's");
 }
 
-// Populate owner structure first time
-void populate_owner()
-{
-  // ...in this case we ask for user data.
-  SERIAL_PORT_MONITOR.setTimeout(30000);
-  SERIAL_PORT_MONITOR.println("Insert your name:");
-  String name = SERIAL_PORT_MONITOR.readStringUntil('\n');
-  SERIAL_PORT_MONITOR.println("Insert your surname:");
-  String surname = SERIAL_PORT_MONITOR.readStringUntil('\n');
+#ifdef USE_EEPROM
+  // Populate owner structure first time
+  void populate_owner()
+  {
+    // ...in this case we ask for user data.
+    SERIAL_PORT_MONITOR.setTimeout(30000);
+    SERIAL_PORT_MONITOR.println("Insert your name:");
+    String name = SERIAL_PORT_MONITOR.readStringUntil('\n');
+    SERIAL_PORT_MONITOR.println("Insert your surname:");
+    String surname = SERIAL_PORT_MONITOR.readStringUntil('\n');
 
-  // Fill the "owner" structure with the data entered by the user...
-  name.toCharArray(owner.name, 100);
-  surname.toCharArray(owner.surname, 100);
-  // set "valid" to true, so the next time we know that we
-  // have valid data inside
-  owner.valid = true;
+    // Fill the "owner" structure with the data entered by the user...
+    name.toCharArray(owner.name, 100);
+    surname.toCharArray(owner.surname, 100);
+    // set "valid" to true, so the next time we know that we
+    // have valid data inside
+    owner.valid = true;
 
-  // ...and finally save everything into "my_flash_store"
-  my_flash_store.write(owner);
+    // ...and finally save everything into "my_flash_store"
+    my_flash_store.write(owner);
 
-  // Print a confirmation of the data inserted.
-  SERIAL_PORT_MONITOR.println();
-  SERIAL_PORT_MONITOR.print("Your name: ");
-  SERIAL_PORT_MONITOR.println(owner.name);
-  SERIAL_PORT_MONITOR.print("and your surname: ");
-  SERIAL_PORT_MONITOR.println(owner.surname);
-  SERIAL_PORT_MONITOR.println("have been saved. Thank you!");
-}
+    // Print a confirmation of the data inserted.
+    SERIAL_PORT_MONITOR.println();
+    SERIAL_PORT_MONITOR.print("Your name: ");
+    SERIAL_PORT_MONITOR.println(owner.name);
+    SERIAL_PORT_MONITOR.print("and your surname: ");
+    SERIAL_PORT_MONITOR.println(owner.surname);
+    SERIAL_PORT_MONITOR.println("have been saved. Thank you!");
+  }
 
-// Prodigal son returns!
-void homecoming()
-{
-  // Say hello to the returning user!
-  SERIAL_PORT_MONITOR.println();
-  SERIAL_PORT_MONITOR.print("Hi ");
-  SERIAL_PORT_MONITOR.print(owner.name);
-  SERIAL_PORT_MONITOR.print(" ");
-  SERIAL_PORT_MONITOR.print(owner.surname);
-  SERIAL_PORT_MONITOR.println(", nice to see you again :-)");
-}
+  // Prodigal son returns!
+  void homecoming()
+  {
+    // Say hello to the returning user!
+    SERIAL_PORT_MONITOR.println();
+    SERIAL_PORT_MONITOR.print("Hi ");
+    SERIAL_PORT_MONITOR.print(owner.name);
+    SERIAL_PORT_MONITOR.print(" ");
+    SERIAL_PORT_MONITOR.print(owner.surname);
+    SERIAL_PORT_MONITOR.println(", nice to see you again :-)");
+  }
+#endif
