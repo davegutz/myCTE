@@ -58,6 +58,11 @@ public:
   void write(const volatile void *flash_ptr, const void *data, uint32_t size);
   void erase(const volatile void *flash_ptr, uint32_t size);
   void read(const volatile void *flash_ptr, void *data, uint32_t size);
+  uint32_t size(){ return flash_size; }
+  uint32_t page_size() { return PAGE_SIZE; }
+  uint32_t pages() { return PAGES; }
+  uint32_t max_flash() { return MAX_FLASH; }
+  uint32_t row_size() { return ROW_SIZE; }
 
 private:
   void erase(const volatile void *flash_ptr);
@@ -82,6 +87,12 @@ public:
   // Overloaded version of read.
   // Compiler is able to optimize copy-on-return.
   inline T read() { T data; read(&data); return data; }
+
+  uint32_t size() { return flash.size(); }
+  uint32_t page_size() { return flash.page_size(); }
+  uint32_t pages() { return flash.pages(); }
+  uint32_t max_flash() { return flash.max_flash(); }
+  uint32_t row_size() { return flash.row_size(); }
 
 private:
   FlashClass flash;

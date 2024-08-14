@@ -1,17 +1,43 @@
 /*
-  Arduino LSM6DS3 - Simple Accelerometer
-
-  This example reads the acceleration values from the LSM6DS3
-  sensor and continuously prints them to the Serial Monitor
-  or Serial Plotter.
+  Uses LSM6DS3 in Arduino Nano 33 IoT
+  This unit is reported to have BLE but I have not confirmed.
+  This unit requires special EEPROM handling using FlashStorage library.
 
   The circuit:
   - Arduino Uno WiFi Rev 2 or Arduino Nano 33 IoT
+  - USB for monitor and power
 
-  created 10 Jul 2019
-  by Riccardo Rizzo
+  created 10 Jul 2024
+  by Dave Gutz
 
   This example code is in the public domain.
+
+  Requirements:
+  1.  >500 Hz sampling of 6 dof IMU to support 25 Hz high fidelity analysis
+  2.  Capture and store and limited number of collisions for post download and analysis
+  3.  5 collisions for now
+  4.  Button cell battery
+  5.  UT managed by EEPROM.  OK to synchronize on restart before use.
+  6.  Store 'worst' 2 collisions in EEPROM.
+
+  Notes:
+  1.  IMU in Nano captures 6 dof IMU at 100 Hz.   Too slow but good for 20 Hz analysis
+  2.  A collision is approximately 3 seconds = 300 samples of 7 variables (6 dof + integer time).
+    Use experience to scale to 16 bit integers for storage of several collisions possible.  Need experiment soon.
+    Each collision would need 7 * 16 * 300 bits ~ 32k bits
+  3. Don't know how big EEPROM is.  Want to save 'worst' collision in EEPROM.  Always preserve 'worst'
+  in both EEPROM and RAM.
+  4. Arduino compiler with this barebones program says 27400 bytes left in RAM = 220 k bits enough for 4 collisions.
+  5. Arduino specs say EEPROM storage is 520 KB SRAM.
+    AMD21G18A Processor
+    256 kB Flash 32 kB Flash (256 is future possible EEPROM.  32 is now.)
+    Arduino reports:
+    EEPROM size: 201
+    EEPROM PAGE_SIZE: 64
+    EEPROM PAGES: 4096
+    EEPROM MAX_FLASH: 262144 bits = 32 kB  = 262144 / 7 / 16 = 2340 samples ~8 collisions.  Confirms info about 2nd Flash being available for EEPROM.
+    EEPROM ROW_SIZE: 256
+
 */
 
 #define USE_ARDUINO
@@ -40,7 +66,7 @@
 #define W_MAX                  100.     // Max rotational value, deg/s (20.)
 #define INPUT_BYTES             200     // Serial input buffer sizes
 #define SERIAL_BAUD          115200     // Serial baud rate
-// #define USE_EEPROM
+#define USE_EEPROM
 
 // Global
 cSF(serial_str, INPUT_BYTES, "");
@@ -84,6 +110,13 @@ void setup() {
 
     // Read the content of "my_flash_store" into the "owner" variable
     owner = my_flash_store.read();
+
+
+    Serial.print("EEPROM size: "); Serial.println(my_flash_store.size());
+    Serial.print("EEPROM PAGE_SIZE: "); Serial.println(my_flash_store.page_size());
+    Serial.print("EEPROM PAGES: "); Serial.println(my_flash_store.pages());
+    Serial.print("EEPROM MAX_FLASH: "); Serial.println(my_flash_store.max_flash());
+    Serial.print("EEPROM ROW_SIZE: "); Serial.println(my_flash_store.row_size());
 
     // If this is the first run the "valid" value should be "false"...
     if (owner.valid == false)
