@@ -40,7 +40,9 @@
 
 */
 
-#define USE_ARDUINO
+#include <SafeString.h>
+#include "FlashStorage.h"
+#include "constants.h"
 
 #ifdef USE_ARDUINO
   #include <Arduino.h> //needed for Serial.println
@@ -53,20 +55,6 @@
 // Dependent includes.   Easier to sp.debug code if remove unused include files
 #include "Sync.h"
 #include "myFilters.h"
-#include <SafeString.h>
-#include "FlashStorage.h"
-
-// Constants; anything numeric (adjustable)
-#define TALK_DELAY            313UL     // Talk wait, ms (313UL = 0.313 sec)
-#define READ_DELAY             10UL     // Sensor read wait, ms (10UL = 0.01 sec) Dr
-#define CONTROL_DELAY         100UL     // Control read wait, ms (100UL = 0.1 sec)
-#define PLOT_DELAY            100UL     // Plot wait, ms (100UL = 0.1 sec)
-#define TAU_FILT               0.05     // Tau filter, sec (0.05)
-#define G_MAX                  100.     // Max G value, g's (20.) 
-#define W_MAX                  100.     // Max rotational value, deg/s (20.)
-#define INPUT_BYTES             200     // Serial input buffer sizes
-#define SERIAL_BAUD          115200     // Serial baud rate
-#define USE_EEPROM
 
 // Global
 cSF(serial_str, INPUT_BYTES, "");
@@ -155,28 +143,10 @@ void loop()
   unsigned long long elapsed = 0;
   static boolean reset = true;
   static unsigned long long start = millis();
-  static LagExp *A_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
-  static LagExp *B_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
-  static LagExp *C_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
-  static LagExp *X_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);  // Update time and time constant changed on the fly
-  static LagExp *Y_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);  // Update time and time constant changed on the fly
-  static LagExp *Z_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);  // Update time and time constant changed on the fly
-  static float a = 0;
-  static float b = 0;
-  static float c = 0;
-  static float x = 0;
-  static float y = 0;
-  static float z = 0;
-  static float T = 0;
-  static float a_filt = 0;
-  static float b_filt = 0;
-  static float c_filt = 0;
-  static float x_filt = 0;
-  static float y_filt = 0;
-  static float z_filt = 0;
   boolean gyro_ready = false;
   boolean accel_ready = false;
   static boolean monitoring_past = monitoring;
+  static Sensors *Sen = new Sensors(millis(), double(NOM_DT));
 
 
   ///////////////////////////////////////////////////////////// Top of loop////////////////////////////////////////
@@ -192,22 +162,8 @@ void loop()
   // Read sensors
   if ( read )
   {
-    if (IMU.accelerationAvailable())
-    {
-      IMU.readAcceleration(x, y, z);
-      accel_ready = true;
-    }
-    if (IMU.gyroscopeAvailable())
-    {
-      IMU.readGyroscope(a, b, c);
-      gyro_ready = true;
-    }
-    a_filt = A_Filt->calculate(a, reset, TAU_FILT, T);
-    b_filt = B_Filt->calculate(b, reset, TAU_FILT, T);
-    c_filt = C_Filt->calculate(c, reset, TAU_FILT, T);
-    x_filt = X_Filt->calculate(x, reset, TAU_FILT, T);
-    y_filt = Y_Filt->calculate(y, reset, TAU_FILT, T);
-    z_filt = Z_Filt->calculate(z, reset, TAU_FILT, T);
+    Sen->sample(millis());
+    Sen->filter();
   }
 
   if ( publishing )
@@ -216,7 +172,7 @@ void loop()
     monitoring_past = monitoring;
     if ( monitoring || plotting )
     {
-      publish_print(T, a_filt, b_filt, c_filt, x_filt, y_filt, z_filt);
+      publish_print(Sen);
     }
   }
 
