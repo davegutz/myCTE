@@ -63,13 +63,13 @@ void Datum_st::nominal()
 }
 
 // Print functions
-void Datum_st::pretty_print(const String code)
+void Datum_st::pretty_print(SafeString &code)
 {
   char buffer[32];
   strcpy(buffer, "---");
-  if ( this->t_flt > 1UL )
+  if ( this->t_raw > 1UL )
   {
-    Serial.printf("code %s\n", code.c_str());
+    Serial.print("code "); Serial.println(code);
     time_long_2_str((time_t)this->t_raw, buffer);
     Serial.print("buffer "); Serial.println(buffer);
     Serial.print("t_raw "); Serial.println(t_raw);
@@ -83,7 +83,7 @@ void Datum_st::pretty_print(const String code)
 }
 
 
-void Datum_st::print_flt(const String code)
+void Datum_st::print_datum(SafeString &code)
 {
   char buffer[32];
   strcpy(buffer, "---");

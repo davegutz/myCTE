@@ -55,8 +55,10 @@
 // Dependent includes.   Easier to sp.debug code if remove unused include files
 #include "Sync.h"
 #include "myFilters.h"
+#include "Sensors.h"
 
 // Global
+cSF(unit, INPUT_BYTES);
 cSF(serial_str, INPUT_BYTES, "");
 cSF(input_str, INPUT_BYTES, "");
 boolean string_cpt = false;
@@ -83,6 +85,8 @@ boolean monitoring = false;
 
 // Setup
 void setup() {
+
+  unit = version.c_str(); unit  += "_"; unit += HDWE_UNIT.c_str();
 
   // Serial
   Serial.begin(SERIAL_BAUD);
@@ -155,15 +159,14 @@ void loop()
   read = ReadSensors->update(millis(), reset);
   chitchat = Talk->update(millis(), reset);
   elapsed = ReadSensors->now() - start;
-  T = ReadSensors->updateTime();
   control = ControlSync->update(millis(), reset);
   publishing = Plotting->update(millis(), reset) && ( plotting || monitoring );
 
   // Read sensors
   if ( read )
   {
-    Sen->sample(millis());
-    Sen->filter();
+    Sen->sample(reset, millis());
+    Sen->filter(reset);
   }
 
   if ( publishing )
@@ -280,21 +283,21 @@ boolean is_finished(const char in_char)
 }
 
 // Print publish
-void publish_print(const float T, const float a_filt, const float b_filt, const float c_filt, const float x_filt, const float y_filt, const float z_filt)
+void publish_print(Sensors *Sen)
 {
-  Serial.print(T);
+  Serial.print(Sen->T);
   Serial.print('\t');
-  Serial.print(a_filt);
+  Serial.print(Sen->a_filt);
   Serial.print('\t');
-  Serial.print(b_filt);
+  Serial.print(Sen->b_filt);
   Serial.print('\t');
-  Serial.print(c_filt);
+  Serial.print(Sen->c_filt);
   Serial.print('\t');
-  Serial.print(x_filt);
+  Serial.print(Sen->x_filt);
   Serial.print('\t');
-  Serial.print(y_filt);
+  Serial.print(Sen->y_filt);
   Serial.print('\t');
-  Serial.println(z_filt);
+  Serial.println(Sen->z_filt);
 }
 
 // Publish header

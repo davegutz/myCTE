@@ -24,6 +24,7 @@
 #ifndef _COLLDATUM_H
 #define _COLLDATUM_H
 
+#include <SafeString.h>
 #include "constants.h"
 #include "Sensors.h"
 
@@ -36,7 +37,7 @@
 #endif
 
 
-String time_long_2_str(const time_t current_time, char *tempStr);
+SafeString time_long_2_str(const time_t current_time, char *tempStr);
 
 // SRAM retention summary
 struct Datum_st
@@ -54,8 +55,8 @@ struct Datum_st
   void copy_to_datum_ram_from(Datum_st input);
   void get() {};
   void nominal();
-  void pretty_print(const String code);
-  void print_flt(const String code);
+  void pretty_print(SafeString &code);
+  void print_datum(SafeString &code);
   void put(Datum_st source);
   void put_nominal();
 };
@@ -134,7 +135,7 @@ public:
   #endif
 
 protected:
-  SerialRAM *rP_;
+  // SerialRAM *rP_;
   #ifdef USE_EEPROM
     address16b t_flt_eeram_;
     address16b Tb_hdwe_eeram_;

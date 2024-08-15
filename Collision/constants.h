@@ -34,7 +34,8 @@
 
 // Setup
 #include "local_config.h"
-const String unit = version + "_" + HDWE_UNIT;
+#include <SafeString.h>
+
 const double NOM_DT = 0.01;
 
 // Constants; anything numeric (adjustable)
