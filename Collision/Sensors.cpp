@@ -25,6 +25,50 @@
 #include "constants.h"
 #include "Sensors.h"
 
+// Filter noise
+void Sensors::filter(const boolean reset)
+{
+
+    if ( reset || acc_available )
+    {
+        x_filt = X_Filt->calculate(double(x_raw), reset, double(TAU_FILT), T_acc);
+        y_filt = Y_Filt->calculate(y_raw, reset, TAU_FILT, T_acc);
+        z_filt = Z_Filt->calculate(z_raw, reset, TAU_FILT, T_acc);
+    }
+
+    if ( reset || rot_available )
+    {
+        a_filt = A_Filt->calculate(a_raw, reset, TAU_FILT, T_rot);
+        b_filt = B_Filt->calculate(b_raw, reset, TAU_FILT, T_rot);
+        c_filt = C_Filt->calculate(c_raw, reset, TAU_FILT, T_rot);
+    }
+
+}
+
+// Publish header
+void Sensors::publish_header()
+{
+  Serial.println("T\ta_filt\tb_filt\tc_filt\tx_filt\ty_filt\tz_filt");
+}
+
+// Print publish
+void Sensors::publish_print()
+{
+  Serial.print(T);
+  Serial.print('\t');
+  Serial.print(a_filt);
+  Serial.print('\t');
+  Serial.print(b_filt);
+  Serial.print('\t');
+  Serial.print(c_filt);
+  Serial.print('\t');
+  Serial.print(x_filt);
+  Serial.print('\t');
+  Serial.print(y_filt);
+  Serial.print('\t');
+  Serial.println(z_filt);
+}
+
 // Sample the IMU
 void Sensors::sample(const boolean reset, const unsigned long long time_now)
 {
@@ -54,24 +98,4 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now)
     T_rot = max( double(time_now - time_rot_last) / 1000., NOM_DT );
     // Serial.print("sample: "); Serial.print(time_now); Serial.print(" "); Serial.print(time_acc_last); Serial.print(" "); Serial.println(T_acc);
     // Serial.print("acc_available: "); Serial.println(acc_available);
-}
-
-// Filter noise
-void Sensors::filter(const boolean reset)
-{
-
-    if ( reset || acc_available )
-    {
-        x_filt = X_Filt->calculate(double(x_raw), reset, double(TAU_FILT), T_acc);
-        y_filt = Y_Filt->calculate(y_raw, reset, TAU_FILT, T_acc);
-        z_filt = Z_Filt->calculate(z_raw, reset, TAU_FILT, T_acc);
-    }
-
-    if ( reset || rot_available )
-    {
-        a_filt = A_Filt->calculate(a_raw, reset, TAU_FILT, T_rot);
-        b_filt = B_Filt->calculate(b_raw, reset, TAU_FILT, T_rot);
-        c_filt = C_Filt->calculate(c_raw, reset, TAU_FILT, T_rot);
-    }
-
 }

@@ -174,12 +174,11 @@ void loop()
 
   if ( publishing )
   {
-    if ( plotting || ( monitoring && ( monitoring != monitoring_past ) ) ) print_header();
+    if ( plotting || ( monitoring && ( monitoring != monitoring_past ) ) ) Sen->publish_header();
     monitoring_past = monitoring;
     if ( monitoring || plotting )
     {
-      // Serial.println("publish_print");
-      publish_print(Sen);
+      Sen->publish_print();
     }
   }
 
@@ -286,30 +285,6 @@ boolean is_finished(const char in_char)
             in_char == '\0' ||
             in_char == ';'  ||
             in_char == ',';    
-}
-
-// Print publish
-void publish_print(Sensors *Sen)
-{
-  Serial.print(Sen->T);
-  Serial.print('\t');
-  Serial.print(Sen->a_filt);
-  Serial.print('\t');
-  Serial.print(Sen->b_filt);
-  Serial.print('\t');
-  Serial.print(Sen->c_filt);
-  Serial.print('\t');
-  Serial.print(Sen->x_filt);
-  Serial.print('\t');
-  Serial.print(Sen->y_filt);
-  Serial.print('\t');
-  Serial.println(Sen->z_filt);
-}
-
-// Publish header
-void print_header()
-{
-  Serial.println("T\ta_filt\tb_filt\tc_filt\tx_filt\ty_filt\tz_filt");
 }
 
 // Say hello

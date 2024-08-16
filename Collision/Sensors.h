@@ -61,6 +61,8 @@ public:
     ~Sensors(){};
 
     void filter(const boolean reset);
+    void publish_header();
+    void publish_print();
     void sample(const boolean reset, const unsigned long long time_now);
     double T;
     float a_raw;  // Gyroscope in degrees/second
