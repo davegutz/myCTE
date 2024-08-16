@@ -62,7 +62,8 @@ cSF(unit, INPUT_BYTES);
 cSF(serial_str, INPUT_BYTES, "");
 cSF(input_str, INPUT_BYTES, "");
 boolean string_cpt = false;
-boolean plotting = false;
+boolean plotting_all = false;
+boolean plotting_total = false;
 boolean monitoring = false;
 
 #ifdef USE_EEPROM
@@ -86,8 +87,7 @@ boolean monitoring = false;
 // Setup
 void setup() {
 
-  // unit = version.c_str(); unit  += "_"; unit += HDWE_UNIT.c_str();
-  unit = "myVersion_HDWE_UNIT";
+  unit = version.c_str(); unit  += "_"; unit += HDWE_UNIT.c_str();
 
   // Serial
   Serial.begin(SERIAL_BAUD);
@@ -174,12 +174,14 @@ void loop()
 
   if ( publishing )
   {
-    if ( plotting || ( monitoring && ( monitoring != monitoring_past ) ) ) Sen->publish_header();
+    if ( plotting_all || ( monitoring && ( monitoring != monitoring_past ) ) ) Sen->publish_all_header();
+    else if ( plotting_total || ( monitoring && ( monitoring != monitoring_past ) ) ) Sen->publish_total_header();
     monitoring_past = monitoring;
-    if ( monitoring || plotting )
+    if ( monitoring || plotting_all )
     {
-      Sen->publish_print();
+      Sen->publish_all();
     }
+    else if ( plotting_total ) Sen->publish_total();
   }
 
   gyro_ready = false;
@@ -197,18 +199,35 @@ void loop()
       switch ( input_str.charAt(0) )
       {
         case ( 'P' ):
-          plotting = !plotting;
-          monitoring = false;
-          break;
+          switch ( input_str.charAt(1) )
+          {
+            case ( 'a' ):
+              plotting_all = !plotting_all;
+              plotting_total = false;
+              monitoring = false;
+              break;
+            case ( 't' ):
+              plotting_total = !plotting_total;
+              plotting_all = false;
+              monitoring = false;
+              break;
+            default:
+              Serial.print(input_str.charAt(1)); Serial.println(" unknown");
+              break;
+          }
+        break;
         case ( 'M' ):
           monitoring = !monitoring;
-          plotting = false;
+          plotting_all = false;
+          plotting_total = false;
           break;
         default:
           Serial.print(input_str.charAt(0)); Serial.println(" unknown");
+          break;
       }
     }
     input_str = "";
+    
   }
     // Serial.println("end");
 

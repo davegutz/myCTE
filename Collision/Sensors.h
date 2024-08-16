@@ -46,45 +46,56 @@ public:
                 time_acc_last(0ULL), time_rot_last(0ULL)
     {
     };
-    Sensors(const unsigned long long time_now, const double NOM_DT ): T(0), a_raw(0), b_raw(0), c_raw(0), x_raw(0), y_raw(0), z_raw(0),
-                a_filt(0), b_filt(0), c_filt(0), x_filt(0), y_filt(0), z_filt(0),
-                time_acc_last(time_now), time_rot_last(time_now)
+    Sensors(const unsigned long long time_now, const double NOM_DT ): T(0),
+      a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
+      x_raw(0), y_raw(0), z_raw(0), g_raw(0), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
+      time_acc_last(time_now), time_rot_last(time_now)
     {
-        A_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
-        B_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
-        C_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
-        X_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);  // Update time and time constant changed on the fly
-        Y_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);  // Update time and time constant changed on the fly
-        Z_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);  // Update time and time constant changed on the fly
+        A_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);  // Update time and time constant changed on the fly
+        B_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);  // Update time and time constant changed on the fly
+        C_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);  // Update time and time constant changed on the fly
+        O_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);  // Update time and time constant changed on the fly
+        X_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
+        Y_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
+        Z_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
+        G_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
     };
     unsigned long long millis;
     ~Sensors(){};
 
     void filter(const boolean reset);
-    void publish_header();
-    void publish_print();
+    void publish_all_header();
+    void publish_all();
+    void publish_total_header();
+    void publish_total();
     void sample(const boolean reset, const unsigned long long time_now);
     double T;
     float a_raw;  // Gyroscope in degrees/second
     float b_raw;  // Gyroscope in degrees/second
     float c_raw;  // Gyroscope in degrees/second
+    float o_raw;  // Total gyroscope in degrees/second
     float x_raw;  // Acceleration in g's
     float y_raw;  // Acceleration in g's
     float z_raw;  // Acceleration in g's
+    float g_raw;  // Total acceleration in g's
     float a_filt;
     float b_filt;
     float c_filt;
+    float o_filt;
     float x_filt;
     float y_filt;
     float z_filt;
+    float g_filt;
 protected:
     LagExp *A_Filt;     // Noise filter
     LagExp *B_Filt;     // Noise filter
     LagExp *C_Filt;     // Noise filter
+    LagExp *O_Filt;     // Noise filter
     LagExp *X_Filt;     // Noise filter
     LagExp *Y_Filt;     // Noise filter
     LagExp *Z_Filt;     // Noise filter
-    unsigned long long time_acc_last;
+    LagExp *G_Filt;     // Noise filter
+unsigned long long time_acc_last;
     unsigned long long time_rot_last;
     double T_acc;
     double T_rot;

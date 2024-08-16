@@ -31,9 +31,10 @@ void Sensors::filter(const boolean reset)
 
     if ( reset || acc_available )
     {
-        x_filt = X_Filt->calculate(double(x_raw), reset, double(TAU_FILT), T_acc);
+        x_filt = X_Filt->calculate(x_raw, reset, TAU_FILT, T_acc);
         y_filt = Y_Filt->calculate(y_raw, reset, TAU_FILT, T_acc);
         z_filt = Z_Filt->calculate(z_raw, reset, TAU_FILT, T_acc);
+        g_filt = G_Filt->calculate(g_raw, reset, TAU_FILT, T_acc);
     }
 
     if ( reset || rot_available )
@@ -41,18 +42,19 @@ void Sensors::filter(const boolean reset)
         a_filt = A_Filt->calculate(a_raw, reset, TAU_FILT, T_rot);
         b_filt = B_Filt->calculate(b_raw, reset, TAU_FILT, T_rot);
         c_filt = C_Filt->calculate(c_raw, reset, TAU_FILT, T_rot);
+        o_filt = O_Filt->calculate(o_raw, reset, TAU_FILT, T_rot);
     }
 
 }
 
 // Publish header
-void Sensors::publish_header()
+void Sensors::publish_all_header()
 {
-  Serial.println("T\ta_filt\tb_filt\tc_filt\tx_filt\ty_filt\tz_filt");
+  Serial.println("T\ta_filt\tb_filt\tc_filt\to_filt\t\tx_filt\ty_filt\tz_filt\tg_filt");
 }
 
 // Print publish
-void Sensors::publish_print()
+void Sensors::publish_all()
 {
   Serial.print(T);
   Serial.print('\t');
@@ -62,11 +64,32 @@ void Sensors::publish_print()
   Serial.print('\t');
   Serial.print(c_filt);
   Serial.print('\t');
+  Serial.print(o_filt);
+  Serial.print('\t');
+  Serial.print('\t');
   Serial.print(x_filt);
   Serial.print('\t');
   Serial.print(y_filt);
   Serial.print('\t');
-  Serial.println(z_filt);
+  Serial.print(z_filt);
+  Serial.print('\t');
+  Serial.println(g_filt);
+}
+
+void Sensors::publish_total_header()
+{
+  Serial.println("T\to_filt\tg_filt");
+}
+
+// Print publish
+void Sensors::publish_total()
+{
+  Serial.print(T);
+  Serial.print('\t');
+  Serial.print(o_filt);
+  Serial.print('\t');
+  Serial.print('\t');
+  Serial.println(g_filt);
 }
 
 // Sample the IMU
@@ -84,6 +107,7 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now)
         IMU.readAcceleration(x_raw, y_raw, z_raw);
         time_acc_last = time_now;
         acc_available = true;
+        g_raw = sqrt(x_raw*x_raw + y_raw*y_raw + z_raw*z_raw);
     }
     else acc_available = false;
     T_acc = max( double(time_now - time_acc_last) / 1000., NOM_DT );
@@ -93,6 +117,7 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now)
         IMU.readGyroscope(a_raw, b_raw, c_raw);
         time_rot_last = time_now;
         rot_available = true;
+        o_raw = sqrt(a_raw*a_raw + b_raw*b_raw + c_raw*c_raw);
     }
     else rot_available = false;
     T_rot = max( double(time_now - time_rot_last) / 1000., NOM_DT );
