@@ -37,16 +37,17 @@
 #include <SafeString.h>
 
 const double NOM_DT = 0.01;
+const float deg_to_rps = 0.0174533;
 
 // Constants; anything numeric (adjustable)
 // #define NOM_DT                 0.01     // Nominal time step, placeholder overwritten with measured time, sec (0.01)
 #define TALK_DELAY            313UL     // Talk wait, ms (313UL = 0.313 sec)
 #define READ_DELAY             10UL     // Sensor read wait, ms (10UL = 0.01 sec) Dr
 #define CONTROL_DELAY         100UL     // Control read wait, ms (100UL = 0.1 sec)
-#define PLOT_DELAY            100UL     // Plot wait, ms (100UL = 0.1 sec)
-#define TAU_FILT               0.05     // Tau filter, sec (0.05)
-#define G_MAX                  100.     // Max G value, g's (20.) 
-#define W_MAX                  100.     // Max rotational value, deg/s (20.)
+#define PLOT_DELAY             20UL     // Plot wait, ms (20UL = 0.02 sec)
+#define TAU_FILT               0.01     // Tau filter, sec (0.01)
+#define G_MAX                   20.     // Max G value, g's (20.) 
+#define W_MAX                   20.     // Max rotational value, rps (20.)
 #define INPUT_BYTES             200     // Serial input buffer sizes
 #define SERIAL_BAUD          115200     // Serial baud rate
 

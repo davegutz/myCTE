@@ -50,13 +50,13 @@ void Sensors::filter(const boolean reset)
 // Publish header
 void Sensors::publish_all_header()
 {
-  Serial.println("T\ta_filt\tb_filt\tc_filt\to_filt\t\tx_filt\ty_filt\tz_filt\tg_filt");
+  Serial.println("T_rot*100\ta_filt\tb_filt\tc_filt\to_filt\t\tT_acc*100\tx_filt\ty_filt\tz_filt\tg_filt");
 }
 
 // Print publish
 void Sensors::publish_all()
 {
-  Serial.print(T);
+  Serial.print(T_rot*100.);
   Serial.print('\t');
   Serial.print(a_filt);
   Serial.print('\t');
@@ -66,6 +66,8 @@ void Sensors::publish_all()
   Serial.print('\t');
   Serial.print(o_filt);
   Serial.print('\t');
+  Serial.print('\t');
+  Serial.print(T_acc*100.);
   Serial.print('\t');
   Serial.print(x_filt);
   Serial.print('\t');
@@ -78,16 +80,18 @@ void Sensors::publish_all()
 
 void Sensors::publish_total_header()
 {
-  Serial.println("T\to_filt\tg_filt");
+  Serial.println("T_rot*100\to_filt\t\tT_acc*100\tg_filt");
 }
 
 // Print publish
 void Sensors::publish_total()
 {
-  Serial.print(T);
+  Serial.print(T_rot*100.);
   Serial.print('\t');
   Serial.print(o_filt);
   Serial.print('\t');
+  Serial.print('\t');
+  Serial.print(T_acc*100.);
   Serial.print('\t');
   Serial.println(g_filt);
 }
@@ -95,13 +99,14 @@ void Sensors::publish_total()
 // Sample the IMU
 void Sensors::sample(const boolean reset, const unsigned long long time_now)
 {
-
+    // Reset
     if ( reset )
     {
         time_rot_last = time_now;
         time_acc_last = time_now;
     }
 
+    // Accelerometer
     if ( !reset && IMU.accelerationAvailable() )
     {
         IMU.readAcceleration(x_raw, y_raw, z_raw);
@@ -112,15 +117,20 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now)
     else acc_available = false;
     T_acc = max( double(time_now - time_acc_last) / 1000., NOM_DT );
 
+    // Gyroscope
     if ( !reset && IMU.gyroscopeAvailable() )
     {
         IMU.readGyroscope(a_raw, b_raw, c_raw);
+        a_raw *= deg_to_rps;
+        b_raw *= deg_to_rps;
+        c_raw *= deg_to_rps;
         time_rot_last = time_now;
         rot_available = true;
         o_raw = sqrt(a_raw*a_raw + b_raw*b_raw + c_raw*c_raw);
     }
     else rot_available = false;
     T_rot = max( double(time_now - time_rot_last) / 1000., NOM_DT );
+
     // Serial.print("sample: "); Serial.print(time_now); Serial.print(" "); Serial.print(time_acc_last); Serial.print(" "); Serial.println(T_acc);
     // Serial.print("acc_available: "); Serial.println(acc_available);
 }

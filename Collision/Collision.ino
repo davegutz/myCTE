@@ -198,7 +198,7 @@ void loop()
     {
       switch ( input_str.charAt(0) )
       {
-        case ( 'P' ):
+        case ( 'p' ):
           switch ( input_str.charAt(1) )
           {
             case ( 'a' ):
@@ -216,10 +216,19 @@ void loop()
               break;
           }
         break;
-        case ( 'M' ):
+        case ( 'm' ):
           monitoring = !monitoring;
           plotting_all = false;
           plotting_total = false;
+          break;
+        case ( 'h' ):
+          monitoring = false;
+          plotting_all = false;
+          plotting_total = false;
+          Serial.println("HELP");
+          Serial.println("pa - plot all filtered on Ctrl+shift+L");
+          Serial.println("pt - plot total (rss) on Ctrl+shift+L");
+          Serial.println("m  - print all on Ctrl+shift+M");
           break;
         default:
           Serial.print(input_str.charAt(0)); Serial.println(" unknown");

@@ -51,14 +51,15 @@ public:
       x_raw(0), y_raw(0), z_raw(0), g_raw(0), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
       time_acc_last(time_now), time_rot_last(time_now)
     {
-        A_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);  // Update time and time constant changed on the fly
-        B_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);  // Update time and time constant changed on the fly
-        C_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);  // Update time and time constant changed on the fly
-        O_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);  // Update time and time constant changed on the fly
-        X_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
-        Y_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
-        Z_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
-        G_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);  // Update time and time constant changed on the fly
+        // Update time and time constant changed on the fly
+        A_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);
+        B_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);
+        C_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);
+        O_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);
+        X_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);
+        Y_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);
+        Z_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);
+        G_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);
     };
     unsigned long long millis;
     ~Sensors(){};
@@ -70,14 +71,16 @@ public:
     void publish_total();
     void sample(const boolean reset, const unsigned long long time_now);
     double T;
-    float a_raw;  // Gyroscope in degrees/second
-    float b_raw;  // Gyroscope in degrees/second
-    float c_raw;  // Gyroscope in degrees/second
-    float o_raw;  // Total gyroscope in degrees/second
-    float x_raw;  // Acceleration in g's
-    float y_raw;  // Acceleration in g's
-    float z_raw;  // Acceleration in g's
-    float g_raw;  // Total acceleration in g's
+    // Gyroscope in radians/second
+    float a_raw;
+    float b_raw;
+    float c_raw;
+    float o_raw;  // Total gyroscope
+    // Acceleration in g's
+    float x_raw;
+    float y_raw;
+    float z_raw;
+    float g_raw;  // Total acceleration
     float a_filt;
     float b_filt;
     float c_filt;
