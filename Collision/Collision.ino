@@ -161,7 +161,7 @@ void loop()
   chitchat = Talk->update(millis(), reset);
   elapsed = ReadSensors->now() - start;
   control = ControlSync->update(millis(), reset);
-  publishing = Plotting->update(millis(), reset) && ( plotting || monitoring );
+  publishing = Plotting->update(millis(), reset);
 
   // Read sensors
   if ( read )
