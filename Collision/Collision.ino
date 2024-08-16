@@ -86,7 +86,8 @@ boolean monitoring = false;
 // Setup
 void setup() {
 
-  unit = version.c_str(); unit  += "_"; unit += HDWE_UNIT.c_str();
+  // unit = version.c_str(); unit  += "_"; unit += HDWE_UNIT.c_str();
+  unit = "myVersion_HDWE_UNIT";
 
   // Serial
   Serial.begin(SERIAL_BAUD);
@@ -165,7 +166,9 @@ void loop()
   // Read sensors
   if ( read )
   {
+    // Serial.println("Reading sensors");
     Sen->sample(reset, millis());
+    // Serial.println("Filtering sensors");
     Sen->filter(reset);
   }
 
@@ -175,6 +178,7 @@ void loop()
     monitoring_past = monitoring;
     if ( monitoring || plotting )
     {
+      // Serial.println("publish_print");
       publish_print(Sen);
     }
   }
@@ -187,6 +191,7 @@ void loop()
 
   if ( chitchat )
   {
+    // Serial.println("chitchat");
     read_serial();  // returns one command at a time
     if ( input_str.length() )
     {
@@ -206,6 +211,7 @@ void loop()
     }
     input_str = "";
   }
+    // Serial.println("end");
 
 
 }  // loop

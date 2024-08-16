@@ -38,21 +38,22 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now)
     if ( !reset && IMU.accelerationAvailable() )
     {
         IMU.readAcceleration(x_raw, y_raw, z_raw);
-        T_acc = double(time_now - time_rot_last) / 1000.;
         time_acc_last = time_now;
         acc_available = true;
     }
     else acc_available = false;
+    T_acc = max( double(time_now - time_acc_last) / 1000., NOM_DT );
 
     if ( !reset && IMU.gyroscopeAvailable() )
     {
         IMU.readGyroscope(a_raw, b_raw, c_raw);
-        T_rot = double(time_now - time_rot_last) / 1000.;
         time_rot_last = time_now;
         rot_available = true;
     }
     else rot_available = false;
-
+    T_rot = max( double(time_now - time_rot_last) / 1000., NOM_DT );
+    // Serial.print("sample: "); Serial.print(time_now); Serial.print(" "); Serial.print(time_acc_last); Serial.print(" "); Serial.println(T_acc);
+    // Serial.print("acc_available: "); Serial.println(acc_available);
 }
 
 // Filter noise
@@ -61,7 +62,7 @@ void Sensors::filter(const boolean reset)
 
     if ( reset || acc_available )
     {
-        x_filt = X_Filt->calculate(x_raw, reset, TAU_FILT, T_acc);
+        x_filt = X_Filt->calculate(double(x_raw), reset, double(TAU_FILT), T_acc);
         y_filt = Y_Filt->calculate(y_raw, reset, TAU_FILT, T_acc);
         z_filt = Z_Filt->calculate(z_raw, reset, TAU_FILT, T_acc);
     }
