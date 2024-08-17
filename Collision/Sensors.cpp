@@ -54,12 +54,20 @@ void Sensors::filter(const boolean reset)
 // Publish header
 void Sensors::publish_all_header()
 {
-  Serial.println("T_rot*100\ta_filt\tb_filt\tc_filt\to_filt\t\tT_acc*100\tx_filt\ty_filt\tz_filt\tg_filt");
+  Serial.println("T_rot*100\ta_filt\tb_filt\tc_filt\to_filt\to_is_quiet-4\to_is_quiet_sure-4\t\tT_acc*100\tx_filt\ty_filt\tz_filt\tg_filt-1\tg_is_quiet-2\tg_is_quiet_sure-2");
 }
 
 // Print publish
 void Sensors::publish_all()
 {
+  float o_q = -4.;
+  float o_q_s = -4.; 
+  if ( o_is_quiet ) o_q = -3;
+  if ( o_is_quiet_sure ) o_q_s = -3;
+  float g_q = -2.;
+  float g_q_s = -2.; 
+  if ( g_is_quiet ) g_q = -1;
+  if ( g_is_quiet_sure ) g_q_s = -1;
   Serial.print(T_rot*100.);
   Serial.print('\t');
   Serial.print(a_filt);
@@ -70,7 +78,10 @@ void Sensors::publish_all()
   Serial.print('\t');
   Serial.print(o_filt);
   Serial.print('\t');
+  Serial.print(o_q);
   Serial.print('\t');
+  Serial.print(o_q_s);
+  Serial.print("\t\t");
   Serial.print(T_acc*100.);
   Serial.print('\t');
   Serial.print(x_filt);
@@ -79,12 +90,16 @@ void Sensors::publish_all()
   Serial.print('\t');
   Serial.print(z_filt);
   Serial.print('\t');
-  Serial.println(g_filt);
+  Serial.print(g_filt-1.);
+  Serial.print('\t');
+  Serial.print(g_q);
+  Serial.print('\t');
+  Serial.println(g_q_s);
 }
 
 void Sensors::publish_quiet_header()
 {
-  Serial.println("T_rot*100\to_filt\to_quiet\to_is_quiet-4\to_is_quiet_sure-4\t\tT_acc*100\t\tg_filt\tg_quiet\tg_is_quiet-2\tg_is_quiet_sure-2");
+  Serial.println("T_rot*100\to_filt\to_quiet\to_is_quiet-4\to_is_quiet_sure-4\t\tT_acc*100\t\tg_filt-1\tg_quiet\tg_is_quiet-2\tg_is_quiet_sure-2");
 }
 
 // Print publish
@@ -110,7 +125,7 @@ void Sensors::publish_quiet()
   Serial.print("\t\t");
   Serial.print(T_acc*100.);
   Serial.print('\t');
-  Serial.print(g_filt);
+  Serial.print(g_filt-1.);
   Serial.print('\t');
   Serial.print(g_quiet);
   Serial.print('\t');
@@ -156,9 +171,9 @@ void Sensors::publish_total()
 void Sensors::quiet_decisions(const boolean reset)
 {
   o_is_quiet = abs(o_quiet)<=O_QUIET_THR && !reset;   // initializes false
-  o_is_quiet_sure = OQuietPer->calculate(o_is_quiet, QUIET_S, QUIET_R, T);
+  o_is_quiet_sure = OQuietPer->calculate(o_is_quiet, QUIET_S, QUIET_R, T, reset);
   g_is_quiet = abs(g_quiet)<=G_QUIET_THR && !reset;   // initializes false
-  g_is_quiet_sure = GQuietPer->calculate(g_is_quiet, QUIET_S, QUIET_R, T);
+  g_is_quiet_sure = GQuietPer->calculate(g_is_quiet, QUIET_S, QUIET_R, T, reset);
 }
 
 // Sample the IMU

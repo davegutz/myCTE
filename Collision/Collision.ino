@@ -210,28 +210,30 @@ void loop()
           {
             case ( 'a' ):
               plotting_all = !plotting_all;
-              plotting_total = false;
               plotting_quiet = false;
               plotting_quiet_raw = false;
+              plotting_total = false;
               monitoring = false;
               break;
             case ( 'q' ):
+              plotting_all = false;
               plotting_quiet = !plotting_quiet;
               plotting_quiet_raw = false;
               plotting_total = false;
               monitoring = false;
               break;
             case ( 'r' ):
-              plotting_quiet_raw = !plotting_quiet_raw;
+              plotting_all = false;
               plotting_quiet = false;
+              plotting_quiet_raw = !plotting_quiet_raw;
               plotting_total = false;
               monitoring = false;
               break;
             case ( 't' ):
-              plotting_total = !plotting_total;
               plotting_all = false;
               plotting_quiet = false;
               plotting_quiet_raw = false;
+              plotting_total = !plotting_total;
               monitoring = false;
               break;
             default:
@@ -240,16 +242,18 @@ void loop()
           }
         break;
         case ( 'm' ):
-          monitoring = !monitoring;
           plotting_all = false;
-          plotting_total = false;
           plotting_quiet = false;
+          plotting_quiet_raw = false;
+          plotting_total = false;
+          monitoring = !monitoring;
           break;
         case ( 'h' ):
-          monitoring = false;
           plotting_all = false;
-          plotting_total = false;
           plotting_quiet = false;
+          plotting_quiet_raw = false;
+          plotting_total = false;
+          monitoring = false;
           Serial.println("HELP");
           Serial.println("pa - plot all filtered on Ctrl+shift+L");
           Serial.println("pt - plot total (rss) on Ctrl+shift+L");
