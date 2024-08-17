@@ -63,6 +63,8 @@ cSF(serial_str, INPUT_BYTES, "");
 cSF(input_str, INPUT_BYTES, "");
 boolean string_cpt = false;
 boolean plotting_all = false;
+boolean plotting_quiet = false;
+boolean plotting_quiet_raw = false;
 boolean plotting_total = false;
 boolean monitoring = false;
 
@@ -170,18 +172,23 @@ void loop()
     Sen->sample(reset, millis());
     // Serial.println("Filtering sensors");
     Sen->filter(reset);
+    Sen->quiet_decisions(reset);
   }
 
   if ( publishing )
   {
     if ( plotting_all || ( monitoring && ( monitoring != monitoring_past ) ) ) Sen->publish_all_header();
+    else if ( plotting_quiet || ( monitoring && ( monitoring != monitoring_past ) ) ) Sen->publish_quiet_header();
+    else if ( plotting_quiet_raw || ( monitoring && ( monitoring != monitoring_past ) ) ) Sen->publish_quiet_raw_header();
     else if ( plotting_total || ( monitoring && ( monitoring != monitoring_past ) ) ) Sen->publish_total_header();
-    monitoring_past = monitoring;
-    if ( monitoring || plotting_all )
-    {
-      Sen->publish_all();
-    }
+
+        if ( monitoring ) Sen->publish_all();
+    else if ( plotting_all )  Sen->publish_all();
+    else if ( plotting_quiet ) Sen->publish_quiet();
+    else if ( plotting_quiet_raw ) Sen->publish_quiet_raw();
     else if ( plotting_total ) Sen->publish_total();
+
+    monitoring_past = monitoring;
   }
 
   gyro_ready = false;
@@ -204,11 +211,27 @@ void loop()
             case ( 'a' ):
               plotting_all = !plotting_all;
               plotting_total = false;
+              plotting_quiet = false;
+              plotting_quiet_raw = false;
+              monitoring = false;
+              break;
+            case ( 'q' ):
+              plotting_quiet = !plotting_quiet;
+              plotting_quiet_raw = false;
+              plotting_total = false;
+              monitoring = false;
+              break;
+            case ( 'r' ):
+              plotting_quiet_raw = !plotting_quiet_raw;
+              plotting_quiet = false;
+              plotting_total = false;
               monitoring = false;
               break;
             case ( 't' ):
               plotting_total = !plotting_total;
               plotting_all = false;
+              plotting_quiet = false;
+              plotting_quiet_raw = false;
               monitoring = false;
               break;
             default:
@@ -220,11 +243,13 @@ void loop()
           monitoring = !monitoring;
           plotting_all = false;
           plotting_total = false;
+          plotting_quiet = false;
           break;
         case ( 'h' ):
           monitoring = false;
           plotting_all = false;
           plotting_total = false;
+          plotting_quiet = false;
           Serial.println("HELP");
           Serial.println("pa - plot all filtered on Ctrl+shift+L");
           Serial.println("pt - plot total (rss) on Ctrl+shift+L");

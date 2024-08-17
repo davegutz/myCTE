@@ -52,14 +52,23 @@ public:
       time_acc_last(time_now), time_rot_last(time_now)
     {
         // Update time and time constant changed on the fly
-        A_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);
-        B_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);
-        C_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);
-        O_Filt = new LagExp(READ_DELAY, TAU_FILT, -W_MAX, W_MAX);
-        X_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);
-        Y_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);
-        Z_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);
-        G_Filt = new LagExp(READ_DELAY, TAU_FILT, -G_MAX, G_MAX);
+        float Tfilt_init = READ_DELAY/1000.;
+        
+        A_Filt = new LagExp(Tfilt_init, TAU_FILT, -W_MAX, W_MAX);
+        B_Filt = new LagExp(Tfilt_init, TAU_FILT, -W_MAX, W_MAX);
+        C_Filt = new LagExp(Tfilt_init, TAU_FILT, -W_MAX, W_MAX);
+        O_Filt = new LagExp(Tfilt_init, TAU_FILT, -W_MAX, W_MAX);
+        OQuietFilt = new General2_Pole(Tfilt_init, WN_Q_FILT, ZETA_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);  // actual update time provided run time
+        OQuietRate = new RateLagExp(Tfilt_init, TAU_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);
+        OQuietPer = new TFDelay(false, QUIET_S, QUIET_R, Tfilt_init);
+        
+        X_Filt = new LagExp(Tfilt_init, TAU_FILT, -G_MAX, G_MAX);
+        Y_Filt = new LagExp(Tfilt_init, TAU_FILT, -G_MAX, G_MAX);
+        Z_Filt = new LagExp(Tfilt_init, TAU_FILT, -G_MAX, G_MAX);
+        G_Filt = new LagExp(Tfilt_init, TAU_FILT, -G_MAX, G_MAX);
+        GQuietFilt = new General2_Pole(Tfilt_init, WN_Q_FILT, ZETA_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);  // actual update time provided run time
+        GQuietRate = new RateLagExp(Tfilt_init, TAU_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);
+        GQuietPer = new TFDelay(false, QUIET_S, QUIET_R, Tfilt_init);
     };
     unsigned long long millis;
     ~Sensors(){};
@@ -67,8 +76,13 @@ public:
     void filter(const boolean reset);
     void publish_all_header();
     void publish_all();
+    void publish_quiet_header();
+    void publish_quiet();
+    void publish_quiet_raw_header();
+    void publish_quiet_raw();
     void publish_total_header();
     void publish_total();
+    void quiet_decisions(const boolean reset);
     void sample(const boolean reset, const unsigned long long time_now);
     double T;
     // Gyroscope in radians/second
@@ -85,25 +99,39 @@ public:
     float b_filt;
     float c_filt;
     float o_filt;
+    float o_qrate;
+    float o_quiet;
     float x_filt;
     float y_filt;
     float z_filt;
     float g_filt;
+    float g_qrate;
+    float g_quiet;
 protected:
     LagExp *A_Filt;     // Noise filter
     LagExp *B_Filt;     // Noise filter
     LagExp *C_Filt;     // Noise filter
     LagExp *O_Filt;     // Noise filter
+    General2_Pole *OQuietFilt; // Quiet detector
+    RateLagExp *OQuietRate;    // Quiet detector
+    TFDelay *OQuietPer; // Persistence ib quiet disconnect detection
     LagExp *X_Filt;     // Noise filter
     LagExp *Y_Filt;     // Noise filter
     LagExp *Z_Filt;     // Noise filter
     LagExp *G_Filt;     // Noise filter
-unsigned long long time_acc_last;
+    General2_Pole *GQuietFilt; // Quiet detector
+    RateLagExp *GQuietRate;    // Quiet detector
+    TFDelay *GQuietPer; // Persistence ib quiet disconnect detection
+    unsigned long long time_acc_last;
     unsigned long long time_rot_last;
     double T_acc;
     double T_rot;
     boolean acc_available;
     boolean rot_available;
+    boolean o_is_quiet;
+    boolean o_is_quiet_sure;
+    boolean g_is_quiet;
+    boolean g_is_quiet_sure;
 };
 
 #endif
