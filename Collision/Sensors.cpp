@@ -171,9 +171,9 @@ void Sensors::publish_total()
 void Sensors::quiet_decisions(const boolean reset)
 {
   o_is_quiet = abs(o_quiet)<=O_QUIET_THR && !reset;   // initializes false
-  o_is_quiet_sure = OQuietPer->calculate(o_is_quiet, QUIET_S, QUIET_R, T, reset);
+  o_is_quiet_sure = OQuietPer->calculate(o_is_quiet, QUIET_S, QUIET_R, T_rot, reset);
   g_is_quiet = abs(g_quiet)<=G_QUIET_THR && !reset;   // initializes false
-  g_is_quiet_sure = GQuietPer->calculate(g_is_quiet, QUIET_S, QUIET_R, T, reset);
+  g_is_quiet_sure = GQuietPer->calculate(g_is_quiet, QUIET_S, QUIET_R, T_acc, reset);
 }
 
 // Sample the IMU

@@ -10,6 +10,8 @@
 #include "myFilters.h"
 #include "math.h"
 
+extern int debug;
+
 // class Debounce
 // constructors
 Debounce::Debounce()

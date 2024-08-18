@@ -34,6 +34,7 @@
 #endif
 
 #include "myFilters.h"
+extern int debug;
 
 
 
@@ -41,12 +42,12 @@
 class Sensors
 {
 public:
-    Sensors(): T(0), a_raw(0), b_raw(0), c_raw(0), x_raw(0), y_raw(0), z_raw(0),
-                a_filt(0), b_filt(0), c_filt(0), x_filt(0), y_filt(0), z_filt(0),
-                time_acc_last(0ULL), time_rot_last(0ULL)
-    {
-    };
-    Sensors(const unsigned long long time_now, const double NOM_DT ): T(0),
+    Sensors():
+      a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
+      x_raw(0), y_raw(0), z_raw(0), g_raw(0), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
+      time_acc_last(0ULL), time_rot_last(0ULL)
+    {};
+    Sensors(const unsigned long long time_now, const double NOM_DT ):
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(0), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
       time_acc_last(time_now), time_rot_last(time_now)
@@ -84,7 +85,6 @@ public:
     void publish_total();
     void quiet_decisions(const boolean reset);
     void sample(const boolean reset, const unsigned long long time_now);
-    double T;
     // Gyroscope in radians/second
     float a_raw;
     float b_raw;

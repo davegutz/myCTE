@@ -15,6 +15,7 @@
 
 #ifdef USE_ARDUINO
   #include <Arduino.h> //needed for Serial.println
+  #define boolean bool
 #else
   #include "application.h"
 #endif

@@ -68,6 +68,10 @@ boolean plotting_quiet_raw = false;
 boolean plotting_total = false;
 boolean monitoring = false;
 
+extern int debug;
+int debug = 0;
+
+
 #ifdef USE_EEPROM
   // Reserve a portion of flash memory to store a "Person" and
   // call it "my_flash_store".
@@ -259,6 +263,17 @@ void loop()
           Serial.println("pt - plot total (rss) on Ctrl+shift+L");
           Serial.println("m  - print all on Ctrl+shift+M");
           break;
+        case ( 'v' ):
+          switch ( input_str.charAt(1) )
+          {
+            case ( 'v' ):
+              input_str.substring(input_str, 2).toInt(debug);
+            break;
+            default:
+              Serial.print(input_str.charAt(1)); Serial.println(" unknown");
+              break;
+          }
+        break;
         default:
           Serial.print(input_str.charAt(0)); Serial.println(" unknown");
           break;
