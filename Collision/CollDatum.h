@@ -27,6 +27,7 @@
 #include <SafeString.h>
 #include "constants.h"
 #include "Sensors.h"
+#include "TimeLib.h"
 
 #ifdef USE_ARDUINO
   #include <Arduino.h> //needed for Serial.println
@@ -36,27 +37,33 @@
   #include "application.h"  // Particle
 #endif
 
+extern time_t time_initial;
 
-SafeString time_long_2_str(const time_t current_time, char *tempStr);
+
+void time_long_2_str(const time_t time, SafeString &tempStr);
+
 
 // SRAM retention summary
 struct Datum_st
 {
-  unsigned long t_raw = 1UL; // Timestamp seconds since start of epoch
-  int16_t a_raw = 0;  // Gyroscope in degrees/second
-  int16_t b_raw = 0;  // Gyroscope in degrees/second
-  int16_t c_raw = 0;  // Gyroscope in degrees/second
-  int16_t x_raw = 0;  // Acceleration in g's
-  int16_t y_raw = 0;  // Acceleration in g's
-  int16_t z_raw = 0;  // Acceleration in g's
+  time_t t_filt = 1UL; // Timestamp seconds since start of epoch
+  // Gyroscope in radians/second
+  int16_t a_filt = 0;
+  int16_t b_filt = 0;
+  int16_t c_filt = 0;
+  int16_t o_filt = 0;
+  // Acceleration in g's  
+  int16_t x_filt = 0;
+  int16_t y_filt = 0;
+  int16_t z_filt = 0;
+  int16_t g_filt = 0;
   unsigned long dummy = 0;  // padding to absorb Wire.write corruption
 
-  void assign(const unsigned long now, Sensors *Sen);
+  void assign(const time_t now, Sensors *Sen);
   void copy_to_datum_ram_from(Datum_st input);
   void get() {};
   void nominal();
-  void pretty_print(SafeString &code);
-  void print_datum(SafeString &code);
+  void print();
   void put(Datum_st source);
   void put_nominal();
 };
@@ -125,13 +132,15 @@ public:
     void put_fltw(const uint16_t value)           { rP_->put(fltw_eeram_.a16, value);         fltw = value; };
     void put_falw(const uint16_t value)           { rP_->put(falw_eeram_.a16, value);         falw = value; };
   #else
-    void put_time_ut(const unsigned long value)   { t_raw = value; };
-    void put_a_raw(const int16_t value)           { a_raw = value; };
-    void put_b_raw(const int16_t value)           { b_raw = value; };
-    void put_c_raw(const int16_t value)           { c_raw = value; };
-    void put_x_raw(const int16_t value)           { x_raw = value; };
-    void put_y_raw(const int16_t value)           { y_raw = value; };
-    void put_z_raw(const int16_t value)           { z_raw = value; };
+    void put_t_filt(const time_t value)            { t_filt = value; };
+    void put_a_filt(const int16_t value)           { a_filt = value; };
+    void put_b_filt(const int16_t value)           { b_filt = value; };
+    void put_c_filt(const int16_t value)           { c_filt = value; };
+    void put_o_filt(const int16_t value)           { o_filt = value; };
+    void put_x_filt(const int16_t value)           { x_filt = value; };
+    void put_y_filt(const int16_t value)           { y_filt = value; };
+    void put_z_filt(const int16_t value)           { z_filt = value; };
+    void put_g_filt(const int16_t value)           { g_filt = value; };
   #endif
 
 protected:
@@ -155,5 +164,6 @@ protected:
     address16b falw_eeram_;
   #endif
 };
+
 
 #endif

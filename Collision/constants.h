@@ -40,7 +40,6 @@ const double NOM_DT = 0.01;
 const float deg_to_rps = 0.0174533;
 
 // Constants; anything numeric (adjustable)
-// #define NOM_DT                 0.01     // Nominal time step, placeholder overwritten with measured time, sec (0.01)
 #define TALK_DELAY            313UL     // Talk wait, ms (313UL = 0.313 sec)
 #define READ_DELAY             10UL     // Sensor read wait, ms (10UL = 0.01 sec) Dr
 #define CONTROL_DELAY         100UL     // Control read wait, ms (100UL = 0.1 sec)
@@ -50,16 +49,16 @@ const float deg_to_rps = 0.0174533;
 #define INPUT_BYTES             200     // Serial input buffer sizes
 #define SERIAL_BAUD          115200     // Serial baud rate
 #define TAU_FILT               0.01     // Tau filter, sec (0.01)
-#define TAU_Q_FILT             0.01     // Quiet rate time constant, sec (0.5)
+#define TAU_Q_FILT             0.01     // Quiet rate time constant, sec (0.01)
 #define MIN_Q_FILT             -20.     // Quiet filter minimum, g's / rps(-20)
 #define MAX_Q_FILT              20.     // Quiet filter maximum, g's / rps (20)
 #define WN_Q_FILT               25.     // Quiet filter-2 natural frequency, r/s (25.)
 #define ZETA_Q_FILT             0.9     // Quiet fiter-2 damping factor (0.9)
 #define MAX_T_Q_FILT           0.02     // Quiet filter max update time, s (0.02)
-#define QUIET_A                 0.1     // Quiet set threshold, sec (0.005, 0.01 too large in truck)
+#define QUIET_A                 0.1     // Quiet set threshold, sec (0.1)
 #define QUIET_S                 1.0     // Quiet set persistence, sec (1.0)
-#define O_QUIET_THR             0.5     // rps quiet detection threshold (0.5)
-#define G_QUIET_THR             0.2     // rps quiet detection threshold (0.2)
+#define O_QUIET_THR            12.0     // rps quiet detection threshold (12.)
+#define G_QUIET_THR             8.0     // rps quiet detection threshold (8.)
 
 const float QUIET_R   (QUIET_S/10.);    // Quiet reset persistence, sec ('up 1 down 10')
 

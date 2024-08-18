@@ -45,12 +45,14 @@ public:
     Sensors():
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(0), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
-      time_acc_last(0ULL), time_rot_last(0ULL)
+      time_acc_last(0ULL), time_rot_last(0ULL),
+      o_is_quiet(true), o_is_quiet_sure(true), g_is_quiet(true), g_is_quiet_sure(true)
     {};
     Sensors(const unsigned long long time_now, const double NOM_DT ):
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(0), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
-      time_acc_last(time_now), time_rot_last(time_now)
+      time_acc_last(time_now), time_rot_last(time_now),
+      o_is_quiet(true), o_is_quiet_sure(true), g_is_quiet(true), g_is_quiet_sure(true)
     {
         // Update time and time constant changed on the fly
         float Tfilt_init = READ_DELAY/1000.;
@@ -61,7 +63,7 @@ public:
         O_Filt = new LagExp(Tfilt_init, TAU_FILT, -W_MAX, W_MAX);
         OQuietFilt = new General2_Pole(Tfilt_init, WN_Q_FILT, ZETA_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);  // actual update time provided run time
         OQuietRate = new RateLagExp(Tfilt_init, TAU_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);
-        OQuietPer = new TFDelay(false, QUIET_S, QUIET_R, Tfilt_init);
+        OQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_init);
         
         X_Filt = new LagExp(Tfilt_init, TAU_FILT, -G_MAX, G_MAX);
         Y_Filt = new LagExp(Tfilt_init, TAU_FILT, -G_MAX, G_MAX);
@@ -69,7 +71,7 @@ public:
         G_Filt = new LagExp(Tfilt_init, TAU_FILT, -G_MAX, G_MAX);
         GQuietFilt = new General2_Pole(Tfilt_init, WN_Q_FILT, ZETA_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);  // actual update time provided run time
         GQuietRate = new RateLagExp(Tfilt_init, TAU_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);
-        GQuietPer = new TFDelay(false, QUIET_S, QUIET_R, Tfilt_init);
+        GQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_init);
     };
     unsigned long long millis;
     ~Sensors(){};
@@ -85,6 +87,7 @@ public:
     void publish_total();
     void quiet_decisions(const boolean reset);
     void sample(const boolean reset, const unsigned long long time_now);
+    time_t t_filt;
     // Gyroscope in radians/second
     float a_raw;
     float b_raw;

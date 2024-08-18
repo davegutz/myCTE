@@ -24,6 +24,7 @@
 
 #include "constants.h"
 #include "Sensors.h"
+#include "TimeLib.h"
 
 // Filter noise
 void Sensors::filter(const boolean reset)
@@ -99,7 +100,7 @@ void Sensors::publish_all()
 
 void Sensors::publish_quiet_header()
 {
-  Serial.println("T_rot*100\to_filt\to_quiet\to_is_quiet-4\to_is_quiet_sure-4\t\tT_acc*100\t\tg_filt-1\tg_quiet\tg_is_quiet-2\tg_is_quiet_sure-2");
+  Serial.println("T_rot*100\to_filt\to_quiet\to_is_quiet-4\to_is_quiet_sure-4\t\tT_acc*100\t\tg_filt-1\tg_quiet\tg_is_quiet-2\tg_is_quiet_sure-2\t    \t    \t    ");
 }
 
 // Print publish
@@ -136,7 +137,7 @@ void Sensors::publish_quiet()
 
 void Sensors::publish_quiet_raw_header()
 {
-  Serial.println("o_quiet\t\tg_quiet");
+  Serial.println("o_quiet\t\tg_quiet\t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    ");
 }
 
 // Print publish
@@ -149,7 +150,7 @@ void Sensors::publish_quiet_raw()
 
 void Sensors::publish_total_header()
 {
-  Serial.println("T_rot*100\to_filt\t\tT_acc*100\tg_filt");
+  Serial.println("T_rot*100\to_filt\t\tT_acc*100\tg_filt\t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    ");
 }
 
 // Print publish
@@ -210,6 +211,13 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now)
     }
     else rot_available = false;
     T_rot = max( double(time_now - time_rot_last) / 1000., NOM_DT );
+
+    // Time stamp
+    t_filt = now();
+    // cSF (t_now, 32);
+    // time_long_2_str(t_filt, t_now);
+    // Serial.println(t_now);
+
 
     // Serial.print("sample: "); Serial.print(time_now); Serial.print(" "); Serial.print(time_acc_last); Serial.print(" "); Serial.println(T_acc);
     // Serial.print("acc_available: "); Serial.println(acc_available);

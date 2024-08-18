@@ -27,89 +27,67 @@
 // extern VolatilePars ap; // Various adjustment parameters shared at system level
 
 // struct Datum_st.  This file needed to avoid circular reference to sp in header files
-void Datum_st::assign(const unsigned long now, Sensors *Sen)
+void Datum_st::assign(const time_t now, Sensors *Sen)
 {
-  t_raw = now;
-  a_raw = Sen->a_raw;
-  b_raw = Sen->b_raw;
-  c_raw = Sen->c_raw;
-  x_raw = Sen->x_raw;
-  y_raw = Sen->y_raw;
-  z_raw = Sen->z_raw;
+  t_filt = Sen->t_filt;
+  a_filt = Sen->a_filt;
+  b_filt = Sen->b_filt;
+  c_filt = Sen->c_filt;
+  o_filt = Sen->o_filt;
+  x_filt = Sen->x_filt;
+  y_filt = Sen->y_filt;
+  z_filt = Sen->z_filt;
+  g_filt = Sen->g_filt;
 }
 
 // Copy function
 void Datum_st::copy_to_datum_ram_from(Datum_st input)
 {
-  t_raw = input.t_raw;
-  a_raw = input.a_raw;
-  b_raw = input.b_raw;
-  c_raw = input.c_raw;
-  x_raw = input.x_raw;
-  y_raw = input.y_raw;
-  z_raw = input.z_raw;
+  t_filt = input.t_filt;
+  a_filt = input.a_filt;
+  b_filt = input.b_filt;
+  c_filt = input.c_filt;
+  o_filt = input.o_filt;
+  x_filt = input.x_filt;
+  y_filt = input.y_filt;
+  z_filt = input.z_filt;
+  g_filt = input.g_filt;
 }
 
 // Nominal values
 void Datum_st::nominal()
 {
-  t_raw = 1UL;
-  a_raw = int16_t(0);
-  b_raw = int16_t(0);
-  c_raw = int16_t(0);
-  x_raw = int16_t(0);
-  y_raw = int16_t(0);
-  z_raw = int16_t(0);
+  t_filt = time_t (0);
+  a_filt = int16_t(0);
+  b_filt = int16_t(0);
+  c_filt = int16_t(0);
+  o_filt = int16_t(0);
+  x_filt = int16_t(0);
+  y_filt = int16_t(0);
+  z_filt = int16_t(0);
+  g_filt = int16_t(0);
 }
 
 // Print functions
-void Datum_st::pretty_print(SafeString &code)
+void Datum_st::print()
 {
-  char buffer[32];
-  strcpy(buffer, "---");
-  if ( this->t_raw > 1UL )
+  cSF(buffer, 32, "");
+  buffer = "---";
+  if ( this->t_filt > 1L )
   {
-    Serial.print("code "); Serial.println(code);
-    time_long_2_str((time_t)this->t_raw, buffer);
-    Serial.print("buffer "); Serial.println(buffer);
-    Serial.print("t_raw "); Serial.println(t_raw);
-    Serial.print("a_raw "); Serial.println(a_raw);
-    Serial.print("b_raw "); Serial.println(b_raw);
-    Serial.print("c_raw "); Serial.println(c_raw);
-    Serial.print("x_raw "); Serial.println(x_raw);
-    Serial.print("y_raw "); Serial.println(y_raw);
-    Serial.print("z_raw "); Serial.println(z_raw);
-  }
-}
-
-
-void Datum_st::print_datum(SafeString &code)
-{
-  char buffer[32];
-  strcpy(buffer, "---");
-  if ( this->t_raw > 1UL )
-  {
-    time_long_2_str(this->t_raw, buffer);
-    // Serial.printf("%s, %s, %ld, %7.3f, %7.3f, %7.3f, %7.3f, %7.3f, %7.3f, %7.3f, %7.4f, %7.4f, %7.4f, %7.3f, %7.3f, %7.3f, %7.3f, %7.3f, %ld, %ld,\n",
-    //   code.c_str(), buffer, this->t_flt,
-    //   float(this->Tb_hdwe)/600.,
-    //   float(this->vb_hdwe)/sp.vb_hist_slr(),
-    //   float(this->ib_amp_hdwe)/sp.ib_hist_slr(),
-    //   float(this->ib_noa_hdwe)/sp.ib_hist_slr(),
-    //   float(this->Tb)/600.,
-    //   float(this->vb)/sp.vb_hist_slr(),
-    //   float(this->ib)/sp.ib_hist_slr(),
-    //   float(this->soc)/16000.,
-    //   float(this->soc_min)/16000.,
-    //   float(this->soc_ekf)/16000.,
-    //   float(this->voc)/sp.vb_hist_slr(),
-    //   float(this->voc_stat)/sp.vb_hist_slr(),
-    //   float(this->e_wrap_filt)/sp.vb_hist_slr(),
-    //   float(this->e_wrap_m_filt)/sp.vb_hist_slr(),
-    //   float(this->e_wrap_n_filt)/sp.vb_hist_slr(),
-    //   this->fltw,
-    //   this->falw);
-  }
+    time_long_2_str(this->t_filt, buffer);
+    Serial.print(t_filt);
+    Serial.print(" "); Serial.print(buffer);
+    Serial.print(" t_filt "); Serial.print(t_filt);
+    Serial.print(" a_filt "); Serial.print(a_filt);
+    Serial.print(" b_filt "); Serial.print(b_filt);
+    Serial.print(" o_filt "); Serial.print(o_filt);
+    Serial.print(" c_filt "); Serial.print(c_filt);
+    Serial.print(" x_filt "); Serial.print(x_filt);
+    Serial.print(" y_filt "); Serial.print(y_filt);
+    Serial.print(" z_filt "); Serial.print(z_filt);
+    Serial.print(" g_filt "); Serial.println(g_filt);
+     }
 }
 
 // Regular put
@@ -209,6 +187,7 @@ void Datum_ram::put(const Datum_st value)
   #endif
 }
 
+
 // nominalize
 void Datum_ram::put_nominal()
 {
@@ -216,3 +195,31 @@ void Datum_ram::put_nominal()
   source.nominal();
   put(source);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// For summary prints
+void time_long_2_str(const time_t time, SafeString &return_str)
+{
+    // Serial.printf("Time.year:  time_t %d ul %d as-is %d\n", 
+    //   Time.year((time_t) 1703267248), Time.year((unsigned long )1703267248), Time.year(time));
+    char tempStr[32];
+    #ifndef USE_ARDUINO
+      uint32_t year_ = Time.year(time);
+      uint8_t month_ = Time.month(time);
+      uint8_t day_ = Time.day(time);
+      uint8_t hours_ = Time.hour(time);
+      uint8_t minutes_   = Time.minute(time);
+      uint8_t seconds_   = Time.second(time);
+    #else
+      uint32_t year_ = year(time);
+      uint8_t month_ = month(time);
+      uint8_t day_ = day(time);
+      uint8_t hours_ = hour(time);
+      uint8_t minutes_   = minute(time);
+      uint8_t seconds_   = second(time);
+    #endif
+    sprintf(tempStr, "%4u-%02u-%02uT%02u:%02u:%02u", int(year_), month_, day_, hours_, minutes_, seconds_);
+    return_str = tempStr;
+}
+

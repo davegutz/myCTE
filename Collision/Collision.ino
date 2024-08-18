@@ -56,6 +56,8 @@
 #include "Sync.h"
 #include "myFilters.h"
 #include "Sensors.h"
+#include "CollDatum.h"
+#include "TimeLib.h"
 
 // Global
 cSF(unit, INPUT_BYTES);
@@ -67,6 +69,7 @@ boolean plotting_quiet = false;
 boolean plotting_quiet_raw = false;
 boolean plotting_total = false;
 boolean monitoring = false;
+time_t time_initial = 1723991463;
 
 extern int debug;
 int debug = 0;
@@ -94,6 +97,7 @@ int debug = 0;
 void setup() {
 
   unit = version.c_str(); unit  += "_"; unit += HDWE_UNIT.c_str();
+  setTime(time_initial);
 
   // Serial
   Serial.begin(SERIAL_BAUD);
@@ -158,6 +162,7 @@ void loop()
   boolean accel_ready = false;
   static boolean monitoring_past = monitoring;
   static Sensors *Sen = new Sensors(millis(), double(NOM_DT));
+  static Datum_st *D = new Datum_st();
 
 
   ///////////////////////////////////////////////////////////// Top of loop////////////////////////////////////////
@@ -177,6 +182,7 @@ void loop()
     // Serial.println("Filtering sensors");
     Sen->filter(reset);
     Sen->quiet_decisions(reset);
+    D->assign(reset, Sen);
   }
 
   if ( publishing )
