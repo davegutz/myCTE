@@ -76,8 +76,11 @@ public:
     unsigned long long millis;
     ~Sensors(){};
 
-    boolean all_is_quiet() { return o_is_quiet_sure && g_is_quiet_sure; };
+    boolean both_are_quiet() { return o_is_quiet_sure && g_is_quiet_sure; };
+    boolean both_not_quiet() { return ( !o_is_quiet_sure && !g_is_quiet_sure ); };
     void filter(const boolean reset);
+    boolean g_quiet_sure() { return g_is_quiet_sure; };
+    boolean o_quiet_sure() { return o_is_quiet_sure; };
     void publish_all_header();
     void publish_all();
     void publish_quiet_header();

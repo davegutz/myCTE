@@ -188,7 +188,7 @@ void loop()
     Sen->quiet_decisions(reset);
 
     // Log data
-    if ( !Sen->all_is_quiet() && !logging )
+    if ( Sen->both_not_quiet() && !logging )
     {
       logging = true;
       new_event = Sen->t_filt;
@@ -197,14 +197,18 @@ void loop()
     else
     {
        logging = false;
+      //  if ( log_size )
+      //  {
+      //    Serial.print("Log size: "); Serial.println(log_size);
+      //  }
        log_size = 0;
-       if ( log_size )
-       {
-         Serial.print("Log size: "); Serial.println(log_size);
-       }
     }
-    // if ( logging )  L->put(reset, new_event, Sen);
-
+    if ( logging ) Serial.println("L");
+    else
+    {
+      if ( !Sen->o_quiet_sure() ) Serial.print(".");
+      if ( !Sen->g_quiet_sure() ) Serial.print(",");
+    }
   }  // end read
 
   if ( publishing )
