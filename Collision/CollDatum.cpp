@@ -65,7 +65,6 @@ void Datum_st::print()
     time_long_2_str(this->t_raw, buffer);
     Serial.print(t_raw);
     Serial.print(" "); Serial.print(buffer);
-    Serial.print(" t_raw "); Serial.print(t_raw);
     Serial.print(" T_rot_raw "); Serial.print(float(T_rot_raw_int) / T_SCL);
     Serial.print(" a_raw "); Serial.print(float(a_raw_int) / O_SCL);
     Serial.print(" b_raw "); Serial.print(float(b_raw_int) / O_SCL);
@@ -94,7 +93,7 @@ void Datum_st::put_nominal()
 // Load data
 void Datum_st::put_sparse(Sensors *Sen)
 {
-  t_raw = Sen->t_filt;
+  t_raw = Sen->t_raw;
   T_rot_raw_int = int16_t(Sen->T_rot_raw() * T_SCL);
   a_raw_int = int16_t(Sen->a_raw * O_SCL);
   b_raw_int = int16_t(Sen->b_raw * O_SCL);

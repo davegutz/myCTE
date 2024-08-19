@@ -191,7 +191,7 @@ void loop()
     if ( Sen->both_not_quiet() && !logging )
     {
       logging = true;
-      new_event = Sen->t_filt;
+      new_event = Sen->t_raw;
       log_size++;
     }
     else

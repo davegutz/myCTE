@@ -215,6 +215,6 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now)
     T_rot_ = max( double(time_now - time_rot_last_) / 1000., NOM_DT );
 
     // Time stamp
-    t_filt = now();
+    t_raw = time_now;
 
 }

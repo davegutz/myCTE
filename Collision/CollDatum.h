@@ -46,7 +46,7 @@ void time_long_2_str(const time_t time, SafeString &tempStr);
 // Datum struct
 struct Datum_st
 {
-  time_t t_raw = 1UL;
+  unsigned long long t_raw = 1ULL;
   int16_t T_rot_raw_int = 0;
   int16_t a_raw_int = 0;
   int16_t b_raw_int = 0;
