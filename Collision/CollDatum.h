@@ -43,21 +43,16 @@ extern time_t time_initial;
 void time_long_2_str(const time_t time, SafeString &tempStr);
 
 
-// SRAM retention summary
+// Datum struct
 struct Datum_st
 {
-  time_t stamp = 0;  // ID of event
-  time_t t_filt = 1UL; // Timestamp seconds since start of epoch
-  // Gyroscope in radians/second
-  int16_t a_filt = 0;
-  int16_t b_filt = 0;
-  int16_t c_filt = 0;
-  int16_t o_filt = 0;
-  // Acceleration in g's  
-  int16_t x_filt = 0;
-  int16_t y_filt = 0;
-  int16_t z_filt = 0;
-  int16_t g_filt = 0;
+  time_t t_raw = 1UL;
+  int16_t a_raw_int = 0;
+  int16_t b_raw_int = 0;
+  int16_t c_raw_int = 0;
+  int16_t x_raw_int = 0;
+  int16_t y_raw_int = 0;
+  int16_t z_raw_int = 0;
 
   void put(const time_t event, Sensors *Sen);
   void copy_to_datum_ram_from(Datum_st input);
@@ -66,6 +61,7 @@ struct Datum_st
   void print();
   void put(Datum_st source);
   void put_nominal();
+  void put_sparse(Sensors *Sen);
 };
 
 class Data_st
@@ -78,14 +74,15 @@ public:
     for (int j=0; j<n_; j++) data[j] = new Datum_st();
   };
   ~Data_st();
+  void copy_to_data_ram_from(Datum_st input);
   void get();
-  void put(const boolean reset, const time_t id, Sensors *Sen);
-  void put_nominal();
+  void put_datum(Sensors *Sen);
+  void reset(const boolean reset);
 
 protected:
   Datum_st **data;
-  uint16_t i_;
-  uint16_t n_;
+  uint8_t i_;
+  uint8_t n_;
 };
 
 #endif

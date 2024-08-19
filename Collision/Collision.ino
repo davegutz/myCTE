@@ -199,7 +199,11 @@ void loop()
       if ( Sen->both_are_quiet() && logging ) logging = false;
        log_size = 0;
     }
-    if ( logging ) Serial.println("L");
+    if ( logging )
+    {
+      L->put_datum(Sen);
+      Serial.println("L");
+    }
     else
     {
       if ( !Sen->o_is_quiet_sure() ) Serial.print(".");

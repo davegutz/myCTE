@@ -40,27 +40,29 @@ const double NOM_DT = 0.01;
 const float deg_to_rps = 0.0174533;
 
 // Constants; anything numeric (adjustable)
-#define TALK_DELAY           313UL     // Talk wait, ms (313UL = 0.313 sec)
-#define READ_DELAY            10UL     // Sensor read wait, ms (10UL = 0.01 sec) Dr
-#define CONTROL_DELAY        100UL     // Control read wait, ms (100UL = 0.1 sec)
-#define PLOT_DELAY            20UL     // Plot wait, ms (20UL = 0.02 sec)
-#define G_MAX                  20.     // Max G value, g's (20.) 
-#define W_MAX                  20.     // Max rotational value, rps (20.)
-#define INPUT_BYTES            200     // Serial input buffer sizes
-#define SERIAL_BAUD         115200     // Serial baud rate
-#define TAU_FILT              0.01     // Tau filter, sec (0.01)
-#define TAU_Q_FILT            0.01     // Quiet rate time constant, sec (0.01)
-#define MIN_Q_FILT            -20.     // Quiet filter minimum, g's / rps(-20)
-#define MAX_Q_FILT             20.     // Quiet filter maximum, g's / rps (20)
-#define WN_Q_FILT              25.     // Quiet filter-2 natural frequency, r/s (25.)
-#define ZETA_Q_FILT            0.9     // Quiet fiter-2 damping factor (0.9)
-#define MAX_T_Q_FILT          0.02     // Quiet filter max update time, s (0.02)
-#define QUIET_A                0.1     // Quiet set threshold, sec (0.1)
-#define QUIET_S                1.0     // Quiet set persistence, sec (1.0)
-#define O_QUIET_THR           12.0     // rps quiet detection threshold (12.)
-#define G_QUIET_THR            4.0     // rps quiet detection threshold (8.)
-#define NLOG                   500     // Number of log entries to store (500)
+#define TALK_DELAY           313UL      // Talk wait, ms (313UL = 0.313 sec)
+#define READ_DELAY            10UL      // Sensor read wait, ms (10UL = 0.01 sec) Dr
+#define CONTROL_DELAY        100UL      // Control read wait, ms (100UL = 0.1 sec)
+#define PLOT_DELAY            20UL      // Plot wait, ms (20UL = 0.02 sec)
+#define G_MAX                  20.      // Max G value, g's (20.) 
+#define W_MAX                  20.      // Max rotational value, rps (20.)
+#define INPUT_BYTES            200      // Serial input buffer sizes
+#define SERIAL_BAUD         115200      // Serial baud rate
+#define TAU_FILT              0.01      // Tau filter, sec (0.01)
+#define TAU_Q_FILT            0.01      // Quiet rate time constant, sec (0.01)
+#define MIN_Q_FILT            -20.      // Quiet filter minimum, g's / rps(-20)
+#define MAX_Q_FILT             20.      // Quiet filter maximum, g's / rps (20)
+#define WN_Q_FILT              25.      // Quiet filter-2 natural frequency, r/s (25.)
+#define ZETA_Q_FILT            0.9      // Quiet fiter-2 damping factor (0.9)
+#define MAX_T_Q_FILT          0.02      // Quiet filter max update time, s (0.02)
+#define QUIET_A                0.1      // Quiet set threshold, sec (0.1)
+#define QUIET_S                1.0      // Quiet set persistence, sec (1.0)
+#define O_QUIET_THR           12.0      // rps quiet detection threshold (12.)
+#define G_QUIET_THR            4.0      // rps quiet detection threshold (8.)
+#define NLOG                   500      // Number of log entries to store (500)
 
-const float QUIET_R   (QUIET_S/10.);    // Quiet reset persistence, sec ('up 1 down 10')
+const float QUIET_R = (QUIET_S/10.);    // Quiet reset persistence, sec ('up 1 down 10')
+const float O_SCL = (16000./W_MAX);     // Rotational int16_t scale factor
+const float G_SCL = (16000./G_MAX);     // Rotational int16_t scale factor
 
 #endif
