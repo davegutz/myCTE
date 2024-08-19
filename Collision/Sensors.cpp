@@ -30,24 +30,28 @@
 void Sensors::filter(const boolean reset)
 {
 
-    if ( reset || acc_available )
+    if ( reset || acc_available_ )
     {
-        x_filt = X_Filt->calculate(x_raw, reset, TAU_FILT, T_acc);
-        y_filt = Y_Filt->calculate(y_raw, reset, TAU_FILT, T_acc);
-        z_filt = Z_Filt->calculate(z_raw, reset, TAU_FILT, T_acc);
-        g_filt = G_Filt->calculate(g_raw, reset, TAU_FILT, T_acc);
-        g_qrate = GQuietRate->calculate(g_raw, reset, min(T_acc, MAX_T_Q_FILT));     
-        g_quiet =GQuietFilt->calculate(g_qrate, reset, min(T_acc, MAX_T_Q_FILT));
+        x_filt = X_Filt->calculate(x_raw, reset, TAU_FILT, T_acc_);
+        y_filt = Y_Filt->calculate(y_raw, reset, TAU_FILT, T_acc_);
+        z_filt = Z_Filt->calculate(z_raw, reset, TAU_FILT, T_acc_);
+        g_filt = G_Filt->calculate(g_raw, reset, TAU_FILT, T_acc_);
+        g_qrate = GQuietRate->calculate(g_raw, reset, min(T_acc_, MAX_T_Q_FILT));     
+        g_quiet =GQuietFilt->calculate(g_qrate, reset, min(T_acc_, MAX_T_Q_FILT));
+        if ( reset )
+        {
+          Serial.print("init g_quiet: g_raw "); Serial.print(g_raw); Serial.print(" g_rate "); Serial.print(g_qrate); Serial.print("g_quiet "); Serial.println(g_quiet);
+        }
     }
 
-    if ( reset || rot_available )
+    if ( reset || rot_available_ )
     {
-        a_filt = A_Filt->calculate(a_raw, reset, TAU_FILT, T_rot);
-        b_filt = B_Filt->calculate(b_raw, reset, TAU_FILT, T_rot);
-        c_filt = C_Filt->calculate(c_raw, reset, TAU_FILT, T_rot);
-        o_filt = O_Filt->calculate(o_raw, reset, TAU_FILT, T_rot);
-        o_qrate = OQuietRate->calculate(o_raw-1., reset, min(T_rot, MAX_T_Q_FILT));     
-        o_quiet =OQuietFilt->calculate(o_qrate, reset, min(T_rot, MAX_T_Q_FILT));
+        a_filt = A_Filt->calculate(a_raw, reset, TAU_FILT, T_rot_);
+        b_filt = B_Filt->calculate(b_raw, reset, TAU_FILT, T_rot_);
+        c_filt = C_Filt->calculate(c_raw, reset, TAU_FILT, T_rot_);
+        o_filt = O_Filt->calculate(o_raw, reset, TAU_FILT, T_rot_);
+        o_qrate = OQuietRate->calculate(o_raw-1., reset, min(T_rot_, MAX_T_Q_FILT));     
+        o_quiet =OQuietFilt->calculate(o_qrate, reset, min(T_rot_, MAX_T_Q_FILT));
     }
 
 }
@@ -55,7 +59,7 @@ void Sensors::filter(const boolean reset)
 // Publish header
 void Sensors::publish_all_header()
 {
-  Serial.println("T_rot*100\ta_filt\tb_filt\tc_filt\to_filt\to_is_quiet-4\to_is_quiet_sure-4\t\tT_acc*100\tx_filt\ty_filt\tz_filt\tg_filt-1\tg_is_quiet-2\tg_is_quiet_sure-2");
+  Serial.println("T_rot_*100\ta_filt\tb_filt\tc_filt\to_filt\to_is_quiet-4\to_is_quiet_sure-4\t\tT_acc*100\tx_filt\ty_filt\tz_filt\tg_filt-1\tg_is_quiet-2\tg_is_quiet_sure-2");
 }
 
 // Print publish
@@ -63,13 +67,13 @@ void Sensors::publish_all()
 {
   float o_q = -4.;
   float o_q_s = -4.; 
-  if ( o_is_quiet ) o_q = -3;
-  if ( o_is_quiet_sure ) o_q_s = -3;
+  if ( o_is_quiet_ ) o_q = -3;
+  if ( o_is_quiet_sure_ ) o_q_s = -3;
   float g_q = -2.;
   float g_q_s = -2.; 
-  if ( g_is_quiet ) g_q = -1;
-  if ( g_is_quiet_sure ) g_q_s = -1;
-  Serial.print(T_rot*100.);
+  if ( g_is_quiet_ ) g_q = -1;
+  if ( g_is_quiet_sure_ ) g_q_s = -1;
+  Serial.print(T_rot_*100.);
   Serial.print('\t');
   Serial.print(a_filt);
   Serial.print('\t');
@@ -83,7 +87,7 @@ void Sensors::publish_all()
   Serial.print('\t');
   Serial.print(o_q_s);
   Serial.print("\t\t");
-  Serial.print(T_acc*100.);
+  Serial.print(T_acc_*100.);
   Serial.print('\t');
   Serial.print(x_filt);
   Serial.print('\t');
@@ -100,7 +104,7 @@ void Sensors::publish_all()
 
 void Sensors::publish_quiet_header()
 {
-  Serial.println("T_rot*100\to_filt\to_quiet\to_is_quiet-4\to_is_quiet_sure-4\t\tT_acc*100\t\tg_filt-1\tg_quiet\tg_is_quiet-2\tg_is_quiet_sure-2\t    \t    \t    ");
+  Serial.println("T_rot_*100\to_filt\to_quiet\to_is_quiet-4\to_is_quiet_sure-4\t\tT_acc*100\t\tg_filt-1\tg_quiet\tg_is_quiet-2\tg_is_quiet_sure-2\t    \t    \t    ");
 }
 
 // Print publish
@@ -108,13 +112,13 @@ void Sensors::publish_quiet()
 {
   float o_q = -4.;
   float o_q_s = -4.; 
-  if ( o_is_quiet ) o_q = -3;
-  if ( o_is_quiet_sure ) o_q_s = -3;
+  if ( o_is_quiet_ ) o_q = -3;
+  if ( o_is_quiet_sure_ ) o_q_s = -3;
   float g_q = -2.;
   float g_q_s = -2.; 
-  if ( g_is_quiet ) g_q = -1;
-  if ( g_is_quiet_sure ) g_q_s = -1;
-  Serial.print(T_rot*100.);
+  if ( g_is_quiet_ ) g_q = -1;
+  if ( g_is_quiet_sure_ ) g_q_s = -1;
+  Serial.print(T_rot_*100.);
   Serial.print('\t');
   Serial.print(o_filt);
   Serial.print('\t');
@@ -124,7 +128,7 @@ void Sensors::publish_quiet()
   Serial.print('\t');
   Serial.print(o_q_s);
   Serial.print("\t\t");
-  Serial.print(T_acc*100.);
+  Serial.print(T_acc_*100.);
   Serial.print('\t');
   Serial.print(g_filt-1.);
   Serial.print('\t');
@@ -150,18 +154,18 @@ void Sensors::publish_quiet_raw()
 
 void Sensors::publish_total_header()
 {
-  Serial.println("T_rot*100\to_filt\t\tT_acc*100\tg_filt\t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    ");
+  Serial.println("T_rot_*100\to_filt\t\tT_acc*100\tg_filt\t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    ");
 }
 
 // Print publish
 void Sensors::publish_total()
 {
-  Serial.print(T_rot*100.);
+  Serial.print(T_rot_*100.);
   Serial.print('\t');
   Serial.print(o_filt);
   Serial.print('\t');
   Serial.print('\t');
-  Serial.print(T_acc*100.);
+  Serial.print(T_acc_*100.);
   Serial.print('\t');
   Serial.println(g_filt);
 }
@@ -171,10 +175,16 @@ void Sensors::publish_total()
 // and actual motion without 'guilding the lily'
 void Sensors::quiet_decisions(const boolean reset)
 {
-  o_is_quiet = abs(o_quiet)<=O_QUIET_THR && !reset;   // initializes false
-  o_is_quiet_sure = OQuietPer->calculate(o_is_quiet, QUIET_S, QUIET_R, T_rot, reset);
-  g_is_quiet = abs(g_quiet)<=G_QUIET_THR && !reset;   // initializes false
-  g_is_quiet_sure = GQuietPer->calculate(g_is_quiet, QUIET_S, QUIET_R, T_acc, reset);
+  o_is_quiet_ = abs(o_quiet)<=O_QUIET_THR;
+  o_is_quiet_sure_ = OQuietPer->calculate(o_is_quiet_, QUIET_S, QUIET_R, T_rot_, reset);
+  g_is_quiet_ = abs(g_quiet)<=G_QUIET_THR;
+  g_is_quiet_sure_ = GQuietPer->calculate(g_is_quiet_, QUIET_S, QUIET_R, T_acc_, reset);
+        if ( reset )
+        {
+          // Serial.print("quiet: g_is_quiet_ "); Serial.print(g_is_quiet_); Serial.print(" g_is_quiet_sure_ "); Serial.println(g_is_quiet_sure_);
+          Serial.print("quiet: o_is_quiet_ "); Serial.print(o_is_quiet_); Serial.print(" o_is_quiet_sure_ "); Serial.println(o_is_quiet_sure_);
+        }
+
 }
 
 // Sample the IMU
@@ -183,20 +193,20 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now)
     // Reset
     if ( reset )
     {
-        time_rot_last = time_now;
-        time_acc_last = time_now;
+        time_rot_last_ = time_now;
+        time_acc_last_ = time_now;
     }
 
     // Accelerometer
     if ( !reset && IMU.accelerationAvailable() )
     {
         IMU.readAcceleration(x_raw, y_raw, z_raw);
-        time_acc_last = time_now;
-        acc_available = true;
+        time_acc_last_ = time_now;
+        acc_available_ = true;
         g_raw = sqrt(x_raw*x_raw + y_raw*y_raw + z_raw*z_raw);
     }
-    else acc_available = false;
-    T_acc = max( double(time_now - time_acc_last) / 1000., NOM_DT );
+    else acc_available_ = false;
+    T_acc_ = max( double(time_now - time_acc_last_) / 1000., NOM_DT );
 
     // Gyroscope
     if ( !reset && IMU.gyroscopeAvailable() )
@@ -205,12 +215,12 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now)
         a_raw *= deg_to_rps;
         b_raw *= deg_to_rps;
         c_raw *= deg_to_rps;
-        time_rot_last = time_now;
-        rot_available = true;
+        time_rot_last_ = time_now;
+        rot_available_ = true;
         o_raw = sqrt(a_raw*a_raw + b_raw*b_raw + c_raw*c_raw);
     }
-    else rot_available = false;
-    T_rot = max( double(time_now - time_rot_last) / 1000., NOM_DT );
+    else rot_available_ = false;
+    T_rot_ = max( double(time_now - time_rot_last_) / 1000., NOM_DT );
 
     // Time stamp
     t_filt = now();
@@ -219,6 +229,6 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now)
     // Serial.println(t_now);
 
 
-    // Serial.print("sample: "); Serial.print(time_now); Serial.print(" "); Serial.print(time_acc_last); Serial.print(" "); Serial.println(T_acc);
-    // Serial.print("acc_available: "); Serial.println(acc_available);
+    // Serial.print("sample: "); Serial.print(time_now); Serial.print(" "); Serial.print(time_acc_last_); Serial.print(" "); Serial.println(T_acc_);
+    // Serial.print("acc_available_: "); Serial.println(acc_available_);
 }

@@ -196,18 +196,14 @@ void loop()
     }
     else
     {
-       logging = false;
-      //  if ( log_size )
-      //  {
-      //    Serial.print("Log size: "); Serial.println(log_size);
-      //  }
+      if ( Sen->both_are_quiet() && logging ) logging = false;
        log_size = 0;
     }
     if ( logging ) Serial.println("L");
     else
     {
-      if ( !Sen->o_quiet_sure() ) Serial.print(".");
-      if ( !Sen->g_quiet_sure() ) Serial.print(",");
+      if ( !Sen->o_is_quiet_sure() ) Serial.print(".");
+      if ( !Sen->g_is_quiet_sure() ) Serial.print(",");
     }
   }  // end read
 

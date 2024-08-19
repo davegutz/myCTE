@@ -45,14 +45,14 @@ public:
     Sensors(): t_filt(0),
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(0), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
-      time_acc_last(0ULL), time_rot_last(0ULL),
-      o_is_quiet(true), o_is_quiet_sure(true), g_is_quiet(true), g_is_quiet_sure(true)
+      time_acc_last_(0ULL), time_rot_last_(0ULL),
+      o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true)
     {};
     Sensors(const unsigned long long time_now, const double NOM_DT ): t_filt(0),
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(0), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
-      time_acc_last(time_now), time_rot_last(time_now),
-      o_is_quiet(true), o_is_quiet_sure(true), g_is_quiet(true), g_is_quiet_sure(true)
+      time_acc_last_(time_now), time_rot_last_(time_now),
+      o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true)
     {
         // Update time and time constant changed on the fly
         float Tfilt_init = READ_DELAY/1000.;
@@ -76,11 +76,11 @@ public:
     unsigned long long millis;
     ~Sensors(){};
 
-    boolean both_are_quiet() { return o_is_quiet_sure && g_is_quiet_sure; };
-    boolean both_not_quiet() { return ( !o_is_quiet_sure && !g_is_quiet_sure ); };
+    boolean both_are_quiet() { return o_is_quiet_sure_ && g_is_quiet_sure_; };
+    boolean both_not_quiet() { return ( !o_is_quiet_sure_ && !g_is_quiet_sure_ ); };
     void filter(const boolean reset);
-    boolean g_quiet_sure() { return g_is_quiet_sure; };
-    boolean o_quiet_sure() { return o_is_quiet_sure; };
+    boolean g_is_quiet_sure() { return g_is_quiet_sure_; };
+    boolean o_is_quiet_sure() { return o_is_quiet_sure_; };
     void publish_all_header();
     void publish_all();
     void publish_quiet_header();
@@ -129,16 +129,16 @@ protected:
     General2_Pole *GQuietFilt; // Quiet detector
     RateLagExp *GQuietRate;    // Quiet detector
     TFDelay *GQuietPer; // Persistence ib quiet disconnect detection
-    unsigned long long time_acc_last;
-    unsigned long long time_rot_last;
-    double T_acc;
-    double T_rot;
-    boolean acc_available;
-    boolean rot_available;
-    boolean o_is_quiet;
-    boolean o_is_quiet_sure;
-    boolean g_is_quiet;
-    boolean g_is_quiet_sure;
+    unsigned long long time_acc_last_;
+    unsigned long long time_rot_last_;
+    double T_acc_;
+    double T_rot_;
+    boolean acc_available_;
+    boolean rot_available_;
+    boolean o_is_quiet_;
+    boolean o_is_quiet_sure_;
+    boolean g_is_quiet_;
+    boolean g_is_quiet_sure_;
 };
 
 #endif
