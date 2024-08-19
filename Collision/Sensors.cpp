@@ -36,12 +36,9 @@ void Sensors::filter(const boolean reset)
         y_filt = Y_Filt->calculate(y_raw, reset, TAU_FILT, T_acc_);
         z_filt = Z_Filt->calculate(z_raw, reset, TAU_FILT, T_acc_);
         g_filt = G_Filt->calculate(g_raw, reset, TAU_FILT, T_acc_);
-        g_qrate = GQuietRate->calculate(g_raw, reset, min(T_acc_, MAX_T_Q_FILT));     
+        g_qrate = GQuietRate->calculate(g_raw-1., reset, min(T_acc_, MAX_T_Q_FILT));     
         g_quiet =GQuietFilt->calculate(g_qrate, reset, min(T_acc_, MAX_T_Q_FILT));
-        if ( reset )
-        {
-          Serial.print("init g_quiet: g_raw "); Serial.print(g_raw); Serial.print(" g_rate "); Serial.print(g_qrate); Serial.print("g_quiet "); Serial.println(g_quiet);
-        }
+        static int count = 0;
     }
 
     if ( reset || rot_available_ )
@@ -50,7 +47,7 @@ void Sensors::filter(const boolean reset)
         b_filt = B_Filt->calculate(b_raw, reset, TAU_FILT, T_rot_);
         c_filt = C_Filt->calculate(c_raw, reset, TAU_FILT, T_rot_);
         o_filt = O_Filt->calculate(o_raw, reset, TAU_FILT, T_rot_);
-        o_qrate = OQuietRate->calculate(o_raw-1., reset, min(T_rot_, MAX_T_Q_FILT));     
+        o_qrate = OQuietRate->calculate(o_raw, reset, min(T_rot_, MAX_T_Q_FILT));     
         o_quiet =OQuietFilt->calculate(o_qrate, reset, min(T_rot_, MAX_T_Q_FILT));
     }
 
@@ -179,12 +176,7 @@ void Sensors::quiet_decisions(const boolean reset)
   o_is_quiet_sure_ = OQuietPer->calculate(o_is_quiet_, QUIET_S, QUIET_R, T_rot_, reset);
   g_is_quiet_ = abs(g_quiet)<=G_QUIET_THR;
   g_is_quiet_sure_ = GQuietPer->calculate(g_is_quiet_, QUIET_S, QUIET_R, T_acc_, reset);
-        if ( reset )
-        {
-          // Serial.print("quiet: g_is_quiet_ "); Serial.print(g_is_quiet_); Serial.print(" g_is_quiet_sure_ "); Serial.println(g_is_quiet_sure_);
-          Serial.print("quiet: o_is_quiet_ "); Serial.print(o_is_quiet_); Serial.print(" o_is_quiet_sure_ "); Serial.println(o_is_quiet_sure_);
-        }
-
+  static int count = 0;
 }
 
 // Sample the IMU
@@ -224,11 +216,5 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now)
 
     // Time stamp
     t_filt = now();
-    // cSF (t_now, 32);
-    // time_long_2_str(t_filt, t_now);
-    // Serial.println(t_now);
 
-
-    // Serial.print("sample: "); Serial.print(time_now); Serial.print(" "); Serial.print(time_acc_last_); Serial.print(" "); Serial.println(T_acc_);
-    // Serial.print("acc_available_: "); Serial.println(acc_available_);
 }
