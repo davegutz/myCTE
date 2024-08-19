@@ -161,8 +161,11 @@ void loop()
   boolean gyro_ready = false;
   boolean accel_ready = false;
   static boolean monitoring_past = monitoring;
+  static time_t new_event = 0;
   static Sensors *Sen = new Sensors(millis(), double(NOM_DT));
-  static Datum_st *D = new Datum_st();
+  // static Data_st *L = new Data_st(NLOG);  // Event log
+  static boolean logging = false;
+  static uint16_t log_size = 0;
 
 
   ///////////////////////////////////////////////////////////// Top of loop////////////////////////////////////////
@@ -177,13 +180,32 @@ void loop()
   // Read sensors
   if ( read )
   {
+
     // Serial.println("Reading sensors");
     Sen->sample(reset, millis());
     // Serial.println("Filtering sensors");
     Sen->filter(reset);
     Sen->quiet_decisions(reset);
-    D->assign(reset, Sen);
-  }
+
+    // Log data
+    if ( !Sen->all_is_quiet() && !logging )
+    {
+      logging = true;
+      new_event = Sen->t_filt;
+      log_size++;
+    }
+    else
+    {
+       logging = false;
+       log_size = 0;
+       if ( log_size )
+       {
+         Serial.print("Log size: "); Serial.println(log_size);
+       }
+    }
+    // if ( logging )  L->put(reset, new_event, Sen);
+
+  }  // end read
 
   if ( publishing )
   {

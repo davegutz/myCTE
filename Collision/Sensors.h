@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright (C) 2023 - Dave Gutz
+// Copyright (C) 2024 - Dave Gutz
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -42,13 +42,13 @@ extern int debug;
 class Sensors
 {
 public:
-    Sensors():
+    Sensors(): t_filt(0),
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(0), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
       time_acc_last(0ULL), time_rot_last(0ULL),
       o_is_quiet(true), o_is_quiet_sure(true), g_is_quiet(true), g_is_quiet_sure(true)
     {};
-    Sensors(const unsigned long long time_now, const double NOM_DT ):
+    Sensors(const unsigned long long time_now, const double NOM_DT ): t_filt(0),
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(0), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
       time_acc_last(time_now), time_rot_last(time_now),
@@ -76,6 +76,7 @@ public:
     unsigned long long millis;
     ~Sensors(){};
 
+    boolean all_is_quiet() { return o_is_quiet_sure && g_is_quiet_sure; };
     void filter(const boolean reset);
     void publish_all_header();
     void publish_all();
