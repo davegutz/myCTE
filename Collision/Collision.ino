@@ -251,6 +251,9 @@ void loop()
               plotting_total = false;
               monitoring = false;
               break;
+            case ( 'h' ):
+              L->print_all();
+              break;
             case ( 'q' ):
               plotting_all = false;
               plotting_quiet = !plotting_quiet;

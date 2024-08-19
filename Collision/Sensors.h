@@ -91,6 +91,8 @@ public:
     void publish_total();
     void quiet_decisions(const boolean reset);
     void sample(const boolean reset, const unsigned long long time_now);
+    float T_acc_raw() { return T_acc_; };
+    float T_rot_raw() { return T_rot_; };
     time_t t_filt;
     // Gyroscope in radians/second
     float a_raw;

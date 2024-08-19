@@ -47,9 +47,11 @@ void time_long_2_str(const time_t time, SafeString &tempStr);
 struct Datum_st
 {
   time_t t_raw = 1UL;
+  int16_t T_rot_raw_int = 0;
   int16_t a_raw_int = 0;
   int16_t b_raw_int = 0;
   int16_t c_raw_int = 0;
+  int16_t T_acc_raw_int = 0;
   int16_t x_raw_int = 0;
   int16_t y_raw_int = 0;
   int16_t z_raw_int = 0;
@@ -76,6 +78,7 @@ public:
   ~Data_st();
   void copy_to_data_ram_from(Datum_st input);
   void get();
+  void print_all();
   void put_datum(Sensors *Sen);
   void reset(const boolean reset);
 

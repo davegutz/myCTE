@@ -31,9 +31,11 @@
 void Datum_st::copy_to_datum_ram_from(Datum_st input)
 {
   t_raw = input.t_raw;
+  T_rot_raw_int = input.T_rot_raw_int;
   a_raw_int = input.a_raw_int;
   b_raw_int = input.b_raw_int;
   c_raw_int = input.c_raw_int;
+  T_acc_raw_int = input.T_acc_raw_int;
   x_raw_int = input.x_raw_int;
   y_raw_int = input.y_raw_int;
   z_raw_int = input.z_raw_int;
@@ -43,9 +45,11 @@ void Datum_st::copy_to_datum_ram_from(Datum_st input)
 void Datum_st::nominal()
 {
   t_raw = time_t (1UL);
+  T_rot_raw_int = int16_t(0);
   a_raw_int = int16_t(0);
   b_raw_int = int16_t(0);
   c_raw_int = int16_t(0);
+  T_acc_raw_int = int16_t(0);
   x_raw_int = int16_t(0);
   y_raw_int = int16_t(0);
   z_raw_int = int16_t(0);
@@ -62,12 +66,14 @@ void Datum_st::print()
     Serial.print(t_raw);
     Serial.print(" "); Serial.print(buffer);
     Serial.print(" t_raw "); Serial.print(t_raw);
+    Serial.print(" T_rot_raw "); Serial.print(float(T_rot_raw_int) / T_SCL);
     Serial.print(" a_raw "); Serial.print(float(a_raw_int) / O_SCL);
     Serial.print(" b_raw "); Serial.print(float(b_raw_int) / O_SCL);
     Serial.print(" c_raw "); Serial.print(float(c_raw_int) / O_SCL);
+    Serial.print(" T_acc_raw "); Serial.print(float(T_acc_raw_int) / T_SCL);
     Serial.print(" x_raw "); Serial.print(float(x_raw_int) / G_SCL);
     Serial.print(" y_raw "); Serial.print(float(y_raw_int) / G_SCL);
-    Serial.print(" z_raw "); Serial.print(float(z_raw_int) / G_SCL);
+    Serial.print(" z_raw "); Serial.println(float(z_raw_int) / G_SCL);
      }
 }
 
@@ -89,9 +95,11 @@ void Datum_st::put_nominal()
 void Datum_st::put_sparse(Sensors *Sen)
 {
   t_raw = Sen->t_filt;
+  T_rot_raw_int = int16_t(Sen->T_rot_raw() * T_SCL);
   a_raw_int = int16_t(Sen->a_raw * O_SCL);
   b_raw_int = int16_t(Sen->b_raw * O_SCL);
   c_raw_int = int16_t(Sen->c_raw * O_SCL);
+  T_acc_raw_int = int16_t(Sen->T_acc_raw() * T_SCL);
   x_raw_int = int16_t(Sen->a_raw * G_SCL);
   y_raw_int = int16_t(Sen->b_raw * G_SCL);
   z_raw_int = int16_t(Sen->c_raw * G_SCL);
@@ -99,6 +107,14 @@ void Datum_st::put_sparse(Sensors *Sen)
 
 
 // struct Data_st data log
+void Data_st::print_all()
+{
+  for (int j = 0; j < n_; j++)
+  {
+    data[j]->print();
+  }
+}
+
 void Data_st::put_datum(Sensors *Sen)
 {
   if ( ++i_ > (n_-1) ) i_ = 0; // circular buffer

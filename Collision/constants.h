@@ -46,6 +46,7 @@ const float deg_to_rps = 0.0174533;
 #define PLOT_DELAY            20UL      // Plot wait, ms (20UL = 0.02 sec)
 #define G_MAX                  20.      // Max G value, g's (20.) 
 #define W_MAX                  20.      // Max rotational value, rps (20.)
+#define T_MAX                 0.04      // Max expected update time, s (0.04)
 #define INPUT_BYTES            200      // Serial input buffer sizes
 #define SERIAL_BAUD         115200      // Serial baud rate
 #define TAU_FILT              0.01      // Tau filter, sec (0.01)
@@ -64,5 +65,6 @@ const float deg_to_rps = 0.0174533;
 const float QUIET_R = (QUIET_S/10.);    // Quiet reset persistence, sec ('up 1 down 10')
 const float O_SCL = (16000./W_MAX);     // Rotational int16_t scale factor
 const float G_SCL = (16000./G_MAX);     // Rotational int16_t scale factor
+const float T_SCL = (16000./T_MAX);     // Rotational int16_t scale factor
 
 #endif
