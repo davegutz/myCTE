@@ -74,6 +74,7 @@ public:
   Data_st() : i_(0), n_(0) {};
   Data_st(uint16_t size) : i_(size-1), n_(size)
   {
+    data = new Datum_st*[n_];
     for (int j=0; j<n_; j++) data[j] = new Datum_st();
   };
   ~Data_st();

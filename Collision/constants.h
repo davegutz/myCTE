@@ -59,7 +59,7 @@ const float deg_to_rps = 0.0174533;
 #define QUIET_S                1.0     // Quiet set persistence, sec (1.0)
 #define O_QUIET_THR           12.0     // rps quiet detection threshold (12.)
 #define G_QUIET_THR            8.0     // rps quiet detection threshold (8.)
-#define NLOG                  1     // Number of log entries to store (10)
+#define NLOG                   500     // Number of log entries to store (500)
 
 const float QUIET_R   (QUIET_S/10.);    // Quiet reset persistence, sec ('up 1 down 10')
 
