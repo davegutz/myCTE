@@ -63,6 +63,8 @@
 cSF(unit, INPUT_BYTES);
 cSF(serial_str, INPUT_BYTES, "");
 cSF(input_str, INPUT_BYTES, "");
+cSF(prn_buff, INPUT_BYTES, "");
+
 boolean string_cpt = false;
 boolean plotting_all = false;
 boolean plotting_quiet = false;
@@ -191,7 +193,7 @@ void loop()
     if ( Sen->both_not_quiet() && !logging )
     {
       logging = true;
-      new_event = Sen->t_raw;
+      new_event = Sen->t_raw_ms;
       log_size++;
     }
     else
@@ -318,11 +320,9 @@ void loop()
               input_str.substring(input_str, 2).toInt(input);
               time_initial = time_t ( input );
               setTime(time_initial);
-
-              cSF(buffer, 36, "");
-              buffer = "---";
-              time_long_2_str(time_initial, buffer);
-              Serial.println("Time set to: "); Serial.print(time_initial); Serial.print(" = "); Serial.println(buffer);
+              prn_buff = "---";
+              time_long_2_str(time_initial*1000, prn_buff);
+              Serial.println("Time set to: "); Serial.print(time_initial); Serial.print(" = "); Serial.println(prn_buff);
               break;
             default:
               Serial.print(input_str.charAt(1)); Serial.println(" unknown");

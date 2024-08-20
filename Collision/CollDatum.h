@@ -40,13 +40,13 @@
 extern time_t time_initial;
 
 
-void time_long_2_str(const unsigned long long time, SafeString &tempStr);
+void time_long_2_str(const unsigned long long time_ms, SafeString &tempStr);
 
 
 // Datum struct
 struct Datum_st
 {
-  unsigned long long t_raw = 1ULL;
+  unsigned long long t_raw_ms = 1ULL;
   int16_t T_rot_raw_int = 0;
   int16_t a_raw_int = 0;
   int16_t b_raw_int = 0;

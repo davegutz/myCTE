@@ -25,6 +25,8 @@
 #include "constants.h"
 #include "Sensors.h"
 #include "TimeLib.h"
+#include "CollDatum.h"
+
 
 // Filter noise
 void Sensors::filter(const boolean reset)
@@ -180,25 +182,25 @@ void Sensors::quiet_decisions(const boolean reset)
 }
 
 // Sample the IMU
-void Sensors::sample(const boolean reset, const unsigned long long time_now, const unsigned long long time_start, time_t now_hms)
+void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, const unsigned long long time_start_ms, time_t now_hms)
 {
     // Reset
     if ( reset )
     {
-        time_rot_last_ = time_now;
-        time_acc_last_ = time_now;
+        time_rot_last_ = time_now_ms;
+        time_acc_last_ = time_now_ms;
     }
 
     // Accelerometer
     if ( !reset && IMU.accelerationAvailable() )
     {
         IMU.readAcceleration(x_raw, y_raw, z_raw);
-        time_acc_last_ = time_now;
+        time_acc_last_ = time_now_ms;
         acc_available_ = true;
         g_raw = sqrt(x_raw*x_raw + y_raw*y_raw + z_raw*z_raw);
     }
     else acc_available_ = false;
-    T_acc_ = max( double(time_now - time_acc_last_) / 1000., NOM_DT );
+    T_acc_ = max( double(time_now_ms - time_acc_last_) / 1000., NOM_DT );
 
     // Gyroscope
     if ( !reset && IMU.gyroscopeAvailable() )
@@ -207,14 +209,23 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now, con
         a_raw *= deg_to_rps;
         b_raw *= deg_to_rps;
         c_raw *= deg_to_rps;
-        time_rot_last_ = time_now;
+        time_rot_last_ = time_now_ms;
         rot_available_ = true;
         o_raw = sqrt(a_raw*a_raw + b_raw*b_raw + c_raw*c_raw);
     }
     else rot_available_ = false;
-    T_rot_ = max( double(time_now - time_rot_last_) / 1000., NOM_DT );
+    T_rot_ = max( double(time_now_ms - time_rot_last_) / 1000., NOM_DT );
 
     // Time stamp
-    t_raw = time_now - time_start + (unsigned long long)now_hms;
+    t_raw_ms = time_now_ms - time_start_ms + (unsigned long long)now_hms*1000;
+    if ( debug==9 )
+    {
+      cSF(prn_buff, INPUT_BYTES, "");
+      time_long_2_str(t_raw_ms, prn_buff);
+      Serial.print("t_raw_ms: "); Serial.print(prn_buff); Serial.print(" "); Serial.print(t_raw_ms); Serial.print(" = ");
+      Serial.print(time_now_ms); Serial.print(" - "); Serial.print(time_start_ms); Serial.print(" + "); Serial.print((unsigned long long)now_hms);
+      time_long_2_str((unsigned long long)now_hms*1000, prn_buff); Serial.print(" "); Serial.println(prn_buff);
+
+    }
 
 }

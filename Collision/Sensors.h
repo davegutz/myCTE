@@ -42,13 +42,13 @@ extern int debug;
 class Sensors
 {
 public:
-    Sensors(): t_raw(0),
+    Sensors(): t_raw_ms(0),
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(0), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
       time_acc_last_(0ULL), time_rot_last_(0ULL),
       o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true)
     {};
-    Sensors(const unsigned long long time_now, const double NOM_DT ): t_raw(0),
+    Sensors(const unsigned long long time_now, const double NOM_DT ): t_raw_ms(0),
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(1), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
       time_acc_last_(time_now), time_rot_last_(time_now),
@@ -90,10 +90,10 @@ public:
     void publish_total_header();
     void publish_total();
     void quiet_decisions(const boolean reset);
-    void sample(const boolean reset, const unsigned long long time_now, const unsigned long long time_start, time_t now_hms);
+    void sample(const boolean reset, const unsigned long long time_now_ms, const unsigned long long time_start_ms, time_t now_hms);
     float T_acc_raw() { return T_acc_; };
     float T_rot_raw() { return T_rot_; };
-    time_t t_raw;
+    time_t t_raw_ms;
     // Gyroscope in radians/second
     float a_raw;
     float b_raw;
