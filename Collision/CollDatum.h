@@ -56,12 +56,10 @@ struct Datum_st
   int16_t y_raw_int = 0;
   int16_t z_raw_int = 0;
 
-  void put(const time_t event, Sensors *Sen);
-  void copy_to_datum_ram_from(Datum_st input);
   void get() {};
   void nominal();
   void print();
-  void put(Datum_st source);
+  void put_copy(Datum_st input);
   void put_nominal();
   void put_sparse(Sensors *Sen);
 };
@@ -70,22 +68,31 @@ class Data_st
 {
 public:
   Data_st() : i_(0), n_(0) {};
-  Data_st(uint16_t size) : i_(size-1), n_(size)
+  Data_st(uint16_t size, uint16_t pre_size) :
+   i_(size-1), n_(size), j_(pre_size-1), m_(pre_size)
   {
     data = new Datum_st*[n_];
     for (int j=0; j<n_; j++) data[j] = new Datum_st();
+    held = new Datum_st*[m_];
+    for (int j=0; j<m_; j++) held[j] = new Datum_st();
   };
   ~Data_st();
-  void copy_to_data_ram_from(Datum_st input);
   void get();
   void print_all();
+  void put_and_hold(Sensors *Sen);
+  void put_copy(Datum_st input);
   void put_datum(Sensors *Sen);
+  void put_datum(Datum_st *point);
+  void put_held();
   void reset(const boolean reset);
 
 protected:
+  Datum_st **held;
   Datum_st **data;
-  uint8_t i_;
-  uint8_t n_;
+  uint16_t j_;
+  uint16_t m_;
+  uint16_t i_;
+  uint16_t n_;
 };
 
 #endif

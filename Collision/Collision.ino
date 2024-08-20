@@ -161,8 +161,9 @@ void loop()
   static boolean monitoring_past = monitoring;
   static time_t new_event = 0;
   static Sensors *Sen = new Sensors(millis(), double(NOM_DT));
-  static Data_st *L = new Data_st(NLOG);  // Event log
+  static Data_st *L = new Data_st(NLOG, NHOLD);  // Event log
   static boolean logging = false;
+  static boolean logging_past = false;
   static uint16_t log_size = 0;
 
 
@@ -184,8 +185,9 @@ void loop()
     // Serial.println("Filtering sensors");
     Sen->filter(reset);
     Sen->quiet_decisions(reset);
+    L->put_and_hold(Sen);
 
-    // Log data
+    // Log logic
     if ( Sen->both_not_quiet() && !logging )
     {
       logging = true;
@@ -197,18 +199,29 @@ void loop()
       if ( Sen->both_are_quiet() && logging ) logging = false;
        log_size = 0;
     }
+
+    // Log data
     if ( logging )
     {
+      if ( !logging_past )
+      {
+        Serial.println(""); Serial.println("Logging");
+        L->put_held();
+      }
       L->put_datum(Sen);
-      Serial.println("L");
     }
     else
     {
+      if ( logging_past ) Serial.println("Logging stopped");
       if ( !Sen->o_is_quiet_sure() ) Serial.print(".");
       if ( !Sen->g_is_quiet_sure() ) Serial.print(",");
     }
+
+    logging_past = logging;
   }  // end read
 
+
+  // Publish
   if ( publishing )
   {
     if ( plotting_all || ( monitoring && ( monitoring != monitoring_past ) ) ) Sen->publish_all_header();
@@ -251,6 +264,7 @@ void loop()
               monitoring = false;
               break;
             case ( 'h' ):
+              Serial.println("History:");
               L->print_all();
               break;
             case ( 'q' ):
@@ -304,7 +318,11 @@ void loop()
               input_str.substring(input_str, 2).toInt(input);
               time_initial = time_t ( input );
               setTime(time_initial);
-              Serial.println("Time set to: "); Serial.println(time_initial);
+
+              cSF(buffer, 36, "");
+              buffer = "---";
+              time_long_2_str(time_initial, buffer);
+              Serial.println("Time set to: "); Serial.print(time_initial); Serial.print(" = "); Serial.println(buffer);
               break;
             default:
               Serial.print(input_str.charAt(1)); Serial.println(" unknown");
@@ -331,7 +349,6 @@ void loop()
     
   }
     // Serial.println("end");
-
 
 }  // loop
 

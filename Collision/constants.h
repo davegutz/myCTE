@@ -57,10 +57,11 @@ const float deg_to_rps = 0.0174533;
 #define ZETA_Q_FILT            0.9      // Quiet fiter-2 damping factor (0.9)
 #define MAX_T_Q_FILT          0.02      // Quiet filter max update time, s (0.02)
 #define QUIET_A                0.1      // Quiet set threshold, sec (0.1)
-#define QUIET_S                1.0      // Quiet set persistence, sec (1.0)
+#define QUIET_S                0.4      // Quiet set persistence, sec (0.4)
 #define O_QUIET_THR           12.0      // rps quiet detection threshold (12.)
 #define G_QUIET_THR            4.0      // rps quiet detection threshold (8.)
 #define NLOG                   500      // Number of log entries to store (500)
+#define NHOLD                    5      // Number of hold entries to store (5)
 
 const float QUIET_R = (QUIET_S/10.);    // Quiet reset persistence, sec ('up 1 down 10')
 const float O_SCL = (16000./W_MAX);     // Rotational int16_t scale factor

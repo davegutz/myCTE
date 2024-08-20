@@ -26,25 +26,14 @@
 // extern SavedPars sp;       // Various parameters to be static at system level and saved through power cycle
 // extern VolatilePars ap; // Various adjustment parameters shared at system level
 
+////////////////////////////////////////////////////////////////
 // struct Datum_st data points
-// Copy function
-void Datum_st::copy_to_datum_ram_from(Datum_st input)
-{
-  t_raw = input.t_raw;
-  T_rot_raw_int = input.T_rot_raw_int;
-  a_raw_int = input.a_raw_int;
   b_raw_int = input.b_raw_int;
-  c_raw_int = input.c_raw_int;
-  T_acc_raw_int = input.T_acc_raw_int;
-  x_raw_int = input.x_raw_int;
-  y_raw_int = input.y_raw_int;
-  z_raw_int = input.z_raw_int;
-}
 
 // Nominal values
 void Datum_st::nominal()
 {
-  t_raw = time_t (1UL);
+  t_raw = time_t (1ULL);
   T_rot_raw_int = int16_t(0);
   a_raw_int = int16_t(0);
   b_raw_int = int16_t(0);
@@ -76,10 +65,18 @@ void Datum_st::print()
      }
 }
 
-// Regular put
-void Datum_st::put(Datum_st source)
+// Copy function
+void Datum_st::put_copy(Datum_st input)
 {
-  copy_to_datum_ram_from(source);
+  t_raw = input.t_raw;
+  T_rot_raw_int = input.T_rot_raw_int;
+  a_raw_int = input.a_raw_int;
+  b_raw_int = input.b_raw_int;
+  c_raw_int = input.c_raw_int;
+  T_acc_raw_int = input.T_acc_raw_int;
+  x_raw_int = input.x_raw_int;
+  y_raw_int = input.y_raw_int;
+  z_raw_int = input.z_raw_int;
 }
 
 // nominalize
@@ -87,7 +84,7 @@ void Datum_st::put_nominal()
 {
   Datum_st source;
   source.nominal();
-  copy_to_datum_ram_from(source);
+  put_copy(source);
 }
 
 // Load data
@@ -105,6 +102,7 @@ void Datum_st::put_sparse(Sensors *Sen)
 }
 
 
+//////////////////////////////////////////////////////////
 // struct Data_st data log
 void Data_st::print_all()
 {
@@ -114,20 +112,52 @@ void Data_st::print_all()
   }
 }
 
+// Precursor storage
+void Data_st:: put_and_hold(Sensors *Sen)
+{
+  if ( ++j_ > (m_-1) ) j_ = 0; // circular buffer
+  held[j_]->put_sparse(Sen);
+}
+
 void Data_st::put_datum(Sensors *Sen)
 {
   if ( ++i_ > (n_-1) ) i_ = 0; // circular buffer
   data[i_]->put_sparse(Sen);
 }
 
+void Data_st::put_datum(Datum_st *point)
+{
+  if ( ++i_ > (n_-1) ) i_ = 0; // circular buffer
+  data[i_]->put_copy(*point);
+}
+
+// Transfer precursor data to storage
+void Data_st::put_held()
+{
+  uint16_t count = 0;
+  uint16_t j = j_;
+// Serial.print("put_held j_"); Serial.print(j_); Serial.print(" m_"); Serial.println(m_);
+  while ( count++ < m_ )
+  {
+  // Serial.print("put_held count"); Serial.print(count);
+    if ( ++j > (m_-1) ) j = 0; // circular buffer
+    if ( held[j]->t_raw == 1ULL ) continue;
+    put_datum(held[j]);
+    // held[j]->print();
+  }
+}
+
 void Data_st::reset(const boolean reset)
 {
   if ( reset )
   {
+    j_ = 0;
+    for ( int j=0; j<m_; j++ ) held[j]->put_nominal();
     i_ = 0;
     for ( int j=0; j<n_; j++ ) data[j]->put_nominal();
   }
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
