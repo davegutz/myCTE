@@ -163,7 +163,7 @@ void loop()
   static boolean monitoring_past = monitoring;
   static time_t new_event = 0;
   static Sensors *Sen = new Sensors(millis(), double(NOM_DT));
-  static Data_st *L = new Data_st(NLOG, NHOLD);  // Event log
+  static Data_st *L = new Data_st(NDATUM, NHOLD);  // Event log
   static boolean logging = false;
   static boolean logging_past = false;
   static uint16_t log_size = 0;

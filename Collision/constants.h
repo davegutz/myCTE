@@ -60,12 +60,14 @@ const float deg_to_rps = 0.0174533;
 #define QUIET_S                0.4      // Quiet set persistence, sec (0.4)
 #define O_QUIET_THR           12.0      // rps quiet detection threshold (12.)
 #define G_QUIET_THR            4.0      // rps quiet detection threshold (8.)
-#define NLOG                   500      // Number of log entries to store (500)
+#define NDATUM                 560      // Number of datum entries to store (560)  varies depending on program size
 #define NHOLD                    5      // Number of hold entries to store (5)
+#define R_SCL                  10.      // Quiet reset persistence scalar on QUIET_S ('up 1 down 10')
 
-const float QUIET_R = (QUIET_S/10.);    // Quiet reset persistence, sec ('up 1 down 10')
+const float QUIET_R = (QUIET_S/R_SCL);  // Quiet reset persistence, sec 
 const float O_SCL = (16000./W_MAX);     // Rotational int16_t scale factor
 const float G_SCL = (16000./G_MAX);     // Rotational int16_t scale factor
 const float T_SCL = (16000./T_MAX);     // Rotational int16_t scale factor
+const uint8_t NDATA = (NDATUM)/((QUIET_S)/(READ_DELAY)*1000*float(R_SCL+1)/float(R_SCL)+NHOLD); // Dynamically determine number of data sets to allow for if small as possible
 
 #endif
