@@ -135,7 +135,7 @@ void Data_st::reset(const boolean reset)
 void time_long_2_str(const unsigned long long _time, SafeString &return_str)
 {
     int thou_ = _time % 1000;
-    time_t time = _time / 1000;
+    time_t time = _time;
     char tempStr[36];
     #ifndef USE_ARDUINO
       uint32_t year_ = Time.year(time);
