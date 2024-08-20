@@ -90,7 +90,7 @@ public:
     void publish_total_header();
     void publish_total();
     void quiet_decisions(const boolean reset);
-    void sample(const boolean reset, const unsigned long long time_now);
+    void sample(const boolean reset, const unsigned long long time_now, const unsigned long long time_start, time_t now_hms);
     float T_acc_raw() { return T_acc_; };
     float T_rot_raw() { return T_rot_; };
     time_t t_raw;

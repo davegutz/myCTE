@@ -58,14 +58,13 @@ void Datum_st::nominal()
 // Print functions
 void Datum_st::print()
 {
-  cSF(buffer, 32, "");
+  cSF(buffer, 36, "");
   buffer = "---";
   if ( this->t_raw > 1L )
   {
-    int rem = this->t_raw % 1000;
-    time_long_2_str(this->t_raw/1000, buffer);
+    time_long_2_str(this->t_raw, buffer);
     Serial.print(t_raw);
-    Serial.print(" "); Serial.print(buffer); Serial.print("."); Serial.print(rem);
+    Serial.print(" "); Serial.print(buffer);
     Serial.print(" T_rot_raw "); Serial.print(float(T_rot_raw_int) / T_SCL);
     Serial.print(" a_raw "); Serial.print(float(a_raw_int) / O_SCL);
     Serial.print(" b_raw "); Serial.print(float(b_raw_int) / O_SCL);
@@ -133,9 +132,11 @@ void Data_st::reset(const boolean reset)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // For summary prints
-void time_long_2_str(const time_t time, SafeString &return_str)
+void time_long_2_str(const unsigned long long _time, SafeString &return_str)
 {
-    char tempStr[32];
+    int thou_ = _time % 1000;
+    time_t time = _time / 1000;
+    char tempStr[36];
     #ifndef USE_ARDUINO
       uint32_t year_ = Time.year(time);
       uint8_t month_ = Time.month(time);
@@ -151,7 +152,7 @@ void time_long_2_str(const time_t time, SafeString &return_str)
       uint8_t minutes_   = minute(time);
       uint8_t seconds_   = second(time);
     #endif
-    sprintf(tempStr, "%4u-%02u-%02uT%02u:%02u:%02u", int(year_), month_, day_, hours_, minutes_, seconds_);
+    sprintf(tempStr, "%4u-%02u-%02uT%02u:%02u:%02u.%03d", int(year_), month_, day_, hours_, minutes_, seconds_, thou_);
     return_str = tempStr;
 }
 

@@ -180,7 +180,7 @@ void Sensors::quiet_decisions(const boolean reset)
 }
 
 // Sample the IMU
-void Sensors::sample(const boolean reset, const unsigned long long time_now)
+void Sensors::sample(const boolean reset, const unsigned long long time_now, const unsigned long long time_start, time_t now_hms)
 {
     // Reset
     if ( reset )
@@ -215,6 +215,6 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now)
     T_rot_ = max( double(time_now - time_rot_last_) / 1000., NOM_DT );
 
     // Time stamp
-    t_raw = time_now;
+    t_raw = time_now - time_start + (unsigned long long)now_hms;
 
 }

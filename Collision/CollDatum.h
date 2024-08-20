@@ -40,7 +40,7 @@
 extern time_t time_initial;
 
 
-void time_long_2_str(const time_t time, SafeString &tempStr);
+void time_long_2_str(const unsigned long long time, SafeString &tempStr);
 
 
 // Datum struct

@@ -145,8 +145,6 @@ void setup() {
 void loop()
 {
   // Synchronization
-  static unsigned long long now = (unsigned long long) millis();
-  now = (unsigned long long) millis();
   boolean chitchat = false;
   static Sync *Talk = new Sync(TALK_DELAY);
   boolean read = false;
@@ -157,7 +155,7 @@ void loop()
   static Sync *ControlSync = new Sync(CONTROL_DELAY);
   unsigned long long elapsed = 0;
   static boolean reset = true;
-  static unsigned long long start = millis();
+  static unsigned long long time_start = millis();
   boolean gyro_ready = false;
   boolean accel_ready = false;
   static boolean monitoring_past = monitoring;
@@ -173,7 +171,7 @@ void loop()
   // Synchronize
   read = ReadSensors->update(millis(), reset);
   chitchat = Talk->update(millis(), reset);
-  elapsed = ReadSensors->now() - start;
+  elapsed = ReadSensors->now() - time_start;
   control = ControlSync->update(millis(), reset);
   publishing = Plotting->update(millis(), reset);
 
@@ -182,7 +180,7 @@ void loop()
   {
 
     // Serial.println("Reading sensors");
-    Sen->sample(reset, millis());
+    Sen->sample(reset, millis(), time_start, now());
     // Serial.println("Filtering sensors");
     Sen->filter(reset);
     Sen->quiet_decisions(reset);
