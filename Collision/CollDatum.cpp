@@ -23,17 +23,17 @@
 
 #include "CollDatum.h"
 
+
 // extern SavedPars sp;       // Various parameters to be static at system level and saved through power cycle
 // extern VolatilePars ap; // Various adjustment parameters shared at system level
 
 ////////////////////////////////////////////////////////////////
 // struct Datum_st data points
-  b_raw_int = input.b_raw_int;
 
 // Nominal values
 void Datum_st::nominal()
 {
-  t_raw = time_t (1ULL);
+  t_raw_ms = time_t (1ULL);
   T_rot_raw_int = int16_t(0);
   a_raw_int = int16_t(0);
   b_raw_int = int16_t(0);
@@ -47,13 +47,13 @@ void Datum_st::nominal()
 // Print functions
 void Datum_st::print()
 {
-  cSF(buffer, 36, "");
-  buffer = "---";
-  if ( this->t_raw > 1L )
+  cSF(prn_buff, INPUT_BYTES, "");
+  prn_buff = "---";
+  if ( this->t_raw_ms > 1L )
   {
-    time_long_2_str(this->t_raw, buffer);
-    Serial.print(t_raw);
-    Serial.print(" "); Serial.print(buffer);
+    time_long_2_str(this->t_raw_ms, prn_buff);
+    Serial.print(t_raw_ms);
+    Serial.print(" "); Serial.print(prn_buff);
     Serial.print(" T_rot_raw "); Serial.print(float(T_rot_raw_int) / T_SCL);
     Serial.print(" a_raw "); Serial.print(float(a_raw_int) / O_SCL);
     Serial.print(" b_raw "); Serial.print(float(b_raw_int) / O_SCL);
@@ -68,7 +68,7 @@ void Datum_st::print()
 // Copy function
 void Datum_st::put_copy(Datum_st input)
 {
-  t_raw = input.t_raw;
+  t_raw_ms = input.t_raw_ms;
   T_rot_raw_int = input.T_rot_raw_int;
   a_raw_int = input.a_raw_int;
   b_raw_int = input.b_raw_int;
@@ -90,7 +90,7 @@ void Datum_st::put_nominal()
 // Load data
 void Datum_st::put_sparse(Sensors *Sen)
 {
-  t_raw = Sen->t_raw;
+  t_raw_ms = Sen->t_raw_ms;
   T_rot_raw_int = int16_t(Sen->T_rot_raw() * T_SCL);
   a_raw_int = int16_t(Sen->a_raw * O_SCL);
   b_raw_int = int16_t(Sen->b_raw * O_SCL);
@@ -141,7 +141,7 @@ void Data_st::put_held()
   {
   // Serial.print("put_held count"); Serial.print(count);
     if ( ++j > (m_-1) ) j = 0; // circular buffer
-    if ( held[j]->t_raw == 1ULL ) continue;
+    if ( held[j]->t_raw_ms == 1ULL ) continue;
     put_datum(held[j]);
     // held[j]->print();
   }
@@ -162,10 +162,10 @@ void Data_st::reset(const boolean reset)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // For summary prints
-void time_long_2_str(const unsigned long long _time, SafeString &return_str)
+void time_long_2_str(const unsigned long long _time_ms, SafeString &return_str)
 {
-    int thou_ = _time % 1000;
-    time_t time = _time;
+    int thou_ = _time_ms % 1000;
+    time_t time = _time_ms / 1000;
     char tempStr[36];
     #ifndef USE_ARDUINO
       uint32_t year_ = Time.year(time);
