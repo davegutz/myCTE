@@ -62,9 +62,10 @@ void Datum_st::print()
   buffer = "---";
   if ( this->t_raw > 1L )
   {
+    int rem = this->t_raw % 1000;
     time_long_2_str(this->t_raw/1000, buffer);
     Serial.print(t_raw);
-    Serial.print(" "); Serial.print(buffer);
+    Serial.print(" "); Serial.print(buffer); Serial.print("."); Serial.print(rem);
     Serial.print(" T_rot_raw "); Serial.print(float(T_rot_raw_int) / T_SCL);
     Serial.print(" a_raw "); Serial.print(float(a_raw_int) / O_SCL);
     Serial.print(" b_raw "); Serial.print(float(b_raw_int) / O_SCL);

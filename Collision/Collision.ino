@@ -239,6 +239,7 @@ void loop()
     read_serial();  // returns one command at a time
     if ( input_str.length() )
     {
+      int input = 0;
       switch ( input_str.charAt(0) )
       {
         case ( 'p' ):
@@ -298,6 +299,20 @@ void loop()
           Serial.println("pt - plot total (rss) on Ctrl+shift+L");
           Serial.println("m  - print all on Ctrl+shift+M");
           break;
+        case ( 'U' ):
+          switch ( input_str.charAt(1) )
+          {
+            case ( 'T' ):
+              input_str.substring(input_str, 2).toInt(input);
+              time_initial = time_t ( input );
+              setTime(time_initial);
+              Serial.println("Time set to: "); Serial.println(time_initial);
+              break;
+            default:
+              Serial.print(input_str.charAt(1)); Serial.println(" unknown");
+              break;
+          }
+        break;
         case ( 'v' ):
           switch ( input_str.charAt(1) )
           {
