@@ -73,10 +73,16 @@ public:
   uint16_t i = 0;
   uint16_t n = 0;
   unsigned long long t_ms = 0ULL;
+  boolean locked = false;
 
   boolean is_empty() { if (t_ms) return(false); else return(true); };
-  void print();
-  void put_nominal();
+  void print()
+  {
+    Serial.print("Reg: t_ms:"); Serial.print(t_ms);
+    Serial.print(" i:"); Serial.print(i);
+    Serial.print(" n: "); Serial.println(n);
+  }
+  void put_nominal() { i = 0; n = 0; t_ms = 0ULL; locked = false; };
 };
 
 
@@ -85,31 +91,37 @@ class Data_st
 {
 public:
   Data_st() : iR_(0), nR_(0), iP_(0), nP_(0), iRr_(0), nRr_(0) {};
-  Data_st(uint16_t ram_size, uint16_t pre_size, uint16_t reg_size) :
-   iR_(ram_size-1), nR_(ram_size), iP_(pre_size-1), nP_(pre_size), iRr_(reg_size-1), nRr_(reg_size)
+  Data_st(uint16_t ram_datums, uint16_t pre_datums, uint16_t reg_registers) :
+   iR_(ram_datums-1), nR_(ram_datums),
+   iP_(pre_datums-1), nP_(pre_datums),
+   iRr_(reg_registers-1), nRr_(reg_registers)
   {
     int j;
     Precursor = new Datum_st*[nP_];
     for (j=0; j<nP_; j++) Precursor[j] = new Datum_st();
     Ram = new Datum_st*[nR_];
     for (j=0; j<nR_; j++) Ram[j] = new Datum_st();
-    R = new Register_st*[nRr_];
-    for (j=0; j<nRr_; j++) R[j] = new Register_st();
+    Reg = new Register_st*[nRr_];
+    for (j=0; j<nRr_; j++) Reg[j] = new Register_st();
   };
   ~Data_st();
   void get();
   void move_precursor();
+  void print_latest_ram();
+  void print_latest_register();
   void print_ram();
   void put_precursor(Sensors *Sen);
   // void from(Datum_st input);
   void put_ram(Sensors *Sen);
   void put_ram(Datum_st *point);
+  void register_lock();
+  void register_unlock();
   void reset(const boolean reset);
 
 protected:
   Datum_st **Precursor; // Precursor storage
-  Datum_st **Ram; // Ram storage
-  Register_st **R;   // Index to Ram
+  Datum_st **Ram;       // Ram storage
+  Register_st **Reg;    // Register for Ram
   uint16_t iR_, iP_, iRr_;
   uint16_t nR_, nP_, nRr_;
 };

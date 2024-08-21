@@ -104,6 +104,36 @@ void Datum_st::from(Sensors *Sen)
 
 //////////////////////////////////////////////////////////
 // struct Data_st data log
+
+// Transfer precursor data to storage
+void Data_st::move_precursor()
+{
+  uint16_t count = 0;
+  uint16_t j = iP_;
+// Serial.print("put_Prebuffer iP_"); Serial.print(iP_); Serial.print(" nP_"); Serial.println(nP_);
+  while ( count++ < nP_ )
+  {
+  // Serial.print("put_Prebuffer count"); Serial.print(count);
+    if ( ++j > (nP_-1) ) j = 0;  // circular buffer
+    if ( Precursor[j]->t_raw_ms == 1ULL ) continue;
+    put_ram(Precursor[j]);
+    // Precursor[j]->print();
+  }
+}
+
+void Data_st::print_latest_register()
+{
+  Reg[iRr_]->print();
+}
+
+void Data_st::print_latest_ram()
+{
+  int begin = Reg[iRr_]->i;
+  int end = begin + Reg[iRr_]->n;
+  for ( int i=begin; i<end; i++ )
+    Ram[i]->print();
+}
+
 void Data_st::print_ram()
 {
   for (int j = 0; j < nR_; j++)
@@ -115,38 +145,38 @@ void Data_st::print_ram()
 // Precursor storage
 void Data_st:: put_precursor(Sensors *Sen)
 {
-  if ( ++iP_ > (nP_-1) ) iP_ = 0; // circular buffer
+  if ( ++iP_ > (nP_-1) ) iP_ = 0;  // circular buffer
   Precursor[iP_]->from(Sen);
 }
 
 void Data_st::put_ram(Sensors *Sen)
 {
-  if ( ++iR_ > (nR_-1) ) iR_ = 0; // circular buffer
+  if ( ++iR_ > (nR_-1) ) iR_ = 0;  // circular buffer
   Ram[iR_]->from(Sen);
 }
 
 void Data_st::put_ram(Datum_st *point)
 {
-  if ( ++iR_ > (nR_-1) ) iR_ = 0; // circular buffer
+  if ( ++iR_ > (nR_-1) ) iR_ = 0;  // circular buffer
   Ram[iR_]->from(*point);
 }
 
-// Transfer precursor data to storage
-void Data_st::move_precursor()
+// Enter information about last data set into register
+void Data_st::register_lock()
 {
-  uint16_t count = 0;
-  uint16_t j = iP_;
-// Serial.print("put_Prebuffer iP_"); Serial.print(iP_); Serial.print(" nP_"); Serial.println(nP_);
-  while ( count++ < nP_ )
-  {
-  // Serial.print("put_Prebuffer count"); Serial.print(count);
-    if ( ++j > (nP_-1) ) j = 0; // circular buffer
-    if ( Precursor[j]->t_raw_ms == 1ULL ) continue;
-    put_ram(Precursor[j]);
-    // Precursor[j]->print();
-  }
+  iRr_++;
+  if ( iRr_ > (nRr_-1) ) iRr_ = 0;  // circular buffer
+  Reg[iRr_]->locked = true;
+  Reg[iRr_]->i = iR_;
+  Reg[iRr_]->t_ms = Ram[iR_]->t_raw_ms;
+}
+void Data_st::register_unlock()
+{
+  Reg[iRr_]->n = iR_ - Reg[iRr_]->i;
+  Reg[iRr_]->locked = false;
 }
 
+// Reset
 void Data_st::reset(const boolean reset)
 {
   if ( reset )

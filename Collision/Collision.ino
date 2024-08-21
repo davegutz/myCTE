@@ -211,13 +211,20 @@ void loop()
       if ( !logging_past )
       {
         Serial.println(""); Serial.println("Logging");
+        L->register_lock();
         L->move_precursor();
       }
       L->put_ram(Sen);
     }
     else
     {
-      if ( logging_past ) Serial.println("Logging stopped");
+      if ( logging_past )
+      {
+        L->register_unlock();
+        L->print_latest_register();
+        L->print_latest_ram();
+        Serial.println("Logging stopped");
+      }
       if ( !Sen->o_is_quiet_sure() ) Serial.print(".");
       if ( !Sen->g_is_quiet_sure() ) Serial.print(",");
     }
