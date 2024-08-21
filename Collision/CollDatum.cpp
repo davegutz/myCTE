@@ -121,6 +121,13 @@ void Data_st::move_precursor()
   }
 }
 
+void Data_st::print_all_registers()
+{
+  for ( int i=0; i<nRr_; i++ )
+    Reg[i]->print();
+}
+
+
 void Data_st::print_latest_register()
 {
   Reg[iRr_]->print();
@@ -128,10 +135,9 @@ void Data_st::print_latest_register()
 
 void Data_st::print_latest_ram()
 {
-  int begin = Reg[iRr_]->i;
-  int end = begin + Reg[iRr_]->n;
-  for ( int i=begin; i<end; i++ )
-    Ram[i]->print();
+  int begin = max(min( Reg[iRr_]->i, nR_-1), 0);
+  int end = max(min(begin + Reg[iRr_]->n, nR_-1), 0);
+  for ( int i=begin; i<end; i++ ) Ram[i]->print();
 }
 
 void Data_st::print_ram()

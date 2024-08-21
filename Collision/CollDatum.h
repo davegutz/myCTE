@@ -108,6 +108,7 @@ public:
   void get();
   void move_precursor();
   void print_latest_ram();
+  void print_all_registers();
   void print_latest_register();
   void print_ram();
   void put_precursor(Sensors *Sen);

@@ -214,8 +214,8 @@ void loop()
       if ( !logging_past )
       {
         Serial.println(""); Serial.println("Logging");
-        L->register_lock();
         L->move_precursor();
+        L->register_lock();  // after move_precursor so has values on first save
       }
       L->put_ram(Sen);
     }
@@ -224,12 +224,13 @@ void loop()
       if ( logging_past )
       {
         L->register_unlock();
+        Serial.println("Logging stopped");
         if ( !plotting )
         {
+          L->print_all_registers();
           L->print_latest_register();
           L->print_latest_ram();
         }
-        Serial.println("Logging stopped");
       }
       if ( !Sen->o_is_quiet_sure() ) Serial.print(".");
       if ( !Sen->g_is_quiet_sure() ) Serial.print(",");
@@ -286,16 +287,14 @@ void loop()
     if ( input_str.length() )
     {
       // Now we know the letters
-      Serial.print("input_str: "); Serial.println(input_str);
+      Serial.print("input_str: "); Serial.print(input_str);
       char letter_0 = '\0';
       char letter_1 = '\0';
       letter_0 = input_str.charAt(0);
       letter_1 = input_str.charAt(1);
       int i_value;
       input_str.substring(input_str, 2).toInt(i_value);
-      Serial.print("letter_0: "); Serial.println(letter_0);
-      Serial.print("letter_1: "); Serial.println(letter_1);
-      Serial.print("i_value: "); Serial.println(i_value);
+      Serial.print(" letter_0: "); Serial.print(letter_0); Serial.print(" letter_1: "); Serial.print(letter_1); Serial.print(" i_value: "); Serial.println(i_value);
       switch ( letter_0 )
       {
         case ( 'p' ):
