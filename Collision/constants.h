@@ -40,6 +40,7 @@ const double NOM_DT = 0.01;
 const float deg_to_rps = 0.0174533;
 
 // Constants; anything numeric (adjustable)
+#define ONE_DAY_MILLIS        86400000UL// Number of milliseconds in one day (24*60*60*1000)
 #define TALK_DELAY           313UL      // Talk wait, ms (313UL = 0.313 sec)
 #define READ_DELAY            10UL      // Sensor read wait, ms (10UL = 0.01 sec) Dr
 #define CONTROL_DELAY        100UL      // Control read wait, ms (100UL = 0.1 sec)
@@ -63,6 +64,7 @@ const float deg_to_rps = 0.0174533;
 #define NDATUM                 560      // Number of datum entries to store (560)  varies depending on program size
 #define NHOLD                    5      // Number of hold entries to store (5)
 #define R_SCL                  10.      // Quiet reset persistence scalar on QUIET_S ('up 1 down 10')
+#define ARBITRARY_TIME  1704067196      // 1/1/2024 at ~12:00:00 AM
 
 const float QUIET_R = (QUIET_S/R_SCL);  // Quiet reset persistence, sec 
 const float O_SCL = (16000./W_MAX);     // Rotational int16_t scale factor

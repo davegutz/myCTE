@@ -64,14 +64,15 @@ cSF(unit, INPUT_BYTES);
 cSF(serial_str, INPUT_BYTES, "");
 cSF(input_str, INPUT_BYTES, "");
 cSF(prn_buff, INPUT_BYTES, "");
-
 boolean string_cpt = false;
 boolean plotting_all = false;
 boolean plotting_quiet = false;
 boolean plotting_quiet_raw = false;
 boolean plotting_total = false;
 boolean monitoring = false;
-time_t time_initial = 1723991463;
+time_t time_initial = ARBITRARY_TIME;
+unsigned long long millis_flip = millis(); // Timekeeping
+unsigned long long last_sync = millis();   // Timekeeping
 
 extern int debug;
 int debug = 0;
@@ -146,7 +147,7 @@ void setup() {
 // Loop
 void loop()
 {
-  // Synchronization
+  static unsigned long long now_ms = (unsigned long long) millis();
   boolean chitchat = false;
   static Sync *Talk = new Sync(TALK_DELAY);
   boolean read = false;
@@ -172,6 +173,8 @@ void loop()
   ///////////////////////////////////////////////////////////// Top of loop////////////////////////////////////////
 
   // Synchronize
+  now_ms = (unsigned long long) millis();
+  if ( now_ms - last_sync > ONE_DAY_MILLIS || reset )  sync_time(&last_sync, &millis_flip); 
   read = ReadSensors->update(millis(), reset);
   chitchat = Talk->update(millis(), reset);
   elapsed = ReadSensors->now() - time_start;
@@ -437,6 +440,7 @@ void say_hello()
   Serial.println(" Hz");
   Serial.println();
   Serial.println("Acceleration in g's");
+  Serial.println("Set time using command 'UTxxxxxxx' where 'xxxxxx' is integer from https://www.epochconverter.com/");
 }
 
 #ifdef USE_EEPROM
@@ -481,3 +485,18 @@ void say_hello()
     SERIAL_PORT_MONITOR.println(", nice to see you again :-)");
   }
 #endif
+
+// Time synchro so printed decimal times align with hms rolls
+void sync_time(unsigned long long *last_sync, unsigned long long *millis_flip)
+{
+  *last_sync = millis();
+
+  // Refresh millis() at turn of Time.now
+  int count = 0;
+  long time_begin = now();  // Seconds since start of epoch
+  while ( now()==time_begin && ++count<1100 )  // Time.now() truncates to seconds
+  {
+    delay(1);
+    *millis_flip = millis()%1000;
+  }
+}
