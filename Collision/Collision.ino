@@ -163,7 +163,7 @@ void loop()
   static boolean monitoring_past = monitoring;
   static time_t new_event = 0;
   static Sensors *Sen = new Sensors(millis(), double(NOM_DT));
-  static Data_st *L = new Data_st(NDATUM, NHOLD);  // Event log
+  static Data_st *L = new Data_st(NDATUM, NHOLD, NDATA);  // Event log
   static boolean logging = false;
   static boolean logging_past = false;
   static uint16_t log_size = 0;
@@ -187,7 +187,7 @@ void loop()
     // Serial.println("Filtering sensors");
     Sen->filter(reset);
     Sen->quiet_decisions(reset);
-    L->put_and_hold(Sen);
+    L->put_precursor(Sen);
 
     // Log logic
     if ( Sen->both_not_quiet() && !logging )
@@ -208,9 +208,9 @@ void loop()
       if ( !logging_past )
       {
         Serial.println(""); Serial.println("Logging");
-        L->put_held();
+        L->move_precursor();
       }
-      L->put_datum(Sen);
+      L->put_ram(Sen);
     }
     else
     {
@@ -267,7 +267,7 @@ void loop()
               break;
             case ( 'h' ):
               Serial.println("History:");
-              L->print_all();
+              L->print_ram();
               break;
             case ( 'q' ):
               plotting_all = false;

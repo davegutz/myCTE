@@ -59,40 +59,60 @@ struct Datum_st
   void get() {};
   void nominal();
   void print();
-  void put_copy(Datum_st input);
+  void from(Datum_st input);
   void put_nominal();
-  void put_sparse(Sensors *Sen);
+  void from(Sensors *Sen);
 };
 
+
+
+// Index to current data
+struct Register_st
+{
+public:
+  uint16_t i = 0;
+  uint16_t n = 0;
+  unsigned long long t_ms = 0ULL;
+
+  boolean is_empty() { if (t_ms) return(false); else return(true); };
+  void print();
+  void put_nominal();
+};
+
+
+// Ram manager
 class Data_st
 {
 public:
-  Data_st() : i_(0), n_(0) {};
-  Data_st(uint16_t size, uint16_t pre_size) :
-   i_(size-1), n_(size), j_(pre_size-1), m_(pre_size)
+  Data_st() : iR_(0), nR_(0), iP_(0), nP_(0), iRr_(0), nRr_(0) {};
+  Data_st(uint16_t ram_size, uint16_t pre_size, uint16_t reg_size) :
+   iR_(ram_size-1), nR_(ram_size), iP_(pre_size-1), nP_(pre_size), iRr_(reg_size-1), nRr_(reg_size)
   {
-    data = new Datum_st*[n_];
-    for (int j=0; j<n_; j++) data[j] = new Datum_st();
-    held = new Datum_st*[m_];
-    for (int j=0; j<m_; j++) held[j] = new Datum_st();
+    int j;
+    Precursor = new Datum_st*[nP_];
+    for (j=0; j<nP_; j++) Precursor[j] = new Datum_st();
+    Ram = new Datum_st*[nR_];
+    for (j=0; j<nR_; j++) Ram[j] = new Datum_st();
+    R = new Register_st*[nRr_];
+    for (j=0; j<nRr_; j++) R[j] = new Register_st();
   };
   ~Data_st();
   void get();
-  void print_all();
-  void put_and_hold(Sensors *Sen);
-  void put_copy(Datum_st input);
-  void put_datum(Sensors *Sen);
-  void put_datum(Datum_st *point);
-  void put_held();
+  void move_precursor();
+  void print_ram();
+  void put_precursor(Sensors *Sen);
+  // void from(Datum_st input);
+  void put_ram(Sensors *Sen);
+  void put_ram(Datum_st *point);
   void reset(const boolean reset);
 
 protected:
-  Datum_st **held;
-  Datum_st **data;
-  uint16_t j_;
-  uint16_t m_;
-  uint16_t i_;
-  uint16_t n_;
+  Datum_st **Precursor; // Precursor storage
+  Datum_st **Ram; // Ram storage
+  Register_st **R;   // Index to Ram
+  uint16_t iR_, iP_, iRr_;
+  uint16_t nR_, nP_, nRr_;
 };
+
 
 #endif

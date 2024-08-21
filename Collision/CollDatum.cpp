@@ -66,7 +66,7 @@ void Datum_st::print()
 }
 
 // Copy function
-void Datum_st::put_copy(Datum_st input)
+void Datum_st::from(Datum_st input)
 {
   t_raw_ms = input.t_raw_ms;
   T_rot_raw_int = input.T_rot_raw_int;
@@ -84,11 +84,11 @@ void Datum_st::put_nominal()
 {
   Datum_st source;
   source.nominal();
-  put_copy(source);
+  from(source);
 }
 
 // Load data
-void Datum_st::put_sparse(Sensors *Sen)
+void Datum_st::from(Sensors *Sen)
 {
   t_raw_ms = Sen->t_raw_ms;
   T_rot_raw_int = int16_t(Sen->T_rot_raw() * T_SCL);
@@ -104,46 +104,46 @@ void Datum_st::put_sparse(Sensors *Sen)
 
 //////////////////////////////////////////////////////////
 // struct Data_st data log
-void Data_st::print_all()
+void Data_st::print_ram()
 {
-  for (int j = 0; j < n_; j++)
+  for (int j = 0; j < nR_; j++)
   {
-    data[j]->print();
+    Ram[j]->print();
   }
 }
 
 // Precursor storage
-void Data_st:: put_and_hold(Sensors *Sen)
+void Data_st:: put_precursor(Sensors *Sen)
 {
-  if ( ++j_ > (m_-1) ) j_ = 0; // circular buffer
-  held[j_]->put_sparse(Sen);
+  if ( ++iP_ > (nP_-1) ) iP_ = 0; // circular buffer
+  Precursor[iP_]->from(Sen);
 }
 
-void Data_st::put_datum(Sensors *Sen)
+void Data_st::put_ram(Sensors *Sen)
 {
-  if ( ++i_ > (n_-1) ) i_ = 0; // circular buffer
-  data[i_]->put_sparse(Sen);
+  if ( ++iR_ > (nR_-1) ) iR_ = 0; // circular buffer
+  Ram[iR_]->from(Sen);
 }
 
-void Data_st::put_datum(Datum_st *point)
+void Data_st::put_ram(Datum_st *point)
 {
-  if ( ++i_ > (n_-1) ) i_ = 0; // circular buffer
-  data[i_]->put_copy(*point);
+  if ( ++iR_ > (nR_-1) ) iR_ = 0; // circular buffer
+  Ram[iR_]->from(*point);
 }
 
 // Transfer precursor data to storage
-void Data_st::put_held()
+void Data_st::move_precursor()
 {
   uint16_t count = 0;
-  uint16_t j = j_;
-// Serial.print("put_held j_"); Serial.print(j_); Serial.print(" m_"); Serial.println(m_);
-  while ( count++ < m_ )
+  uint16_t j = iP_;
+// Serial.print("put_Prebuffer iP_"); Serial.print(iP_); Serial.print(" nP_"); Serial.println(nP_);
+  while ( count++ < nP_ )
   {
-  // Serial.print("put_held count"); Serial.print(count);
-    if ( ++j > (m_-1) ) j = 0; // circular buffer
-    if ( held[j]->t_raw_ms == 1ULL ) continue;
-    put_datum(held[j]);
-    // held[j]->print();
+  // Serial.print("put_Prebuffer count"); Serial.print(count);
+    if ( ++j > (nP_-1) ) j = 0; // circular buffer
+    if ( Precursor[j]->t_raw_ms == 1ULL ) continue;
+    put_ram(Precursor[j]);
+    // Precursor[j]->print();
   }
 }
 
@@ -151,10 +151,10 @@ void Data_st::reset(const boolean reset)
 {
   if ( reset )
   {
-    j_ = 0;
-    for ( int j=0; j<m_; j++ ) held[j]->put_nominal();
-    i_ = 0;
-    for ( int j=0; j<n_; j++ ) data[j]->put_nominal();
+    iP_ = 0;
+    for ( int j=0; j<nP_; j++ ) Precursor[j]->put_nominal();
+    iR_ = 0;
+    for ( int j=0; j<nR_; j++ ) Ram[j]->put_nominal();
   }
 }
 
