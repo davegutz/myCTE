@@ -268,32 +268,32 @@ void loop()
         case ( 'p' ):
           switch ( input_str.charAt(1) )
           {
-            case ( 'a' ):
+            case ( 'a' ):  // pa - plot all filtered on Ctrl+shift+L
               plotting_all = !plotting_all;
               plotting_quiet = false;
               plotting_quiet_raw = false;
               plotting_total = false;
               monitoring = false;
               break;
-            case ( 'h' ):
+            case ( 'h' ):  // ph - print history on Ctrl+shift+L
               Serial.println("History:");
               L->print_ram();
               break;
-            case ( 'q' ):
+            case ( 'q' ):  // Quiet all
               plotting_all = false;
               plotting_quiet = !plotting_quiet;
               plotting_quiet_raw = false;
               plotting_total = false;
               monitoring = false;
               break;
-            case ( 'r' ):
+            case ( 'r' ):  // pr - RSS of raw, filtered
               plotting_all = false;
               plotting_quiet = false;
               plotting_quiet_raw = !plotting_quiet_raw;
               plotting_total = false;
               monitoring = false;
               break;
-            case ( 't' ):
+            case ( 't' ):  // pt - 
               plotting_all = false;
               plotting_quiet = false;
               plotting_quiet_raw = false;
@@ -305,21 +305,23 @@ void loop()
               break;
           }
         break;
-        case ( 'm' ):
+        case ( 'm' ):  // m  - print all on Ctrl+shift+M
           plotting_all = false;
           plotting_quiet = false;
           plotting_quiet_raw = false;
           plotting_total = false;
           monitoring = !monitoring;
           break;
-        case ( 'h' ):
+        case ( 'h' ):  // h  - help
           plotting_all = false;
           plotting_quiet = false;
           plotting_quiet_raw = false;
           plotting_total = false;
           monitoring = false;
+          Serial.println("h - this help");
           Serial.println("HELP");
           Serial.println("pa - plot all filtered on Ctrl+shift+L");
+          Serial.println("ph - print history on Ctrl+shift+L");
           Serial.println("pt - plot total (rss) on Ctrl+shift+L");
           Serial.println("m  - print all on Ctrl+shift+M");
           break;
@@ -448,6 +450,7 @@ void say_hello()
   Serial.println();
   Serial.println("Acceleration in g's");
   Serial.println("Set time using command 'UTxxxxxxx' where 'xxxxxx' is integer from https://www.epochconverter.com/");
+  Serial.println("Check time using command 'vv9;vv0;");
 }
 
 #ifdef USE_EEPROM
