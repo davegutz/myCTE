@@ -66,6 +66,7 @@ cSF(input_str, INPUT_BYTES, "");
 cSF(prn_buff, INPUT_BYTES, "");
 boolean string_cpt = false;
 boolean plotting_all = false;
+uint8_t plot_num = 0;
 boolean plotting_quiet = false;
 boolean plotting_quiet_raw = false;
 boolean plotting_total = false;
@@ -168,6 +169,7 @@ void loop()
   static boolean logging = false;
   static boolean logging_past = false;
   static uint16_t log_size = 0;
+  boolean plotting = false;
 
 
   ///////////////////////////////////////////////////////////// Top of loop////////////////////////////////////////
@@ -180,6 +182,7 @@ void loop()
   elapsed = ReadSensors->now() - time_start;
   control = ControlSync->update(millis(), reset);
   publishing = Plotting->update(millis(), reset);
+  plotting = plotting_all || plotting_quiet || plotting_quiet_raw || plotting_total;
 
   // Read sensors
   if ( read )
@@ -221,8 +224,11 @@ void loop()
       if ( logging_past )
       {
         L->register_unlock();
-        L->print_latest_register();
-        L->print_latest_ram();
+        if ( !plotting )
+        {
+          L->print_latest_register();
+          L->print_latest_ram();
+        }
         Serial.println("Logging stopped");
       }
       if ( !Sen->o_is_quiet_sure() ) Serial.print(".");
@@ -232,20 +238,35 @@ void loop()
     logging_past = logging;
   }  // end read
 
-
   // Publish
   if ( publishing )
   {
-    if ( plotting_all || ( monitoring && ( monitoring != monitoring_past ) ) ) Sen->publish_all_header();
-    else if ( plotting_quiet || ( monitoring && ( monitoring != monitoring_past ) ) ) Sen->publish_quiet_header();
-    else if ( plotting_quiet_raw || ( monitoring && ( monitoring != monitoring_past ) ) ) Sen->publish_quiet_raw_header();
-    else if ( plotting_total || ( monitoring && ( monitoring != monitoring_past ) ) ) Sen->publish_total_header();
-
-        if ( monitoring ) Sen->publish_all();
-    else if ( plotting_all )  Sen->publish_all();
-    else if ( plotting_quiet ) Sen->publish_quiet();
-    else if ( plotting_quiet_raw ) Sen->publish_quiet_raw();
-    else if ( plotting_total ) Sen->publish_total();
+    if ( monitoring && ( monitoring != monitoring_past ) ) Sen->print_all_header();
+    if ( monitoring ) Sen->print_all();
+    else if ( plotting_all )
+    {
+      switch ( plot_num )
+      {
+      case 0:
+        Sen->plot_all_sum();
+        break;
+      case 1:
+        Sen->plot_all_acc();
+        break;
+      case 2:
+        Sen->plot_all_rot();
+        break;
+      case 3:
+        Sen->plot_all();
+        break;
+      default:
+        Serial.println("plot number unknown enter plot number e.g. pa0 (sum), pa1 (acc), pa2 (rot), or pa3 (all)");
+        break;
+      }
+    }
+    else if ( plotting_quiet ) Sen->plot_quiet();
+    else if ( plotting_quiet_raw ) Sen->plot_quiet_raw();
+    else if ( plotting_total ) Sen->plot_total();
 
     monitoring_past = monitoring;
   }
@@ -260,40 +281,62 @@ void loop()
   {
     // Serial.println("chitchat");
     read_serial();  // returns one command at a time
+    
+
     if ( input_str.length() )
     {
-      int input = 0;
-      switch ( input_str.charAt(0) )
+      // Now we know the letters
+      Serial.print("input_str: "); Serial.println(input_str);
+      char letter_0 = '\0';
+      char letter_1 = '\0';
+      letter_0 = input_str.charAt(0);
+      letter_1 = input_str.charAt(1);
+      int i_value;
+      input_str.substring(input_str, 2).toInt(i_value);
+      Serial.print("letter_0: "); Serial.println(letter_0);
+      Serial.print("letter_1: "); Serial.println(letter_1);
+      Serial.print("i_value: "); Serial.println(i_value);
+      switch ( letter_0 )
       {
         case ( 'p' ):
-          switch ( input_str.charAt(1) )
+          switch ( letter_1 )
           {
-            case ( 'a' ):  // pa - plot all filtered on Ctrl+shift+L
-              plotting_all = !plotting_all;
-              plotting_quiet = false;
-              plotting_quiet_raw = false;
-              plotting_total = false;
-              monitoring = false;
+            case ( 'a' ):  // pa - plot all filtered
+              switch ( i_value )
+              {
+                case 0 ... 3:
+                  plot_num = i_value;
+                  plotting_all = true;
+                  plotting_quiet = false;
+                  plotting_quiet_raw = false;
+                  plotting_total = false;
+                  monitoring = false;
+                  break;
+                default:
+                  Serial.println("plot number unknown enter plot number e.g. pa0 (sum), pa1 (acc), pa2 (rot), or pa3 (all)");
+                  plotting_all = false;
+                  break;
+              }
               break;
-            case ( 'h' ):  // ph - print history on Ctrl+shift+L
+            case ( 'h' ):  // ph - print history
               Serial.println("History:");
               L->print_ram();
               break;
-            case ( 'q' ):  // Quiet all
+            case ( 'q' ):  // pq - plot quiet results
               plotting_all = false;
               plotting_quiet = !plotting_quiet;
               plotting_quiet_raw = false;
               plotting_total = false;
               monitoring = false;
               break;
-            case ( 'r' ):  // pr - RSS of raw, filtered
+            case ( 'r' ):  // pr - plot quiet filtering metrics
               plotting_all = false;
               plotting_quiet = false;
               plotting_quiet_raw = !plotting_quiet_raw;
               plotting_total = false;
               monitoring = false;
               break;
-            case ( 't' ):  // pt - 
+            case ( 't' ):  // pt - plot total (rss)
               plotting_all = false;
               plotting_quiet = false;
               plotting_quiet_raw = false;
@@ -301,11 +344,11 @@ void loop()
               monitoring = false;
               break;
             default:
-              Serial.print(input_str.charAt(1)); Serial.println(" unknown");
+              Serial.print(input_str.charAt(1)); Serial.print(" for "); Serial.print(input_str); Serial.println(" unknown");
               break;
           }
-        break;
-        case ( 'm' ):  // m  - print all on Ctrl+shift+M
+          break;
+        case ( 'm' ):  // m  - print all
           plotting_all = false;
           plotting_quiet = false;
           plotting_quiet_raw = false;
@@ -320,17 +363,23 @@ void loop()
           monitoring = false;
           Serial.println("h - this help");
           Serial.println("HELP");
-          Serial.println("pa - plot all filtered on Ctrl+shift+L");
-          Serial.println("ph - print history on Ctrl+shift+L");
-          Serial.println("pt - plot total (rss) on Ctrl+shift+L");
-          Serial.println("m  - print all on Ctrl+shift+M");
+          Serial.println("paX - plot all version X");
+          Serial.println("\t X=0 - summary");
+          Serial.println("\t X=1 - g sensors");
+          Serial.println("\t X=2 - rotational sensors");
+          Serial.println("\t X=3 - all sensors");
+          Serial.println("ph - print history");
+          Serial.println("pq - plot quiet results");
+          Serial.println("pr - plot quiet filtering metrics");
+          Serial.println("pt - plot total (rss)");
+          Serial.println("m  - print all");
           break;
         case ( 'U' ):
-          switch ( input_str.charAt(1) )
+          switch ( letter_1 )
           {
             case ( 'T' ):
-              input_str.substring(input_str, 2).toInt(input);
-              time_initial = time_t ( input );
+              input_str.substring(input_str, 2).toInt(i_value);
+              time_initial = time_t ( i_value );
               setTime(time_initial);
               prn_buff = "---";
               time_long_2_str(time_initial*1000, prn_buff);
@@ -340,20 +389,20 @@ void loop()
               Serial.print(input_str.charAt(1)); Serial.println(" unknown");
               break;
           }
-        break;
+          break;
         case ( 'v' ):
-          switch ( input_str.charAt(1) )
+          switch ( letter_1 )
           {
             case ( 'v' ):
-              input_str.substring(input_str, 2).toInt(debug);
+              debug = i_value;
             break;
             default:
-              Serial.print(input_str.charAt(1)); Serial.println(" unknown");
+              Serial.print(letter_1); Serial.println(" unknown");
               break;
           }
-        break;
+          break;
         default:
-          Serial.print(input_str.charAt(0)); Serial.println(" unknown");
+          Serial.print(letter_0); Serial.println(" unknown");
           break;
       }
     }

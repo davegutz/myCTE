@@ -55,14 +55,77 @@ void Sensors::filter(const boolean reset)
 
 }
 
-// Publish header
-void Sensors::publish_all_header()
+// Print publish
+// plot pa3
+void Sensors::plot_all()  // pa3
 {
-  Serial.println("T_rot_*100\ta_filt\tb_filt\tc_filt\to_filt\to_is_quiet-4\to_is_quiet_sure-4\t\tT_acc*100\tx_filt\ty_filt\tz_filt\tg_filt-1\tg_is_quiet-2\tg_is_quiet_sure-2");
+  float g_q = -2.;
+  float g_q_s = -2.; 
+  if ( g_is_quiet_ ) g_q = -1;
+  if ( g_is_quiet_sure_ ) g_q_s = -1;
+  Serial.print("x_filt:"); Serial.print(x_filt);
+  Serial.print("\ty_filt:"); Serial.print(y_filt);
+  Serial.print("\tz_filt:"); Serial.print(z_filt);
+  Serial.print("\tg_filt-1:"); Serial.print(g_filt-1.);
+  float o_q = -4.;
+  float o_q_s = -4.; 
+  if ( o_is_quiet_ ) o_q = -3;
+  if ( o_is_quiet_sure_ ) o_q_s = -3;
+  Serial.print("\t\ta_filt:"); Serial.print(a_filt);
+  Serial.print("\tb_filt:"); Serial.print(b_filt);
+  Serial.print("\tc_filt:"); Serial.print(c_filt);
+  Serial.print("\to_filt:"); Serial.println(o_filt);
+}
+
+// plot pa1
+void Sensors::plot_all_acc()  // pa1
+{
+  float g_q = -2.;
+  float g_q_s = -2.; 
+  if ( g_is_quiet_ ) g_q = -1;
+  if ( g_is_quiet_sure_ ) g_q_s = -1;
+  Serial.print("T_acc*100:"); Serial.print(T_acc_*100.);
+  Serial.print("\tx_filt:"); Serial.print(x_filt);
+  Serial.print("\ty_filt:"); Serial.print(y_filt);
+  Serial.print("\tz_filt:"); Serial.print(z_filt);
+  Serial.print("\tg_filt-1:"); Serial.print(g_filt-1.);
+  Serial.print("\tg_is_quiet-2:"); Serial.print(g_q);
+  Serial.print("\tg_is_quiet_sure-2:"); Serial.println(g_q_s);
+}
+
+// plot pa2
+void Sensors::plot_all_rot()  // pa2
+{
+  float o_q = -4.;
+  float o_q_s = -4.; 
+  if ( o_is_quiet_ ) o_q = -3;
+  if ( o_is_quiet_sure_ ) o_q_s = -3;
+  Serial.print("T_rot_*100:"); Serial.print(T_rot_*100.);
+  Serial.print("\ta_filt:"); Serial.print(a_filt);
+  Serial.print("\tb_filt:"); Serial.print(b_filt);
+  Serial.print("\tc_filt:"); Serial.print(c_filt);
+  Serial.print("\to_filt:"); Serial.print(o_filt);
+  Serial.print("\to_is_quiet-4:"); Serial.print(o_q);
+  Serial.print("\to_is_quiet_sure-4:"); Serial.println(o_q_s);
+}
+
+// pa0
+void Sensors::plot_all_sum()  // pa0
+{
+  float g_q_s = -2.; 
+  if ( g_is_quiet_sure_ ) g_q_s = -1;
+  Serial.print("g_filt-1:"); Serial.print(g_filt-1.);
+  Serial.print("\tg_quiet:"); Serial.print(g_quiet);
+  Serial.print("\tg_is_quiet_sure-2:"); Serial.print(g_q_s);
+  float o_q_s = -4.; 
+  if ( o_is_quiet_sure_ ) o_q_s = -3;
+  Serial.print("\to_filt:"); Serial.print(o_filt);
+  Serial.print("\to_quiet:"); Serial.print(o_quiet);
+  Serial.print("\to_is_quiet_sure-4:"); Serial.println(o_q_s);
 }
 
 // Print publish
-void Sensors::publish_all()
+void Sensors::plot_quiet()
 {
   float o_q = -4.;
   float o_q_s = -4.; 
@@ -72,103 +135,56 @@ void Sensors::publish_all()
   float g_q_s = -2.; 
   if ( g_is_quiet_ ) g_q = -1;
   if ( g_is_quiet_sure_ ) g_q_s = -1;
-  Serial.print(T_rot_*100.);
-  Serial.print('\t');
-  Serial.print(a_filt);
-  Serial.print('\t');
-  Serial.print(b_filt);
-  Serial.print('\t');
-  Serial.print(c_filt);
-  Serial.print('\t');
-  Serial.print(o_filt);
-  Serial.print('\t');
-  Serial.print(o_q);
-  Serial.print('\t');
-  Serial.print(o_q_s);
-  Serial.print("\t\t");
-  Serial.print(T_acc_*100.);
-  Serial.print('\t');
-  Serial.print(x_filt);
-  Serial.print('\t');
-  Serial.print(y_filt);
-  Serial.print('\t');
-  Serial.print(z_filt);
-  Serial.print('\t');
-  Serial.print(g_filt-1.);
-  Serial.print('\t');
-  Serial.print(g_q);
-  Serial.print('\t');
-  Serial.println(g_q_s);
-}
-
-void Sensors::publish_quiet_header()
-{
-  Serial.println("T_rot_*100\to_filt\to_quiet\to_is_quiet-4\to_is_quiet_sure-4\t\tT_acc*100\t\tg_filt-1\tg_quiet\tg_is_quiet-2\tg_is_quiet_sure-2\t    \t    \t    ");
+  Serial.print("T_rot_*100:"); Serial.print(T_rot_*100.);
+  Serial.print("\to_filt:"); Serial.print(o_filt);
+  Serial.print("\to_quiet:"); Serial.print(o_quiet);
+  Serial.print("\to_is_quiet-4:"); Serial.print(o_q);
+  Serial.print("\to_is_quiet_sure-4:"); Serial.print(o_q_s);
+  Serial.print("\t\tT_acc*100:"); Serial.print(T_acc_*100.);
+  Serial.print("\tg_filt:"); Serial.print(g_filt-1.);
+  Serial.print("\tg_iet:"); Serial.print(g_quiet);
+  Serial.print("\tg_is_quiet-2:"); Serial.print(g_q);
+  Serial.print("\tg_is_quiet_sure-2"); Serial.println(g_q_s);
 }
 
 // Print publish
-void Sensors::publish_quiet()
+void Sensors::plot_quiet_raw()
 {
-  float o_q = -4.;
-  float o_q_s = -4.; 
-  if ( o_is_quiet_ ) o_q = -3;
-  if ( o_is_quiet_sure_ ) o_q_s = -3;
-  float g_q = -2.;
-  float g_q_s = -2.; 
-  if ( g_is_quiet_ ) g_q = -1;
-  if ( g_is_quiet_sure_ ) g_q_s = -1;
-  Serial.print(T_rot_*100.);
-  Serial.print('\t');
-  Serial.print(o_filt);
-  Serial.print('\t');
-  Serial.print(o_quiet);
-  Serial.print('\t');
-  Serial.print(o_q);
-  Serial.print('\t');
-  Serial.print(o_q_s);
-  Serial.print("\t\t");
-  Serial.print(T_acc_*100.);
-  Serial.print('\t');
-  Serial.print(g_filt-1.);
-  Serial.print('\t');
-  Serial.print(g_quiet);
-  Serial.print('\t');
-  Serial.print(g_q);
-  Serial.print('\t');
-  Serial.println(g_q_s);
-}
-
-void Sensors::publish_quiet_raw_header()
-{
-  Serial.println("o_quiet\t\tg_quiet\t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    ");
+  Serial.print("o_quiet:"); Serial.print(o_quiet);
+  Serial.print("\t\tg_quiet:"); Serial.println(g_quiet);
 }
 
 // Print publish
-void Sensors::publish_quiet_raw()
+void Sensors::plot_total()
 {
-  Serial.print(o_quiet);
-  Serial.print("\t\t");
-  Serial.println(g_quiet);
+  Serial.print("T_rot_*100:"); Serial.print(T_rot_*100.);
+  Serial.print("\to_filt:"); Serial.print(o_filt);
+  Serial.print("\t\tT_acc_*100:"); Serial.print(T_acc_*100.);
+  Serial.print("\tg_filt:"); Serial.println(g_filt-1.);
 }
 
-void Sensors::publish_total_header()
+void Sensors::print_all()
 {
-  Serial.println("T_rot_*100\to_filt\t\tT_acc*100\tg_filt\t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    \t    ");
+  Serial.print(T_rot_); Serial.print('\t');
+  Serial.print(a_filt); Serial.print('\t');
+  Serial.print(b_filt); Serial.print('\t');
+  Serial.print(c_filt); Serial.print('\t');
+  Serial.print(o_filt); Serial.print('\t');
+  Serial.print(o_is_quiet_); Serial.print('\t');
+  Serial.print(o_is_quiet_sure_); Serial.print('\t');
+  Serial.print(T_acc_); Serial.print("\t\t");
+  Serial.print(x_filt); Serial.print('\t');
+  Serial.print(y_filt); Serial.print('\t');
+  Serial.print(z_filt); Serial.print('\t');
+  Serial.print(g_filt); Serial.print('\t');
+  Serial.print(g_is_quiet_); Serial.print('\t');
+  Serial.println(g_is_quiet_sure_);
 }
 
-// Print publish
-void Sensors::publish_total()
+void Sensors::print_all_header()
 {
-  Serial.print(T_rot_*100.);
-  Serial.print('\t');
-  Serial.print(o_filt);
-  Serial.print('\t');
-  Serial.print('\t');
-  Serial.print(T_acc_*100.);
-  Serial.print('\t');
-  Serial.println(g_filt);
+  Serial.println("T_rot_*\ta_filt\tb_filt\tc_filt\to_filt\to_is_quiet\to_is_quiet_sure\t\tT_acc\tx_filt\ty_filt\tz_filt\tg_filt\tg_is_quiet\tg_is_quiet_sure");
 }
-
 // Detect no signal present based on detection of quiet signal.
 // Research by sound industry found that 2-pole filtering is the sweet spot between seeing noise
 // and actual motion without 'guilding the lily'

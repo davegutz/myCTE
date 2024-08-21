@@ -44,7 +44,7 @@ const float deg_to_rps = 0.0174533;
 #define TALK_DELAY           313UL      // Talk wait, ms (313UL = 0.313 sec)
 #define READ_DELAY            10UL      // Sensor read wait, ms (10UL = 0.01 sec) Dr
 #define CONTROL_DELAY        100UL      // Control read wait, ms (100UL = 0.1 sec)
-#define PLOT_DELAY            20UL      // Plot wait, ms (20UL = 0.02 sec)
+#define PLOT_DELAY            80UL      // Plot wait, ms (20UL = 0.02 sec)
 #define G_MAX                  20.      // Max G value, g's (20.) 
 #define W_MAX                  20.      // Max rotational value, rps (20.)
 #define T_MAX                 0.04      // Max expected update time, s (0.04)
