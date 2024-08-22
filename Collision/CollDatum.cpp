@@ -110,14 +110,11 @@ void Data_st::move_precursor()
 {
   uint16_t count = 0;
   uint16_t j = iP_;
-// Serial.print("put_Prebuffer iP_"); Serial.print(iP_); Serial.print(" nP_"); Serial.println(nP_);
-  while ( count++ < nP_ )
+  while ( count++ < nP_-1 )  // Last precursor is first of next result, so -1
   {
-  // Serial.print("put_Prebuffer count"); Serial.print(count);
     if ( ++j > (nP_-1) ) j = 0;  // circular buffer
     if ( Precursor[j]->t_raw_ms == 1ULL ) continue;
     put_ram(Precursor[j]);
-    // Precursor[j]->print();
   }
 }
 
@@ -137,7 +134,11 @@ void Data_st::print_latest_ram()
 {
   int begin = max(min( Reg[iRr_]->i, nR_-1), 0);
   int end = max(min(begin + Reg[iRr_]->n, nR_-1), 0);
-  for ( int i=begin; i<end; i++ ) Ram[i]->print();
+  for ( int i=begin; i<end; i++ )
+  {
+    Serial.print(i); Serial.print(" ");
+    Ram[i]->print();
+  }
 }
 
 void Data_st::print_ram()
@@ -178,8 +179,28 @@ void Data_st::register_lock()
 }
 void Data_st::register_unlock()
 {
-  Reg[iRr_]->n = iR_ - Reg[iRr_]->i;
+  boolean reg_wrapped = false;
+  if ( Reg[iRr_]->i < iR_ )
+  {
+    Reg[iRr_]->n = iR_ - Reg[iRr_]->i;
+  }
+  else
+  {
+    Reg[iRr_]->n = nR_ - (Reg[iRr_]->i - iR_);
+    reg_wrapped = true;
+  }
+  if ( reg_wrapped )
+  {
+    uint16_t j = 0;
+    while ( ( Reg[j]->i < Reg[iRr_]->i ) && ( j < nRr_ ) )
+    {
+      Reg[j]->put_nominal();
+      j++;
+    }
+  }
   Reg[iRr_]->locked = false;
+Serial.print("unlock: iRr_="); Serial.print(iRr_); Serial.print(" iR_="); Serial.print(iR_); Serial.print(" Reg[iRr_]->i="); Serial.print(Reg[iRr_]->i); Serial.print(" n="); Serial.println(Reg[iRr_]->n);
+
 }
 
 // Reset

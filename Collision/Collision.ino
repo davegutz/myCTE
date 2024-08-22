@@ -227,9 +227,9 @@ void loop()
         Serial.println("Logging stopped");
         if ( !plotting )
         {
+          L->print_latest_ram();
           L->print_all_registers();
           L->print_latest_register();
-          L->print_latest_ram();
         }
       }
       if ( !Sen->o_is_quiet_sure() ) Serial.print(".");
