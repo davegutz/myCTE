@@ -90,7 +90,7 @@ public:
 class Data_st
 {
 public:
-  Data_st() : iR_(0), nR_(0), iP_(0), nP_(0), iRr_(0), nRr_(0) {};
+  Data_st() : iR_(0), nR_(0), iP_(0), nP_(0), iRr_(0), iStart_(0), nRr_(0) {};
   Data_st(uint16_t ram_datums, uint16_t pre_datums, uint16_t reg_registers) :
    iR_(ram_datums-1), nR_(ram_datums),
    iP_(pre_datums-1), nP_(pre_datums),
@@ -105,6 +105,7 @@ public:
     for (j=0; j<nRr_; j++) Reg[j] = new Register_st();
   };
   ~Data_st();
+  void adjust_register_excepting(Register_st *CurrentReg);
   void get();
   void move_precursor();
   void print_latest_ram();
@@ -118,12 +119,13 @@ public:
   void register_lock();
   void register_unlock();
   void reset(const boolean reset);
+  void sort_registers();
 
 protected:
   Datum_st **Precursor; // Precursor storage
   Datum_st **Ram;       // Ram storage
-  Register_st **Reg;    // Register for Ram
-  uint16_t iR_, iP_, iRr_;
+  Register_st **Reg, *CurrentRegPtr_;    // Register for Ram
+  uint16_t iR_, iP_, iRr_, iStart_;
   uint16_t nR_, nP_, nRr_;
 };
 

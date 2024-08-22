@@ -105,6 +105,22 @@ void Datum_st::from(Sensors *Sen)
 //////////////////////////////////////////////////////////
 // struct Data_st data log
 
+// Delete the over-ridden registers except the one we're currently filling
+void Data_st::adjust_register_excepting(Register_st *CurrentReg)
+{
+  for ( int j=0; j<nRr_; j++ )
+  {
+    if ( CurrentReg == Reg[j] ) continue;
+    if ( (iR_ < (Reg[j]->i + Reg[j]->n-1)) && (iStart_ > Reg[j]->i)  && (iR_ > Reg[j]->i) ) 
+    {
+Serial.print("j="); Serial.print(j); Serial.print(" iStart_="); Serial.print(iStart_); Serial.print(" iR_="); Serial.print(iR_); Serial.print(" Reg[j]->i="); Serial.print(Reg[j]->i); Serial.print(" Reg[j]->n="); Serial.print(Reg[j]->n); Serial.print(" Reg[j]->t_ms="); Serial.print(Reg[j]->t_ms);
+      Serial.println(" nominal");
+      Reg[j]->put_nominal();
+    }
+  }
+  // sort_registers();
+}
+
 // Transfer precursor data to storage
 void Data_st::move_precursor()
 {
@@ -160,22 +176,26 @@ void Data_st::put_ram(Sensors *Sen)
 {
   if ( ++iR_ > (nR_-1) ) iR_ = 0;  // circular buffer
   Ram[iR_]->from(Sen);
+  adjust_register_excepting(CurrentRegPtr_);
 }
 
 void Data_st::put_ram(Datum_st *point)
 {
   if ( ++iR_ > (nR_-1) ) iR_ = 0;  // circular buffer
   Ram[iR_]->from(*point);
+  adjust_register_excepting(CurrentRegPtr_);
 }
 
 // Enter information about last data set into register
 void Data_st::register_lock()
 {
   iRr_++;
+  iStart_ = iR_;
   if ( iRr_ > (nRr_-1) ) iRr_ = 0;  // circular buffer
   Reg[iRr_]->locked = true;
   Reg[iRr_]->i = iR_;
   Reg[iRr_]->t_ms = Ram[iR_]->t_raw_ms;
+  CurrentRegPtr_ = Reg[iRr_];
 }
 void Data_st::register_unlock()
 {
@@ -215,6 +235,11 @@ void Data_st::reset(const boolean reset)
   }
 }
 
+// Sort registers
+void Data_st::sort_registers()
+{
+  Serial.println("TODO: sort registers");
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
