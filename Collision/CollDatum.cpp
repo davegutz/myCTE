@@ -30,6 +30,20 @@
 ////////////////////////////////////////////////////////////////
 // struct Datum_st data points
 
+// Copy function
+void Datum_st::from(Datum_st input)
+{
+  t_raw_ms = input.t_raw_ms;
+  T_rot_raw_int = input.T_rot_raw_int;
+  a_raw_int = input.a_raw_int;
+  b_raw_int = input.b_raw_int;
+  c_raw_int = input.c_raw_int;
+  T_acc_raw_int = input.T_acc_raw_int;
+  x_raw_int = input.x_raw_int;
+  y_raw_int = input.y_raw_int;
+  z_raw_int = input.z_raw_int;
+}
+
 // Nominal values
 void Datum_st::nominal()
 {
@@ -45,38 +59,22 @@ void Datum_st::nominal()
 }
 
 // Print functions
-void Datum_st::print()
+void Datum_st::print(const uint16_t i)
 {
   cSF(prn_buff, INPUT_BYTES, "");
   prn_buff = "---";
-  if ( this->t_raw_ms > 1L )
-  {
-    time_long_2_str(this->t_raw_ms, prn_buff);
-    Serial.print(t_raw_ms);
-    Serial.print(" "); Serial.print(prn_buff);
-    Serial.print(" T_rot_raw "); Serial.print(float(T_rot_raw_int) / T_SCL);
-    Serial.print(" a_raw "); Serial.print(float(a_raw_int) / O_SCL);
-    Serial.print(" b_raw "); Serial.print(float(b_raw_int) / O_SCL);
-    Serial.print(" c_raw "); Serial.print(float(c_raw_int) / O_SCL);
-    Serial.print(" T_acc_raw "); Serial.print(float(T_acc_raw_int) / T_SCL);
-    Serial.print(" x_raw "); Serial.print(float(x_raw_int) / G_SCL);
-    Serial.print(" y_raw "); Serial.print(float(y_raw_int) / G_SCL);
-    Serial.print(" z_raw "); Serial.println(float(z_raw_int) / G_SCL);
-     }
-}
-
-// Copy function
-void Datum_st::from(Datum_st input)
-{
-  t_raw_ms = input.t_raw_ms;
-  T_rot_raw_int = input.T_rot_raw_int;
-  a_raw_int = input.a_raw_int;
-  b_raw_int = input.b_raw_int;
-  c_raw_int = input.c_raw_int;
-  T_acc_raw_int = input.T_acc_raw_int;
-  x_raw_int = input.x_raw_int;
-  y_raw_int = input.y_raw_int;
-  z_raw_int = input.z_raw_int;
+  time_long_2_str(t_raw_ms, prn_buff);
+  Serial.print(i);
+  Serial.print(" "); Serial.print(t_raw_ms);
+  Serial.print(" "); Serial.print(prn_buff);
+  Serial.print(" T_rot_raw "); Serial.print(float(T_rot_raw_int) / T_SCL);
+  Serial.print(" a_raw "); Serial.print(float(a_raw_int) / O_SCL);
+  Serial.print(" b_raw "); Serial.print(float(b_raw_int) / O_SCL);
+  Serial.print(" c_raw "); Serial.print(float(c_raw_int) / O_SCL);
+  Serial.print(" T_acc_raw "); Serial.print(float(T_acc_raw_int) / T_SCL);
+  Serial.print(" x_raw "); Serial.print(float(x_raw_int) / G_SCL);
+  Serial.print(" y_raw "); Serial.print(float(y_raw_int) / G_SCL);
+  Serial.print(" z_raw "); Serial.println(float(z_raw_int) / G_SCL);
 }
 
 // nominalize
@@ -108,7 +106,7 @@ void Datum_st::from(Sensors *Sen)
 // Delete the over-ridden registers except the one we're currently filling
 void Data_st::adjust_register_excepting(Register_st *CurrentReg)
 {
-  for ( int j=0; j<nRr_; j++ )
+  for ( int j=0; j<nRg_; j++ )
   {
     if ( CurrentReg == Reg[j] ) continue;
     if ( (iR_ < (Reg[j]->i + Reg[j]->n-1)) && (iStart_ > Reg[j]->i)  && (iR_ > Reg[j]->i) ) 
@@ -136,24 +134,23 @@ void Data_st::move_precursor()
 
 void Data_st::print_all_registers()
 {
-  for ( int i=0; i<nRr_; i++ )
-    Reg[i]->print();
+  for ( int i=0; i<nRg_; i++ )
+    Reg[i]->print(nR_);
 }
 
 
 void Data_st::print_latest_register()
 {
-  Reg[iRr_]->print();
+  Reg[iRg_]->print(nR_);
 }
 
 void Data_st::print_latest_ram()
 {
-  int begin = max(min( Reg[iRr_]->i, nR_-1), 0);
-  int end = max(min(begin + Reg[iRr_]->n, nR_-1), 0);
+  int begin = max(min( Reg[iRg_]->i, nR_-1), 0);
+  int end = max(min(begin + Reg[iRg_]->n, nR_-1), 0);
   for ( int i=begin; i<end; i++ )
   {
-    Serial.print(i); Serial.print(" ");
-    Ram[i]->print();
+    Ram[i]->print(i);
   }
 }
 
@@ -161,7 +158,7 @@ void Data_st::print_ram()
 {
   for (int j = 0; j < nR_; j++)
   {
-    Ram[j]->print();
+    Ram[j]->print(j);
   }
 }
 
@@ -189,37 +186,39 @@ void Data_st::put_ram(Datum_st *point)
 // Enter information about last data set into register
 void Data_st::register_lock()
 {
-  iRr_++;
+  iRg_++;
+  if ( iRg_ > (nRg_-1) ) iRg_ = 0;  // circular buffer
   iStart_ = iR_;
-  if ( iRr_ > (nRr_-1) ) iRr_ = 0;  // circular buffer
-  Reg[iRr_]->locked = true;
-  Reg[iRr_]->i = iR_;
-  Reg[iRr_]->t_ms = Ram[iR_]->t_raw_ms;
-  CurrentRegPtr_ = Reg[iRr_];
+  if ( iStart_ > (nR_-1) ) iStart_ = 0;  // circular buffer
+  Serial.print(" lock: iRg_="); Serial.print(iRg_); Serial.print(" iStart_="); Serial.println(iStart_);
+  Reg[iRg_]->locked = true;
+  Reg[iRg_]->i = iStart_;
+  CurrentRegPtr_ = Reg[iRg_];
 }
 void Data_st::register_unlock()
 {
+  Reg[iRg_]->t_ms = Ram[iStart_]->t_raw_ms;
   boolean reg_wrapped = false;
-  if ( Reg[iRr_]->i < iR_ )
+  if ( Reg[iRg_]->i < iR_ )
   {
-    Reg[iRr_]->n = iR_ - Reg[iRr_]->i;
+    Reg[iRg_]->n = iR_ - Reg[iRg_]->i;
   }
   else
   {
-    Reg[iRr_]->n = nR_ - (Reg[iRr_]->i - iR_);
+    Reg[iRg_]->n = nR_ - (Reg[iRg_]->i - iR_);
     reg_wrapped = true;
   }
   if ( reg_wrapped )
   {
     uint16_t j = 0;
-    while ( ( Reg[j]->i < Reg[iRr_]->i ) && ( j < nRr_ ) )
+    while ( ( Reg[j]->i < iR_ ) && ( j < nRg_ ) )
     {
       Reg[j]->put_nominal();
       j++;
     }
   }
-  Reg[iRr_]->locked = false;
-Serial.print("unlock: iRr_="); Serial.print(iRr_); Serial.print(" iR_="); Serial.print(iR_); Serial.print(" Reg[iRr_]->i="); Serial.print(Reg[iRr_]->i); Serial.print(" n="); Serial.println(Reg[iRr_]->n);
+  Reg[iRg_]->locked = false;
+Serial.print("unlock: iRg_="); Serial.print(iRg_); Serial.print(" iR_="); Serial.print(iR_); Serial.print(" Reg[iRg_]->i="); Serial.print(Reg[iRg_]->i); Serial.print(" n="); Serial.println(Reg[iRg_]->n);
 
 }
 

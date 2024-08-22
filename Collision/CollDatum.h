@@ -58,12 +58,11 @@ struct Datum_st
 
   void get() {};
   void nominal();
-  void print();
+  void print(const uint16_t i);
   void from(Datum_st input);
   void put_nominal();
   void from(Sensors *Sen);
 };
-
 
 
 // Index to current data
@@ -76,12 +75,18 @@ public:
   boolean locked = false;
 
   boolean is_empty() { if (t_ms) return(false); else return(true); };
-  void print()
+
+  // Print function
+  void print(uint16_t nR)
   {
     Serial.print("Reg: t_ms:"); Serial.print(t_ms);
     Serial.print(" i:"); Serial.print(i);
+    uint16_t end = i + n - 1;
+    if ( end > nR - 1 ) end -= nR;
+    Serial.print(" - "); Serial.print(end);
     Serial.print(" n: "); Serial.println(n);
   }
+  
   void put_nominal() { i = 0; n = 0; t_ms = 0ULL; locked = false; };
 };
 
@@ -90,23 +95,38 @@ public:
 class Data_st
 {
 public:
-  Data_st() : iR_(0), nR_(0), iP_(0), nP_(0), iRr_(0), iStart_(0), nRr_(0) {};
+  Data_st() : iR_(0), nR_(0), iP_(0), nP_(0), iRg_(0), iStart_(0), nRg_(0) {};
   Data_st(uint16_t ram_datums, uint16_t pre_datums, uint16_t reg_registers) :
-   iR_(ram_datums-1), nR_(ram_datums),
-   iP_(pre_datums-1), nP_(pre_datums),
-   iRr_(reg_registers-1), nRr_(reg_registers)
+   iR_(ram_datums), nR_(ram_datums),
+   iP_(pre_datums), nP_(pre_datums),
+   iRg_(reg_registers), nRg_(reg_registers)
   {
     int j;
     Precursor = new Datum_st*[nP_];
-    for (j=0; j<nP_; j++) Precursor[j] = new Datum_st();
+    for (j=0; j<nP_; j++)
+    {
+      Precursor[j] = new Datum_st();
+      Precursor[j]->nominal();
+    }
     Ram = new Datum_st*[nR_];
-    for (j=0; j<nR_; j++) Ram[j] = new Datum_st();
-    Reg = new Register_st*[nRr_];
-    for (j=0; j<nRr_; j++) Reg[j] = new Register_st();
+    for (j=0; j<nR_; j++)
+    {
+      Ram[j] = new Datum_st();
+      Ram[j]->nominal();
+    }
+    Reg = new Register_st*[nRg_];
+    for (j=0; j<nRg_; j++)
+    {
+      Reg[j] = new Register_st();
+      Reg[j]->put_nominal();
+    }
   };
   ~Data_st();
   void adjust_register_excepting(Register_st *CurrentReg);
   void get();
+  uint16_t iR(){ return iR_; };
+  uint16_t iRg(){ return iRg_; };
+  uint16_t nR(){ return nR_; };
   void move_precursor();
   void print_latest_ram();
   void print_all_registers();
@@ -125,8 +145,8 @@ protected:
   Datum_st **Precursor; // Precursor storage
   Datum_st **Ram;       // Ram storage
   Register_st **Reg, *CurrentRegPtr_;    // Register for Ram
-  uint16_t iR_, iP_, iRr_, iStart_;
-  uint16_t nR_, nP_, nRr_;
+  uint16_t iR_, iP_, iRg_, iStart_;
+  uint16_t nR_, nP_, nRg_;
 };
 
 

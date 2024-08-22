@@ -184,6 +184,15 @@ void loop()
   publishing = Plotting->update(millis(), reset);
   plotting = plotting_all || plotting_quiet || plotting_quiet_raw || plotting_total;
 
+  if ( reset )
+  {
+    Serial.print("size of ram NDATUM="); Serial.println(NDATUM);
+    Serial.print("num precursors NHOLD="); Serial.println(NHOLD);
+    Serial.print("num reg entries NDATA="); Serial.println(NDATA);
+    Serial.print("iR="); Serial.println(L->iR());
+    Serial.print("iRg="); Serial.println(L->iRg());
+  }
+
   // Read sensors
   if ( read )
   {
@@ -214,8 +223,8 @@ void loop()
       if ( !logging_past )
       {
         Serial.println(""); Serial.println("Logging");
-        L->move_precursor();
         L->register_lock();  // after move_precursor so has values on first save
+        L->move_precursor();
       }
       L->put_ram(Sen);
     }
@@ -227,9 +236,15 @@ void loop()
         Serial.println("Logging stopped");
         if ( !plotting )
         {
+          Serial.println("All ram");
+          L->print_ram();
+          Serial.println("Latest ram");
           L->print_latest_ram();
+          Serial.println("Registers");
           L->print_all_registers();
+          Serial.println("Latest");
           L->print_latest_register();
+          Serial.print("iR="); Serial.println(L->iR());
         }
       }
       if ( !Sen->o_is_quiet_sure() ) Serial.print(".");
