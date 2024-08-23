@@ -138,13 +138,11 @@ void Sensors::plot_quiet()
   Serial.print("T_rot_*100:"); Serial.print(T_rot_*100.);
   Serial.print("\to_filt:"); Serial.print(o_filt);
   Serial.print("\to_quiet:"); Serial.print(o_quiet);
-  Serial.print("\to_is_quiet-4:"); Serial.print(o_q);
   Serial.print("\to_is_quiet_sure-4:"); Serial.print(o_q_s);
   Serial.print("\t\tT_acc*100:"); Serial.print(T_acc_*100.);
   Serial.print("\tg_filt:"); Serial.print(g_filt-1.);
-  Serial.print("\tg_iet:"); Serial.print(g_quiet);
-  Serial.print("\tg_is_quiet-2:"); Serial.print(g_q);
-  Serial.print("\tg_is_quiet_sure-2"); Serial.println(g_q_s);
+  Serial.print("\tg_quiet:"); Serial.print(g_quiet);
+  Serial.print("\tg_is_quiet_sure-2:"); Serial.println(g_q_s);
 }
 
 // Print publish
@@ -216,7 +214,7 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, 
         g_raw = sqrt(x_raw*x_raw + y_raw*y_raw + z_raw*z_raw);
     }
     else acc_available_ = false;
-    T_acc_ = max( double(time_now_ms - time_acc_last_) / 1000., NOM_DT );
+    T_acc_ = max( double(time_now_ms - time_acc_last_) / 1000., NOM_DT );  // anti-aliasing
 
     // Gyroscope
     if ( !reset && IMU.gyroscopeAvailable() )
@@ -230,7 +228,7 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, 
         o_raw = sqrt(a_raw*a_raw + b_raw*b_raw + c_raw*c_raw);
     }
     else rot_available_ = false;
-    T_rot_ = max( double(time_now_ms - time_rot_last_) / 1000., NOM_DT );
+    T_rot_ = max( double(time_now_ms - time_rot_last_) / 1000., NOM_DT );  // anti-aliasing
 
     // Time stamp
     t_raw_ms = time_now_ms - time_start_ms + (unsigned long long)now_hms*1000;

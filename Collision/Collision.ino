@@ -67,9 +67,6 @@ cSF(prn_buff, INPUT_BYTES, "");
 boolean string_cpt = false;
 boolean plotting_all = false;
 uint8_t plot_num = 0;
-boolean plotting_quiet = false;
-boolean plotting_quiet_raw = false;
-boolean plotting_total = false;
 boolean monitoring = false;
 time_t time_initial = ARBITRARY_TIME;
 unsigned long long millis_flip = millis(); // Timekeeping
@@ -99,6 +96,9 @@ int debug = 0;
 
 // Setup
 void setup() {
+
+  // Wire.begin();
+  // Wire.setClock(400000UL);
 
   unit = version.c_str(); unit  += "_"; unit += HDWE_UNIT.c_str();
   setTime(time_initial);
@@ -182,7 +182,7 @@ void loop()
   elapsed = ReadSensors->now() - time_start;
   control = ControlSync->update(millis(), reset);
   publishing = Plotting->update(millis(), reset);
-  plotting = plotting_all || plotting_quiet || plotting_quiet_raw || plotting_total;
+  plotting = plotting_all;
 
   if ( reset )
   {
@@ -275,14 +275,20 @@ void loop()
       case 3:
         Sen->plot_all();
         break;
+      case 4:
+        Sen->plot_quiet();
+        break;
+      case 5:
+        Sen->plot_quiet_raw();
+        break;
+      case 6:
+        Sen->plot_total();
+        break;
       default:
         Serial.println("plot number unknown enter plot number e.g. pa0 (sum), pa1 (acc), pa2 (rot), or pa3 (all)");
         break;
       }
     }
-    else if ( plotting_quiet ) Sen->plot_quiet();
-    else if ( plotting_quiet_raw ) Sen->plot_quiet_raw();
-    else if ( plotting_total ) Sen->plot_total();
 
     monitoring_past = monitoring;
   }
@@ -307,7 +313,7 @@ void loop()
       char letter_1 = '\0';
       letter_0 = input_str.charAt(0);
       letter_1 = input_str.charAt(1);
-      int i_value;
+      int i_value = -1;  // default value is not something used, so it stops plots
       input_str.substring(input_str, 2).toInt(i_value);
       Serial.print(" letter_0: "); Serial.print(letter_0); Serial.print(" letter_1: "); Serial.print(letter_1); Serial.print(" i_value: "); Serial.println(i_value);
       switch ( letter_0 )
@@ -315,15 +321,12 @@ void loop()
         case ( 'p' ):
           switch ( letter_1 )
           {
-            case ( 'a' ):  // pa - plot all filtered
+            case ( 'p' ):  // pa - plot all filtered
               switch ( i_value )
               {
-                case 0 ... 3:
+                case 0 ... 6:
                   plot_num = i_value;
                   plotting_all = true;
-                  plotting_quiet = false;
-                  plotting_quiet_raw = false;
-                  plotting_total = false;
                   monitoring = false;
                   break;
                 default:
@@ -336,27 +339,6 @@ void loop()
               Serial.println("History:");
               L->print_ram();
               break;
-            case ( 'q' ):  // pq - plot quiet results
-              plotting_all = false;
-              plotting_quiet = !plotting_quiet;
-              plotting_quiet_raw = false;
-              plotting_total = false;
-              monitoring = false;
-              break;
-            case ( 'r' ):  // pr - plot quiet filtering metrics
-              plotting_all = false;
-              plotting_quiet = false;
-              plotting_quiet_raw = !plotting_quiet_raw;
-              plotting_total = false;
-              monitoring = false;
-              break;
-            case ( 't' ):  // pt - plot total (rss)
-              plotting_all = false;
-              plotting_quiet = false;
-              plotting_quiet_raw = false;
-              plotting_total = !plotting_total;
-              monitoring = false;
-              break;
             default:
               Serial.print(input_str.charAt(1)); Serial.print(" for "); Serial.print(input_str); Serial.println(" unknown");
               break;
@@ -364,28 +346,23 @@ void loop()
           break;
         case ( 'm' ):  // m  - print all
           plotting_all = false;
-          plotting_quiet = false;
-          plotting_quiet_raw = false;
-          plotting_total = false;
           monitoring = !monitoring;
           break;
         case ( 'h' ):  // h  - help
           plotting_all = false;
-          plotting_quiet = false;
-          plotting_quiet_raw = false;
-          plotting_total = false;
           monitoring = false;
           Serial.println("h - this help");
           Serial.println("HELP");
-          Serial.println("paX - plot all version X");
-          Serial.println("\t X=0 - summary");
-          Serial.println("\t X=1 - g sensors");
-          Serial.println("\t X=2 - rotational sensors");
-          Serial.println("\t X=3 - all sensors");
+          Serial.println("ppX - plot all version X");
+          Serial.println("\t X=blank - stop plotting");
+          Serial.println("\t X=0 - summary (g_filt, g_quiet, q_is_quiet_sure, o_filt, o_quiet, o_is_quiet_sure)");
+          Serial.println("\t X=1 - g sensors (T_acc, x_filt, y_filt, z_filt, g_filt, g_is_quiet, g_is_quiet_sure)");
+          Serial.println("\t X=2 - rotational sensors (T_rot, a_filt, b_filt, c_filt, o_filt, o_is_quiet, o_is_quiet_sure)");
+          Serial.println("\t X=3 - all sensors (x_filt, y_filt, z_filt, g_filt, a_filt, b_filt, c_filt, o_filt)");
+          Serial.println("\t X=4 - quiet results ( T_rot, o_filt, o_quiet, o_is_quiet_sure, T_acc, g_filt, g_quiet, g_is_quiet_sure)");
+          Serial.println("\t X=5 - quiet filtering metrics (o_quiet, g_quiet)");
+          Serial.println("\t X=6 - total (T_rot, o_filt, T_acc, g_filt)");
           Serial.println("ph - print history");
-          Serial.println("pq - plot quiet results");
-          Serial.println("pr - plot quiet filtering metrics");
-          Serial.println("pt - plot total (rss)");
           Serial.println("m  - print all");
           break;
         case ( 'U' ):
