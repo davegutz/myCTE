@@ -31,6 +31,8 @@
 
 #undef USE_EEPROM
 #undef USE_ARDUINO
+#undef SAVE_RAW
+
 
 // Setup
 #include "local_config.h"
@@ -44,6 +46,7 @@ const float deg_to_rps = 0.0174533;
 #define TALK_DELAY           313UL      // Talk wait, ms (313UL = 0.313 sec)
 #define READ_DELAY            2UL      // Sensor read wait, ms (10UL = 0.01 sec) Dr
 #define CONTROL_DELAY        100UL      // Control read wait, ms (100UL = 0.1 sec)
+#define LOG_DELAY             40UL      // Register wait, ms (40UL = 0.04 sec)
 #define PLOT_DELAY            80UL      // Plot wait, ms (20UL = 0.02 sec)
 #define G_MAX                  20.      // Max G value, g's (20.) 
 #define W_MAX                  20.      // Max rotational value, rps (20.)
@@ -51,7 +54,7 @@ const float deg_to_rps = 0.0174533;
 #define INPUT_BYTES            200      // Serial input buffer sizes
 #define SERIAL_BAUD         115200      // Serial baud rate
 #define TAU_FILT              0.01      // Tau filter, sec (0.01)
-#define TAU_Q_FILT            0.01      // Quiet rate time constant, sec (0.01)
+#define TAU_Q_FILT            0.01     // Quiet rate time constant, sec (0.01)
 #define MIN_Q_FILT            -20.      // Quiet filter minimum, g's / rps(-20)
 #define MAX_Q_FILT             20.      // Quiet filter maximum, g's / rps (20)
 #define WN_Q_FILT              25.      // Quiet filter-2 natural frequency, r/s (25.)
@@ -70,6 +73,6 @@ const float QUIET_R = (QUIET_S/R_SCL);  // Quiet reset persistence, sec
 const float O_SCL = (16000./W_MAX);     // Rotational int16_t scale factor
 const float G_SCL = (16000./G_MAX);     // Rotational int16_t scale factor
 const float T_SCL = (16000./T_MAX);     // Rotational int16_t scale factor
-const uint8_t NDATA = (NDATUM)/((QUIET_S)/(READ_DELAY)*1000*float(R_SCL+1)/float(R_SCL)+NHOLD); // Dynamically determine number of data sets to allow for if small as possible
+const uint8_t NDATA = (NDATUM)/((QUIET_S)/(LOG_DELAY)*1000*float(R_SCL+1)/float(R_SCL)+NHOLD); // Dynamically determine number of data sets to allow for if small as possible
 
 #endif

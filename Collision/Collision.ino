@@ -65,7 +65,7 @@ cSF(serial_str, INPUT_BYTES, "");
 cSF(input_str, INPUT_BYTES, "");
 cSF(prn_buff, INPUT_BYTES, "");
 boolean string_cpt = false;
-boolean plotting_all = false;
+boolean plotting_all = true;
 uint8_t plot_num = 0;
 boolean monitoring = false;
 time_t time_initial = ARBITRARY_TIME;
@@ -157,6 +157,8 @@ void loop()
   static Sync *Plotting = new Sync(PLOT_DELAY);
   boolean control;
   static Sync *ControlSync = new Sync(CONTROL_DELAY);
+  boolean log;
+  static Sync *LogSync = new Sync(LOG_DELAY);
   unsigned long long elapsed = 0;
   static boolean reset = true;
   static unsigned long long time_start = millis();
@@ -181,6 +183,7 @@ void loop()
   chitchat = Talk->update(millis(), reset);
   elapsed = ReadSensors->now() - time_start;
   control = ControlSync->update(millis(), reset);
+  log = LogSync->update(millis(), reset);
   publishing = Plotting->update(millis(), reset);
   plotting = plotting_all;
 
@@ -204,11 +207,16 @@ void loop()
     Sen->quiet_decisions(reset);
     L->put_precursor(Sen);
 
-    // Log logic
+  }  // end read
+
+  // Log
+  if ( log )
+  {
+    // Logic
     if ( Sen->both_not_quiet() && !logging )
     {
       logging = true;
-      new_event = Sen->t_raw_ms;
+      new_event = Sen->t_ms;
       log_size++;
     }
     else
@@ -252,7 +260,7 @@ void loop()
     }
 
     logging_past = logging;
-  }  // end read
+  }
 
   // Publish
   if ( publishing )
@@ -339,6 +347,10 @@ void loop()
               Serial.println("History:");
               L->print_ram();
               break;
+            case ( 'r' ):  // pr - print registers
+              Serial.println("Registers:");
+              L->print_all_registers();
+              break;
             default:
               Serial.print(input_str.charAt(1)); Serial.print(" for "); Serial.print(input_str); Serial.println(" unknown");
               break;
@@ -355,7 +367,7 @@ void loop()
           Serial.println("HELP");
           Serial.println("ppX - plot all version X");
           Serial.println("\t X=blank - stop plotting");
-          Serial.println("\t X=0 - summary (g_filt, g_quiet, q_is_quiet_sure, o_filt, o_quiet, o_is_quiet_sure)");
+          Serial.println("\t X=0 - summary (g_raw, g_filt, g_quiet, q_is_quiet_sure, o_raw, o_filt, o_quiet, o_is_quiet_sure)");
           Serial.println("\t X=1 - g sensors (T_acc, x_filt, y_filt, z_filt, g_filt, g_is_quiet, g_is_quiet_sure)");
           Serial.println("\t X=2 - rotational sensors (T_rot, a_filt, b_filt, c_filt, o_filt, o_is_quiet, o_is_quiet_sure)");
           Serial.println("\t X=3 - all sensors (x_filt, y_filt, z_filt, g_filt, a_filt, b_filt, c_filt, o_filt)");
@@ -363,6 +375,7 @@ void loop()
           Serial.println("\t X=5 - quiet filtering metrics (o_quiet, g_quiet)");
           Serial.println("\t X=6 - total (T_rot, o_filt, T_acc, g_filt)");
           Serial.println("ph - print history");
+          Serial.println("pr - print registers");
           Serial.println("m  - print all");
           break;
         case ( 'U' ):

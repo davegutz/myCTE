@@ -46,22 +46,23 @@ void time_long_2_str(const unsigned long long time_ms, SafeString &tempStr);
 // Datum struct
 struct Datum_st
 {
-  unsigned long long t_raw_ms = 1ULL;
-  int16_t T_rot_raw_int = 0;
-  int16_t a_raw_int = 0;
-  int16_t b_raw_int = 0;
-  int16_t c_raw_int = 0;
-  int16_t T_acc_raw_int = 0;
-  int16_t x_raw_int = 0;
-  int16_t y_raw_int = 0;
-  int16_t z_raw_int = 0;
+  unsigned long long t_ms = 1ULL;
+  int16_t T_rot_int = 0;
+  int16_t a_int = 0;
+  int16_t b_int = 0;
+  int16_t c_int = 0;
+  int16_t T_acc_int = 0;
+  int16_t x_int = 0;
+  int16_t y_int = 0;
+  int16_t z_int = 0;
 
   void get() {};
   void nominal();
   void print(const uint16_t i);
+  void filt_from(Sensors *Sen);
   void from(Datum_st input);
   void put_nominal();
-  void from(Sensors *Sen);
+  void raw_from(Sensors *Sen);
 };
 
 

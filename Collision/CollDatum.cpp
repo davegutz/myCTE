@@ -30,32 +30,56 @@
 ////////////////////////////////////////////////////////////////
 // struct Datum_st data points
 
-// Copy function
+// Copy functions
+void Datum_st::filt_from(Sensors *Sen)
+{
+  t_ms = Sen->t_ms;
+  T_rot_int = int16_t(Sen->T_rot() * T_SCL);
+  a_int = int16_t(Sen->a_filt * O_SCL);
+  b_int = int16_t(Sen->b_filt * O_SCL);
+  c_int = int16_t(Sen->c_filt * O_SCL);
+  T_acc_int = int16_t(Sen->T_acc() * T_SCL);
+  x_int = int16_t(Sen->a_filt * G_SCL);
+  y_int = int16_t(Sen->b_filt * G_SCL);
+  z_int = int16_t(Sen->c_filt * G_SCL);
+}
 void Datum_st::from(Datum_st input)
 {
-  t_raw_ms = input.t_raw_ms;
-  T_rot_raw_int = input.T_rot_raw_int;
-  a_raw_int = input.a_raw_int;
-  b_raw_int = input.b_raw_int;
-  c_raw_int = input.c_raw_int;
-  T_acc_raw_int = input.T_acc_raw_int;
-  x_raw_int = input.x_raw_int;
-  y_raw_int = input.y_raw_int;
-  z_raw_int = input.z_raw_int;
+  t_ms = input.t_ms;
+  T_rot_int = input.T_rot_int;
+  a_int = input.a_int;
+  b_int = input.b_int;
+  c_int = input.c_int;
+  T_acc_int = input.T_acc_int;
+  x_int = input.x_int;
+  y_int = input.y_int;
+  z_int = input.z_int;
+}
+void Datum_st::raw_from(Sensors *Sen)
+{
+  t_ms = Sen->t_ms;
+  T_rot_int = int16_t(Sen->T_rot() * T_SCL);
+  a_int = int16_t(Sen->a_raw * O_SCL);
+  b_int = int16_t(Sen->b_raw * O_SCL);
+  c_int = int16_t(Sen->c_raw * O_SCL);
+  T_acc_int = int16_t(Sen->T_acc() * T_SCL);
+  x_int = int16_t(Sen->a_raw * G_SCL);
+  y_int = int16_t(Sen->b_raw * G_SCL);
+  z_int = int16_t(Sen->c_raw * G_SCL);
 }
 
 // Nominal values
 void Datum_st::nominal()
 {
-  t_raw_ms = time_t (1ULL);
-  T_rot_raw_int = int16_t(0);
-  a_raw_int = int16_t(0);
-  b_raw_int = int16_t(0);
-  c_raw_int = int16_t(0);
-  T_acc_raw_int = int16_t(0);
-  x_raw_int = int16_t(0);
-  y_raw_int = int16_t(0);
-  z_raw_int = int16_t(0);
+  t_ms = time_t (1ULL);
+  T_rot_int = int16_t(0);
+  a_int = int16_t(0);
+  b_int = int16_t(0);
+  c_int = int16_t(0);
+  T_acc_int = int16_t(0);
+  x_int = int16_t(0);
+  y_int = int16_t(0);
+  z_int = int16_t(0);
 }
 
 // Print functions
@@ -63,18 +87,18 @@ void Datum_st::print(const uint16_t i)
 {
   cSF(prn_buff, INPUT_BYTES, "");
   prn_buff = "---";
-  time_long_2_str(t_raw_ms, prn_buff);
+  time_long_2_str(t_ms, prn_buff);
   Serial.print(i);
-  Serial.print(" "); Serial.print(t_raw_ms);
+  Serial.print(" "); Serial.print(t_ms);
   Serial.print(" "); Serial.print(prn_buff);
-  Serial.print(" T_rot_raw "); Serial.print(float(T_rot_raw_int) / T_SCL);
-  Serial.print(" a_raw "); Serial.print(float(a_raw_int) / O_SCL);
-  Serial.print(" b_raw "); Serial.print(float(b_raw_int) / O_SCL);
-  Serial.print(" c_raw "); Serial.print(float(c_raw_int) / O_SCL);
-  Serial.print(" T_acc_raw "); Serial.print(float(T_acc_raw_int) / T_SCL);
-  Serial.print(" x_raw "); Serial.print(float(x_raw_int) / G_SCL);
-  Serial.print(" y_raw "); Serial.print(float(y_raw_int) / G_SCL);
-  Serial.print(" z_raw "); Serial.println(float(z_raw_int) / G_SCL);
+  Serial.print(" T_rot_raw "); Serial.print(float(T_rot_int) / T_SCL);
+  Serial.print(" a_raw "); Serial.print(float(a_int) / O_SCL);
+  Serial.print(" b_raw "); Serial.print(float(b_int) / O_SCL);
+  Serial.print(" c_raw "); Serial.print(float(c_int) / O_SCL);
+  Serial.print(" T_acc_raw "); Serial.print(float(T_acc_int) / T_SCL);
+  Serial.print(" x_raw "); Serial.print(float(x_int) / G_SCL);
+  Serial.print(" y_raw "); Serial.print(float(y_int) / G_SCL);
+  Serial.print(" z_raw "); Serial.println(float(z_int) / G_SCL);
 }
 
 // nominalize
@@ -83,20 +107,6 @@ void Datum_st::put_nominal()
   Datum_st source;
   source.nominal();
   from(source);
-}
-
-// Load data
-void Datum_st::from(Sensors *Sen)
-{
-  t_raw_ms = Sen->t_raw_ms;
-  T_rot_raw_int = int16_t(Sen->T_rot_raw() * T_SCL);
-  a_raw_int = int16_t(Sen->a_raw * O_SCL);
-  b_raw_int = int16_t(Sen->b_raw * O_SCL);
-  c_raw_int = int16_t(Sen->c_raw * O_SCL);
-  T_acc_raw_int = int16_t(Sen->T_acc_raw() * T_SCL);
-  x_raw_int = int16_t(Sen->a_raw * G_SCL);
-  y_raw_int = int16_t(Sen->b_raw * G_SCL);
-  z_raw_int = int16_t(Sen->c_raw * G_SCL);
 }
 
 
@@ -127,7 +137,7 @@ void Data_st::move_precursor()
   while ( count++ < nP_-1 )  // Last precursor is first of next result, so -1
   {
     if ( ++j > (nP_-1) ) j = 0;  // circular buffer
-    if ( Precursor[j]->t_raw_ms == 1ULL ) continue;
+    if ( Precursor[j]->t_ms == 1ULL ) continue;
     put_ram(Precursor[j]);
   }
 }
@@ -166,20 +176,32 @@ void Data_st::print_ram()
 void Data_st:: put_precursor(Sensors *Sen)
 {
   if ( ++iP_ > (nP_-1) ) iP_ = 0;  // circular buffer
-  Precursor[iP_]->from(Sen);
+  #ifndef SAVE_RAW
+    Ram[iR_]->filt_from(Sen);
+  #else
+    Ram[iR_]->raw_from(Sen);
+  #endif
 }
 
 void Data_st::put_ram(Sensors *Sen)
 {
   if ( ++iR_ > (nR_-1) ) iR_ = 0;  // circular buffer
-  Ram[iR_]->from(Sen);
+  #ifndef SAVE_RAW
+    Ram[iR_]->filt_from(Sen);
+  #else
+    Ram[iR_]->raw_from(Sen);
+  #endif
   adjust_register_excepting(CurrentRegPtr_);
 }
 
 void Data_st::put_ram(Datum_st *point)
 {
   if ( ++iR_ > (nR_-1) ) iR_ = 0;  // circular buffer
-  Ram[iR_]->from(*point);
+  #ifndef SAVE_RAW
+    Ram[iR_]->from(*point);
+  #else
+    Ram[iR_]->from(*point);
+  #endif
   adjust_register_excepting(CurrentRegPtr_);
 }
 
@@ -197,7 +219,7 @@ void Data_st::register_lock()
 }
 void Data_st::register_unlock()
 {
-  Reg[iRg_]->t_ms = Ram[iStart_]->t_raw_ms;
+  Reg[iRg_]->t_ms = Ram[iStart_]->t_ms;
   boolean reg_wrapped = false;
   if ( Reg[iRg_]->i < iR_ )
   {

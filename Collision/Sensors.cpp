@@ -114,11 +114,13 @@ void Sensors::plot_all_sum()  // pa0
 {
   float g_q_s = -2.; 
   if ( g_is_quiet_sure_ ) g_q_s = -1;
-  Serial.print("g_filt-1:"); Serial.print(g_filt-1.);
+  Serial.print("g_raw-1:"); Serial.print(g_raw-1.);
+  Serial.print("\tg_filt-1:"); Serial.print(g_filt-1.);
   Serial.print("\tg_quiet:"); Serial.print(g_quiet);
   Serial.print("\tg_is_quiet_sure-2:"); Serial.print(g_q_s);
   float o_q_s = -4.; 
   if ( o_is_quiet_sure_ ) o_q_s = -3;
+  Serial.print("\to_raw:"); Serial.print(o_raw);
   Serial.print("\to_filt:"); Serial.print(o_filt);
   Serial.print("\to_quiet:"); Serial.print(o_quiet);
   Serial.print("\to_is_quiet_sure-4:"); Serial.println(o_q_s);
@@ -188,9 +190,9 @@ void Sensors::print_all_header()
 // and actual motion without 'guilding the lily'
 void Sensors::quiet_decisions(const boolean reset)
 {
-  o_is_quiet_ = abs(o_quiet)<=O_QUIET_THR;
+  o_is_quiet_ = o_quiet <= O_QUIET_THR;  // o_filt is rss
   o_is_quiet_sure_ = OQuietPer->calculate(o_is_quiet_, QUIET_S, QUIET_R, T_rot_, reset);
-  g_is_quiet_ = abs(g_quiet)<=G_QUIET_THR;
+  g_is_quiet_ = g_quiet <= G_QUIET_THR;  // g_filt is rss
   g_is_quiet_sure_ = GQuietPer->calculate(g_is_quiet_, QUIET_S, QUIET_R, T_acc_, reset);
   static int count = 0;
 }
@@ -229,12 +231,12 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, 
     T_rot_ = double(time_now_ms - time_rot_last_) / 1000.;
 
     // Time stamp
-    t_raw_ms = time_now_ms - time_start_ms + (unsigned long long)now_hms*1000;
+    t_ms = time_now_ms - time_start_ms + (unsigned long long)now_hms*1000;
     if ( debug==9 )
     {
       cSF(prn_buff, INPUT_BYTES, "");
-      time_long_2_str(t_raw_ms, prn_buff);
-      Serial.print("t_raw_ms: "); Serial.print(prn_buff); Serial.print(" "); Serial.print(t_raw_ms); Serial.print(" = ");
+      time_long_2_str(t_ms, prn_buff);
+      Serial.print("t_ms: "); Serial.print(prn_buff); Serial.print(" "); Serial.print(t_ms); Serial.print(" = ");
       Serial.print(time_now_ms); Serial.print(" - "); Serial.print(time_start_ms); Serial.print(" + "); Serial.print((unsigned long long)now_hms);
       time_long_2_str((unsigned long long)now_hms*1000, prn_buff); Serial.print(" "); Serial.println(prn_buff);
 
