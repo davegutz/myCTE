@@ -165,14 +165,14 @@ void Sensors::plot_total()
 
 void Sensors::print_all()
 {
-  Serial.print(T_rot_); Serial.print('\t');
+  Serial.print(T_rot_, 3); Serial.print('\t');
   Serial.print(a_filt); Serial.print('\t');
   Serial.print(b_filt); Serial.print('\t');
   Serial.print(c_filt); Serial.print('\t');
   Serial.print(o_filt); Serial.print('\t');
   Serial.print(o_is_quiet_); Serial.print('\t');
   Serial.print(o_is_quiet_sure_); Serial.print('\t');
-  Serial.print(T_acc_); Serial.print("\t\t");
+  Serial.print(T_acc_, 3); Serial.print("\t\t");
   Serial.print(x_filt); Serial.print('\t');
   Serial.print(y_filt); Serial.print('\t');
   Serial.print(z_filt); Serial.print('\t');

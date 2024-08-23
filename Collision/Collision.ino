@@ -167,7 +167,7 @@ void loop()
   static boolean monitoring_past = monitoring;
   static time_t new_event = 0;
   static Sensors *Sen = new Sensors(millis(), double(NOM_DT));
-  static Data_st *L = new Data_st(NDATUM, NHOLD, NDATA);  // Event log
+  static Data_st *L = new Data_st(NDATUM, NHOLD, NREG);  // Event log
   static boolean logging = false;
   static boolean logging_past = false;
   static uint16_t log_size = 0;
@@ -191,7 +191,7 @@ void loop()
   {
     Serial.print("size of ram NDATUM="); Serial.println(NDATUM);
     Serial.print("num precursors NHOLD="); Serial.println(NHOLD);
-    Serial.print("num reg entries NDATA="); Serial.println(NDATA);
+    Serial.print("num reg entries NREG="); Serial.println(NREG);
     Serial.print("iR="); Serial.println(L->iR());
     Serial.print("iRg="); Serial.println(L->iRg());
   }

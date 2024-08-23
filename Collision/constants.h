@@ -46,11 +46,11 @@ const float deg_to_rps = 0.0174533;
 #define TALK_DELAY           313UL      // Talk wait, ms (313UL = 0.313 sec)
 #define READ_DELAY            2UL      // Sensor read wait, ms (10UL = 0.01 sec) Dr
 #define CONTROL_DELAY        100UL      // Control read wait, ms (100UL = 0.1 sec)
-#define LOG_DELAY             40UL      // Register wait, ms (40UL = 0.04 sec)
-#define PLOT_DELAY            80UL      // Plot wait, ms (20UL = 0.02 sec)
+#define LOG_DELAY             20UL      // Register wait, ms (20UL = 0.02 sec)
+#define PLOT_DELAY            80UL      // Plot wait, ms (80UL = 0.08 sec)
 #define G_MAX                  20.      // Max G value, g's (20.) 
 #define W_MAX                  20.      // Max rotational value, rps (20.)
-#define T_MAX                 0.04      // Max expected update time, s (0.04)
+#define T_MAX                 0.02      // Max expected update time, s (0.04)
 #define INPUT_BYTES            200      // Serial input buffer sizes
 #define SERIAL_BAUD         115200      // Serial baud rate
 #define TAU_FILT              0.01      // Tau filter, sec (0.01)
@@ -65,14 +65,14 @@ const float deg_to_rps = 0.0174533;
 #define O_QUIET_THR           12.0      // rps quiet detection threshold (12.)
 #define G_QUIET_THR            4.0      // rps quiet detection threshold (4.)
 #define NDATUM                 560      // Number of datum entries to store (560)  varies depending on program size
-#define NHOLD                   15      // Number of precursor entries to store (15)
+#define NHOLD                   80      // Number of precursor entries to store (15)
 #define R_SCL                  10.      // Quiet reset persistence scalar on QUIET_S ('up 1 down 10')
 #define ARBITRARY_TIME  1704067196      // 1/1/2024 at ~12:00:00 AM
 
 const float QUIET_R = (QUIET_S/R_SCL);  // Quiet reset persistence, sec 
 const float O_SCL = (16000./W_MAX);     // Rotational int16_t scale factor
 const float G_SCL = (16000./G_MAX);     // Rotational int16_t scale factor
-const float T_SCL = (16000./T_MAX);     // Rotational int16_t scale factor
-const uint8_t NDATA = (NDATUM)/((QUIET_S)/(LOG_DELAY)*1000*float(R_SCL+1)/float(R_SCL)+NHOLD); // Dynamically determine number of data sets to allow for if small as possible
+const float T_SCL = (32000./T_MAX);     // Rotational int16_t scale factor
+const uint8_t NREG = (NDATUM)/((QUIET_S)/(LOG_DELAY)*1000*float(R_SCL+1)/float(R_SCL)+NHOLD); // Dynamically determine number of data sets to allow for if small as possible
 
 #endif
