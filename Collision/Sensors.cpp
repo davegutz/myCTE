@@ -34,10 +34,10 @@ void Sensors::filter(const boolean reset)
 
     if ( reset || acc_available_ )
     {
-        x_filt = X_Filt->calculate(x_raw, reset, TAU_FILT, T_acc_);
-        y_filt = Y_Filt->calculate(y_raw, reset, TAU_FILT, T_acc_);
-        z_filt = Z_Filt->calculate(z_raw, reset, TAU_FILT, T_acc_);
-        g_filt = G_Filt->calculate(g_raw, reset, TAU_FILT, T_acc_);
+        x_filt = X_Filt->calculate(x_raw, reset, TAU_FILT, min(T_acc_, NOM_DT));
+        y_filt = Y_Filt->calculate(y_raw, reset, TAU_FILT, min(T_acc_, NOM_DT));
+        z_filt = Z_Filt->calculate(z_raw, reset, TAU_FILT, min(T_acc_, NOM_DT));
+        g_filt = G_Filt->calculate(g_raw, reset, TAU_FILT, min(T_acc_, NOM_DT));
         g_qrate = GQuietRate->calculate(g_raw-1., reset, min(T_acc_, MAX_T_Q_FILT));     
         g_quiet =GQuietFilt->calculate(g_qrate, reset, min(T_acc_, MAX_T_Q_FILT));
         static int count = 0;
@@ -45,10 +45,10 @@ void Sensors::filter(const boolean reset)
 
     if ( reset || rot_available_ )
     {
-        a_filt = A_Filt->calculate(a_raw, reset, TAU_FILT, T_rot_);
-        b_filt = B_Filt->calculate(b_raw, reset, TAU_FILT, T_rot_);
-        c_filt = C_Filt->calculate(c_raw, reset, TAU_FILT, T_rot_);
-        o_filt = O_Filt->calculate(o_raw, reset, TAU_FILT, T_rot_);
+        a_filt = A_Filt->calculate(a_raw, reset, TAU_FILT, min(T_rot_, NOM_DT));
+        b_filt = B_Filt->calculate(b_raw, reset, TAU_FILT, min(T_rot_, NOM_DT));
+        c_filt = C_Filt->calculate(c_raw, reset, TAU_FILT, min(T_rot_, NOM_DT));
+        o_filt = O_Filt->calculate(o_raw, reset, TAU_FILT, min(T_rot_, NOM_DT));
         o_qrate = OQuietRate->calculate(o_raw, reset, min(T_rot_, MAX_T_Q_FILT));     
         o_quiet =OQuietFilt->calculate(o_qrate, reset, min(T_rot_, MAX_T_Q_FILT));
     }
@@ -209,12 +209,11 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, 
     if ( !reset && IMU.accelerationAvailable() )
     {
         IMU.readAcceleration(x_raw, y_raw, z_raw);
-        time_acc_last_ = time_now_ms;
         acc_available_ = true;
         g_raw = sqrt(x_raw*x_raw + y_raw*y_raw + z_raw*z_raw);
     }
     else acc_available_ = false;
-    T_acc_ = max( double(time_now_ms - time_acc_last_) / 1000., NOM_DT );  // anti-aliasing
+    T_acc_ = double(time_now_ms - time_acc_last_) / 1000.;
 
     // Gyroscope
     if ( !reset && IMU.gyroscopeAvailable() )
@@ -223,12 +222,11 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, 
         a_raw *= deg_to_rps;
         b_raw *= deg_to_rps;
         c_raw *= deg_to_rps;
-        time_rot_last_ = time_now_ms;
         rot_available_ = true;
         o_raw = sqrt(a_raw*a_raw + b_raw*b_raw + c_raw*c_raw);
     }
     else rot_available_ = false;
-    T_rot_ = max( double(time_now_ms - time_rot_last_) / 1000., NOM_DT );  // anti-aliasing
+    T_rot_ = double(time_now_ms - time_rot_last_) / 1000.;
 
     // Time stamp
     t_raw_ms = time_now_ms - time_start_ms + (unsigned long long)now_hms*1000;
@@ -241,5 +239,7 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, 
       time_long_2_str((unsigned long long)now_hms*1000, prn_buff); Serial.print(" "); Serial.println(prn_buff);
 
     }
+    if ( acc_available_ ) time_acc_last_ = time_now_ms;
+    if ( rot_available_ ) time_rot_last_ = time_now_ms;
 
 }
