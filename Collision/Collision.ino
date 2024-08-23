@@ -65,7 +65,7 @@ cSF(serial_str, INPUT_BYTES, "");
 cSF(input_str, INPUT_BYTES, "");
 cSF(prn_buff, INPUT_BYTES, "");
 boolean string_cpt = false;
-boolean plotting_all = true;
+boolean plotting_all = false;
 uint8_t plot_num = 0;
 boolean monitoring = false;
 time_t time_initial = ARBITRARY_TIME;
@@ -244,15 +244,14 @@ void loop()
         Serial.println("Logging stopped");
         if ( !plotting )
         {
-          Serial.println("All ram");
-          L->print_ram();
+          // Serial.println("All ram");
+          // L->print_ram();
           Serial.println("Latest ram");
           L->print_latest_ram();
           Serial.println("Registers");
           L->print_all_registers();
-          Serial.println("Latest");
+          Serial.println("Latest register");
           L->print_latest_register();
-          Serial.print("iR="); Serial.println(L->iR());
         }
       }
       if ( !Sen->o_is_quiet_sure() ) Serial.print(".");

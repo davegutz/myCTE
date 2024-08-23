@@ -203,8 +203,8 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, 
     // Reset
     if ( reset )
     {
-        time_rot_last_ = time_now_ms;
-        time_acc_last_ = time_now_ms;
+        time_rot_last_ = time_now_ms - READ_DELAY;
+        time_acc_last_ = time_now_ms - READ_DELAY;
     }
 
     // Accelerometer
