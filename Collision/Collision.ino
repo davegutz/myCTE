@@ -183,6 +183,7 @@ void loop()
   control = ControlSync->update(millis(), reset);
   publishing = Plotting->update(millis(), reset);
   plotting = plotting_all;
+  boolean inhibit_talk = plotting_all && plot_num==7;
 
   if ( reset )
   {
@@ -221,8 +222,8 @@ void loop()
     // Log data
     if ( logging && !logging_past)
     {
-      L->register_lock();  // after move_precursor so has values on first save
-      Serial.println(""); Serial.println("Logging started");
+      L->register_lock(inhibit_talk);  // after move_precursor so has values on first save
+      if ( !inhibit_talk ) { Serial.println(""); Serial.println("Logging started"); }
   
       L->move_precursor();
       L->put_ram(Sen);
@@ -230,8 +231,8 @@ void loop()
     else if ( !logging && logging_past )
     {
       L->put_ram(Sen);
-      Serial.println("Logging stopped");
-      L->register_unlock();
+      if ( !inhibit_talk ) Serial.println("Logging stopped");
+      L->register_unlock(inhibit_talk);
       if ( !plotting )
       {
         // Serial.println("All ram");
@@ -242,6 +243,11 @@ void loop()
         L->print_all_registers();
         Serial.println("Latest register");
         L->print_latest_register();
+      }
+      else if ( plotting_all && plot_num==7 )
+      {
+
+        L->plot_latest_ram();  // pa7
       }
     }
     else if ( logging )
@@ -260,6 +266,7 @@ void loop()
     if ( monitoring ) Sen->print_all();
     else if ( plotting_all )
     {
+      static boolean done = false;
       switch ( plot_num )
       {
       case 0:
@@ -283,8 +290,10 @@ void loop()
       case 6:
         Sen->plot_total();
         break;
+      case 7:
+        break;
       default:
-        Serial.println("plot number unknown enter plot number e.g. pa0 (sum), pa1 (acc), pa2 (rot), or pa3 (all)");
+        Serial.println("plot number unknown enter plot number e.g. pa0 (sum), pa1 (acc), pa2 (rot), pa3 (all), pa4 (quiet), pa5 (quiet raw), pa6 (total) or pa7 (sum plot)");
         break;
       }
     }
@@ -323,13 +332,13 @@ void loop()
             case ( 'p' ):  // pa - plot all filtered
               switch ( i_value )
               {
-                case 0 ... 6:
+                case 0 ... 7:
                   plot_num = i_value;
                   plotting_all = true;
                   monitoring = false;
                   break;
                 default:
-                  Serial.println("plot number unknown enter plot number e.g. pa0 (sum), pa1 (acc), pa2 (rot), or pa3 (all)");
+                  Serial.println("plot number unknown enter plot number e.g. pa0 (sum), pa1 (acc), pa2 (rot), pa3 (all), pa4 (quiet), pa5 (quiet raw), pa6 (total) or pa7 (sum plot)");
                   plotting_all = false;
                   break;
               }
@@ -365,6 +374,7 @@ void loop()
           Serial.println("\t X=4 - quiet results ( T_rot, o_filt, o_quiet, o_is_quiet_sure, T_acc, g_filt, g_quiet, g_is_quiet_sure)");
           Serial.println("\t X=5 - quiet filtering metrics (o_quiet, g_quiet)");
           Serial.println("\t X=6 - total (T_rot, o_filt, T_acc, g_filt)");
+          Serial.println("\t X=7 - summary for plot");
           Serial.println("ph - print history");
           Serial.println("pr - print registers");
           Serial.println("m  - print all");

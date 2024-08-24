@@ -58,6 +58,7 @@ struct Datum_st
 
   void get() {};
   void nominal();
+  void plot(const uint16_t i);
   void print(const uint16_t i);
   void filt_from(Sensors *Sen);
   void from(Datum_st input);
@@ -129,6 +130,7 @@ public:
   uint16_t iRg(){ return iRg_; };
   uint16_t nR(){ return nR_; };
   void move_precursor();
+  void plot_latest_ram();
   void print_latest_datum();
   void print_latest_ram();
   void print_all_registers();
@@ -138,8 +140,8 @@ public:
   // void from(Datum_st input);
   void put_ram(Sensors *Sen);
   void put_ram(Datum_st *point);
-  void register_lock();
-  void register_unlock();
+  void register_lock(const boolean quiet);
+  void register_unlock(const boolean quiet);
   void reset(const boolean reset);
   void sort_registers();
 

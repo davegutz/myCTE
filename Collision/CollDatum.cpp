@@ -83,6 +83,29 @@ void Datum_st::nominal()
 }
 
 // Print functions
+void Datum_st::plot(const uint16_t i)
+{
+  #ifndef SAVE_RAW
+    Serial.print("T_rot_filt*100:"); Serial.print(float(T_rot_int) * 100. / T_SCL);
+    Serial.print("\ta_filt:"); Serial.print(float(a_int) / O_SCL);
+    Serial.print("\tb_filt:"); Serial.print(float(b_int) / O_SCL);
+    Serial.print("\tc_filt:"); Serial.print(float(c_int) / O_SCL);
+    Serial.print("\tT_acc_filt*100:"); Serial.print(float(T_acc_int) * 100. / T_SCL);
+    Serial.print("\tx_filt:"); Serial.print(float(x_int) / G_SCL);
+    Serial.print("\ty_filt:"); Serial.print(float(y_int) / G_SCL);
+    Serial.print("\tz_filt:"); Serial.println(float(z_int) / G_SCL);
+  #else
+    Serial.print("T_rot_raw*100:"); Serial.print(float(T_rot_int) * 100. / T_SCL);
+    Serial.print("\ta_raw:"); Serial.print(float(a_int) / O_SCL);
+    Serial.print("\tb_raw:"); Serial.print(float(b_int) / O_SCL);
+    Serial.print("\tc_raw:"); Serial.print(float(c_int) / O_SCL);
+    Serial.print("\tT_acc_raw*100:"); Serial.print(float(T_acc_int) * 100. / T_SCL);
+    Serial.print("\tx_raw:"); Serial.print(float(x_int) / G_SCL);
+    Serial.print("\ty_raw:"); Serial.print(float(y_int) / G_SCL);
+    Serial.print("\tz_raw:"); Serial.println(float(z_int) / G_SCL);
+  #endif
+}
+
 void Datum_st::print(const uint16_t i)
 {
   cSF(prn_buff, INPUT_BYTES, "");
@@ -145,11 +168,22 @@ void Data_st::move_precursor()
 {
   uint16_t count = 0;
   uint16_t j = iP_;
-  while ( count++ < nP_-1 )  // Last precursor is first of next result, so -1
+  while ( count++ < nP_ -1 )
   {
     if ( ++j > (nP_-1) ) j = 0;  // circular buffer
     if ( Precursor[j]->t_ms == 1ULL ) continue;
     put_ram(Precursor[j]);
+  }
+}
+
+void Data_st::plot_latest_ram()
+{
+  int begin = max(min( Reg[iRg_]->i, nR_-1), 0);
+  int end = max(min(begin + Reg[iRg_]->n/2, nR_-1), 0);  // plot half
+  for ( int i=begin; i<end; i++ )
+  {
+    if ( i==begin ) for ( int j=0; j<5; j++ ) { Ram[i]->plot(j); delay(16UL); }
+    Ram[i]->plot(i); delay(16UL);
   }
 }
 
@@ -179,6 +213,7 @@ void Data_st::print_latest_ram()
   }
 }
 
+
 void Data_st::print_ram()
 {
   for (int j = 0; j < nR_; j++)
@@ -193,7 +228,6 @@ void Data_st:: put_precursor(Sensors *Sen)
   if ( ++iP_ > (nP_-1) ) iP_ = 0;  // circular buffer
   #ifndef SAVE_RAW
     Precursor[iP_]->filt_from(Sen);
-Precursor[iP_]->b_int = 0ULL;
   #else
     Precursor[iP_]->raw_from(Sen);
   #endif
@@ -204,7 +238,6 @@ void Data_st::put_ram(Sensors *Sen)
   if ( ++iR_ > (nR_-1) ) iR_ = 0;  // circular buffer
   #ifndef SAVE_RAW
     Ram[iR_]->filt_from(Sen);
-  Serial.print("Sen: "); Serial.print(iR_); Serial.print(" "); Serial.println(Ram[iR_]->t_ms);
   #else
     Ram[iR_]->raw_from(Sen);
   #endif
@@ -216,7 +249,6 @@ void Data_st::put_ram(Datum_st *point)
   if ( ++iR_ > (nR_-1) ) iR_ = 0;  // circular buffer
   #ifndef SAVE_RAW
     Ram[iR_]->from(*point);
-  Serial.print("pt: "); Serial.print(iR_); Serial.print(" "); Serial.println(Ram[iR_]->t_ms);
   #else
     Ram[iR_]->from(*point);
   #endif
@@ -224,18 +256,18 @@ void Data_st::put_ram(Datum_st *point)
 }
 
 // Enter information about last data set into register
-void Data_st::register_lock()
+void Data_st::register_lock(const boolean quiet)
 {
   iRg_++;
   if ( iRg_ > (nRg_-1) ) iRg_ = 0;  // circular buffer
   iStart_ = iR_;
   if ( iStart_ > (nR_-1) ) iStart_ = 0;  // circular buffer
-  Serial.print(" lock: iRg_="); Serial.print(iRg_); Serial.print(" iStart_="); Serial.println(iStart_);
+  if ( !quiet ) { Serial.print(" lock: iRg_="); Serial.print(iRg_); Serial.print(" iStart_="); Serial.println(iStart_); }
   Reg[iRg_]->locked = true;
   Reg[iRg_]->i = iStart_;
   CurrentRegPtr_ = Reg[iRg_];
 }
-void Data_st::register_unlock()
+void Data_st::register_unlock(const boolean quiet)
 {
   Reg[iRg_]->t_ms = Ram[iStart_]->t_ms;
   boolean reg_wrapped = false;
@@ -258,8 +290,13 @@ void Data_st::register_unlock()
     }
   }
   Reg[iRg_]->locked = false;
-Serial.print("unlock: iRg_="); Serial.print(iRg_); Serial.print(" iR_="); Serial.print(iR_); Serial.print(" Reg[iRg_]->i="); Serial.print(Reg[iRg_]->i); Serial.print(" n="); Serial.println(Reg[iRg_]->n);
-
+  if ( !quiet )
+  {
+    Serial.print("unlock: iRg_="); Serial.print(iRg_);
+    Serial.print(" iR_="); Serial.print(iR_); 
+    Serial.print(" Reg[iRg_]->i="); Serial.print(Reg[iRg_]->i);
+    Serial.print(" n="); Serial.println(Reg[iRg_]->n);
+  }
 }
 
 // Reset
