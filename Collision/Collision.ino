@@ -157,8 +157,6 @@ void loop()
   static Sync *Plotting = new Sync(PLOT_DELAY);
   boolean control;
   static Sync *ControlSync = new Sync(CONTROL_DELAY);
-  boolean log;
-  static Sync *LogSync = new Sync(LOG_DELAY);
   unsigned long long elapsed = 0;
   static boolean reset = true;
   static unsigned long long time_start = millis();
@@ -183,7 +181,6 @@ void loop()
   chitchat = Talk->update(millis(), reset);
   elapsed = ReadSensors->now() - time_start;
   control = ControlSync->update(millis(), reset);
-  log = LogSync->update(millis(), reset);
   publishing = Plotting->update(millis(), reset);
   plotting = plotting_all;
 
@@ -200,18 +197,11 @@ void loop()
   if ( read )
   {
 
-    // Serial.println("Reading sensors");
     Sen->sample(reset, millis(), time_start, now());
-    // Serial.println("Filtering sensors");
     Sen->filter(reset);
     Sen->quiet_decisions(reset);
     L->put_precursor(Sen);
 
-  }  // end read
-
-  // Log
-  if ( log )
-  {
     // Logic
     if ( Sen->both_not_quiet() && !logging )
     {
@@ -221,46 +211,47 @@ void loop()
     }
     else
     {
-      if ( Sen->both_are_quiet() && logging ) logging = false;
-       log_size = 0;
+      if ( Sen->both_are_quiet() && logging )
+      {
+        logging = false;  // This throws out the last event
+      }
+      log_size = 0;
     }
 
     // Log data
-    if ( logging )
+    if ( logging && !logging_past)
     {
-      if ( !logging_past )
-      {
-        Serial.println(""); Serial.println("Logging");
-        L->register_lock();  // after move_precursor so has values on first save
-    
-        L->move_precursor();
-      }
+      L->register_lock();  // after move_precursor so has values on first save
+      Serial.println(""); Serial.println("Logging started");
+  
+      L->move_precursor();
       L->put_ram(Sen);
     }
-    else
+    else if ( !logging && logging_past )
     {
-      if ( logging_past )
+      L->put_ram(Sen);
+      Serial.println("Logging stopped");
+      L->register_unlock();
+      if ( !plotting )
       {
-        L->register_unlock();
-        Serial.println("Logging stopped");
-        if ( !plotting )
-        {
-          // Serial.println("All ram");
-          // L->print_ram();
-          Serial.println("Latest ram");
-          L->print_latest_ram();
-          Serial.println("Registers");
-          L->print_all_registers();
-          Serial.println("Latest register");
-          L->print_latest_register();
-        }
+        // Serial.println("All ram");
+        // L->print_ram();
+        Serial.println("Latest ram");
+        L->print_latest_ram();
+        Serial.println("Registers");
+        L->print_all_registers();
+        Serial.println("Latest register");
+        L->print_latest_register();
       }
-      if ( !Sen->o_is_quiet_sure() ) Serial.print(".");
-      if ( !Sen->g_is_quiet_sure() ) Serial.print(",");
+    }
+    else if ( logging )
+    {
+      L->put_ram(Sen);
     }
 
     logging_past = logging;
-  }
+
+  }  // end read
 
   // Publish
   if ( publishing )

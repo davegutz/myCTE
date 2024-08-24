@@ -204,6 +204,7 @@ void Data_st::put_ram(Sensors *Sen)
   if ( ++iR_ > (nR_-1) ) iR_ = 0;  // circular buffer
   #ifndef SAVE_RAW
     Ram[iR_]->filt_from(Sen);
+  Serial.print("Sen: "); Serial.print(iR_); Serial.print(" "); Serial.println(Ram[iR_]->t_ms);
   #else
     Ram[iR_]->raw_from(Sen);
   #endif
@@ -215,6 +216,7 @@ void Data_st::put_ram(Datum_st *point)
   if ( ++iR_ > (nR_-1) ) iR_ = 0;  // circular buffer
   #ifndef SAVE_RAW
     Ram[iR_]->from(*point);
+  Serial.print("pt: "); Serial.print(iR_); Serial.print(" "); Serial.println(Ram[iR_]->t_ms);
   #else
     Ram[iR_]->from(*point);
   #endif
