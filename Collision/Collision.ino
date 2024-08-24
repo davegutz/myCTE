@@ -222,7 +222,7 @@ void loop()
     // Log data
     if ( logging && !logging_past)
     {
-      L->register_lock(inhibit_talk);  // after move_precursor so has values on first save
+      L->register_lock(inhibit_talk, Sen);  // after move_precursor so has values on first save
       if ( !inhibit_talk ) { Serial.println(""); Serial.println("Logging started"); }
   
       L->move_precursor();
@@ -232,7 +232,7 @@ void loop()
     {
       L->put_ram(Sen);
       if ( !inhibit_talk ) Serial.println("Logging stopped");
-      L->register_unlock(inhibit_talk);
+      L->register_unlock(inhibit_talk, Sen);
       if ( !plotting )
       {
         // Serial.println("All ram");

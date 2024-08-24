@@ -180,7 +180,7 @@ void Data_st::plot_latest_ram()
 {
   int begin = max(min( Reg[iRg_]->i, nR_-1), 0);
   int end = max(min(begin + Reg[iRg_]->n/2, nR_-1), 0);  // plot half
-  for ( int i=begin; i<end; i++ )
+  for ( int i=begin; i<end; i+=2 )
   {
     if ( i==begin ) for ( int j=0; j<5; j++ ) { Ram[i]->plot(j); delay(16UL); }
     Ram[i]->plot(i); delay(16UL);
@@ -238,6 +238,10 @@ void Data_st::put_ram(Sensors *Sen)
   if ( ++iR_ > (nR_-1) ) iR_ = 0;  // circular buffer
   #ifndef SAVE_RAW
     Ram[iR_]->filt_from(Sen);
+    Reg[iRg_]->o_raw_max = max(Reg[iRg_]->o_raw_max, Sen->o_raw);
+    Reg[iRg_]->g_raw_max = max(Reg[iRg_]->g_raw_max, Sen->g_raw);
+    Reg[iRg_]->o_filt_max = max(Reg[iRg_]->o_filt_max, Sen->o_filt);
+    Reg[iRg_]->g_filt_max = max(Reg[iRg_]->g_filt_max, Sen->g_filt);
   #else
     Ram[iR_]->raw_from(Sen);
   #endif
@@ -256,7 +260,7 @@ void Data_st::put_ram(Datum_st *point)
 }
 
 // Enter information about last data set into register
-void Data_st::register_lock(const boolean quiet)
+void Data_st::register_lock(const boolean quiet, Sensors *Sen)
 {
   iRg_++;
   if ( iRg_ > (nRg_-1) ) iRg_ = 0;  // circular buffer
@@ -266,8 +270,12 @@ void Data_st::register_lock(const boolean quiet)
   Reg[iRg_]->locked = true;
   Reg[iRg_]->i = iStart_;
   CurrentRegPtr_ = Reg[iRg_];
+  Reg[iRg_]->o_raw_max = 0;
+  Reg[iRg_]->o_filt_max = 0;
+  Reg[iRg_]->g_raw_max = 0;
+  Reg[iRg_]->g_filt_max = 0;
 }
-void Data_st::register_unlock(const boolean quiet)
+void Data_st::register_unlock(const boolean quiet, Sensors *Sen)
 {
   Reg[iRg_]->t_ms = Ram[iStart_]->t_ms;
   boolean reg_wrapped = false;

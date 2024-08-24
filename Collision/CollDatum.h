@@ -75,6 +75,10 @@ public:
   uint16_t n = 0;
   unsigned long long t_ms = 0ULL;
   boolean locked = false;
+  float o_raw_max = 0;
+  float g_raw_max = 0;
+  float o_filt_max = 0;
+  float g_filt_max = 0;
 
   boolean is_empty() { if (t_ms) return(false); else return(true); };
 
@@ -86,10 +90,15 @@ public:
     uint16_t end = i + n - 1;
     if ( end > nR - 1 ) end -= nR;
     Serial.print(" - "); Serial.print(end);
-    Serial.print(" n: "); Serial.println(n);
+    Serial.print(" n: "); Serial.print(n);
+    Serial.print(" o_raw_max:"); Serial.print(o_raw_max);
+    Serial.print(" o_filt_max:"); Serial.print(o_filt_max);
+    Serial.print(" g_raw_max:"); Serial.print(g_raw_max);
+    Serial.print(" g_filt_max:"); Serial.print(g_filt_max);
+    Serial.println();
   }
   
-  void put_nominal() { i = 0; n = 0; t_ms = 0ULL; locked = false; };
+  void put_nominal() { i = 0; n = 0; t_ms = 0ULL; locked = false; o_raw_max = 0; g_raw_max = 0; o_filt_max = 0; g_filt_max = 0; };
 };
 
 
@@ -140,8 +149,8 @@ public:
   // void from(Datum_st input);
   void put_ram(Sensors *Sen);
   void put_ram(Datum_st *point);
-  void register_lock(const boolean quiet);
-  void register_unlock(const boolean quiet);
+  void register_lock(const boolean quiet, Sensors *Sen);
+  void register_unlock(const boolean quiet, Sensors *Sen);
   void reset(const boolean reset);
   void sort_registers();
 
