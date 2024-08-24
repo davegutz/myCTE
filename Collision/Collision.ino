@@ -232,6 +232,7 @@ void loop()
       {
         Serial.println(""); Serial.println("Logging");
         L->register_lock();  // after move_precursor so has values on first save
+    
         L->move_precursor();
       }
       L->put_ram(Sen);

@@ -123,12 +123,13 @@ public:
     }
   };
   ~Data_st();
-  void adjust_register_excepting(Register_st *CurrentReg);
+  void clear_register_overlap(Register_st *CurrentReg);
   void get();
   uint16_t iR(){ return iR_; };
   uint16_t iRg(){ return iRg_; };
   uint16_t nR(){ return nR_; };
   void move_precursor();
+  void print_latest_datum();
   void print_latest_ram();
   void print_all_registers();
   void print_latest_register();

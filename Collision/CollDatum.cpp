@@ -125,7 +125,7 @@ void Datum_st::put_nominal()
 // struct Data_st data log
 
 // Delete the over-ridden registers except the one we're currently filling
-void Data_st::adjust_register_excepting(Register_st *CurrentReg)
+void Data_st::clear_register_overlap(Register_st *CurrentReg)
 {
   for ( int j=0; j<nRg_; j++ )
   {
@@ -159,6 +159,10 @@ void Data_st::print_all_registers()
     Reg[i]->print(nR_);
 }
 
+void Data_st::print_latest_datum()
+{
+  Ram[iR_]->print(iR_);
+}
 
 void Data_st::print_latest_register()
 {
@@ -188,9 +192,10 @@ void Data_st:: put_precursor(Sensors *Sen)
 {
   if ( ++iP_ > (nP_-1) ) iP_ = 0;  // circular buffer
   #ifndef SAVE_RAW
-    Ram[iR_]->filt_from(Sen);
+    Precursor[iP_]->filt_from(Sen);
+Precursor[iP_]->b_int = 0ULL;
   #else
-    Ram[iR_]->raw_from(Sen);
+    Precursor[iP_]->raw_from(Sen);
   #endif
 }
 
@@ -202,7 +207,7 @@ void Data_st::put_ram(Sensors *Sen)
   #else
     Ram[iR_]->raw_from(Sen);
   #endif
-  adjust_register_excepting(CurrentRegPtr_);
+  clear_register_overlap(CurrentRegPtr_);
 }
 
 void Data_st::put_ram(Datum_st *point)
@@ -213,7 +218,7 @@ void Data_st::put_ram(Datum_st *point)
   #else
     Ram[iR_]->from(*point);
   #endif
-  adjust_register_excepting(CurrentRegPtr_);
+  clear_register_overlap(CurrentRegPtr_);
 }
 
 // Enter information about last data set into register

@@ -44,9 +44,9 @@ const float deg_to_rps = 0.0174533;
 // Constants; anything numeric (adjustable)
 #define ONE_DAY_MILLIS        86400000UL// Number of milliseconds in one day (24*60*60*1000)
 #define TALK_DELAY           313UL      // Talk wait, ms (313UL = 0.313 sec)
-#define READ_DELAY            2UL      // Sensor read wait, ms (10UL = 0.01 sec) Dr
+#define READ_DELAY            10UL      // Sensor read wait, ms (10UL = 0.01 sec) Dr
 #define CONTROL_DELAY        100UL      // Control read wait, ms (100UL = 0.1 sec)
-#define LOG_DELAY             20UL      // Register wait, ms (20UL = 0.02 sec)
+#define LOG_DELAY             10UL      // Register wait, ms (20UL = 0.02 sec)
 #define PLOT_DELAY            80UL      // Plot wait, ms (80UL = 0.08 sec)
 #define G_MAX                  20.      // Max G value, g's (20.) 
 #define W_MAX                  20.      // Max rotational value, rps (20.)
@@ -65,7 +65,7 @@ const float deg_to_rps = 0.0174533;
 #define O_QUIET_THR           12.0      // rps quiet detection threshold (12.)
 #define G_QUIET_THR            4.0      // rps quiet detection threshold (4.)
 #define NDATUM                 560      // Number of datum entries to store (560)  varies depending on program size
-#define NHOLD                   80      // Number of precursor entries to store (15)
+#define NHOLD                   15      // Number of precursor entries to store (15)
 #define R_SCL                  10.      // Quiet reset persistence scalar on QUIET_S ('up 1 down 10')
 #define ARBITRARY_TIME  1704067196      // 1/1/2024 at ~12:00:00 AM
 
