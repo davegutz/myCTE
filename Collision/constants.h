@@ -61,7 +61,7 @@ const float deg_to_rps = 0.0174533;
 #define QUIET_A                0.1      // Quiet set threshold, sec (0.1)
 #define QUIET_S                0.4      // Quiet set persistence, sec (0.4)
 #define O_QUIET_THR           12.0      // rps quiet detection threshold (12.)
-#define G_QUIET_THR            4.0      // rps quiet detection threshold (4.)
+#define G_QUIET_THR            4.0      // g's quiet detection threshold (4.)
 #define NDATUM                 560      // Number of datum entries to store (560)  varies depending on program size
 #define NHOLD                    5      // Number of precursor entries to store (5)
 #define R_SCL                  10.      // Quiet reset persistence scalar on QUIET_S ('up 1 down 10')
