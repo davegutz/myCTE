@@ -131,6 +131,7 @@ public:
       Reg[j] = new Register_st();
       Reg[j]->put_nominal();
     }
+    Serial.print("Size of Data_st: "); Serial.println(size());
   };
   ~Data_st();
   void clear_register_overlap(Register_st *CurrentReg);
@@ -152,6 +153,7 @@ public:
   void register_lock(const boolean quiet, Sensors *Sen);
   void register_unlock(const boolean quiet, Sensors *Sen);
   void reset(const boolean reset);
+  int size(){ return nR_ * sizeof(Datum_st); };
   void sort_registers();
 
 protected:

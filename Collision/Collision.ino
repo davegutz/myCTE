@@ -75,24 +75,7 @@ unsigned long long last_sync = millis();   // Timekeeping
 extern int debug;
 int debug = 0;
 
-
-#ifdef USE_EEPROM
-  // Reserve a portion of flash memory to store a "Person" and
-  // call it "my_flash_store".
-  // Create a structure that is big enough to contain a name
-  // and a surname. The "valid" variable is set to "true" once
-  // the structure is filled with actual data for the first time.
-  typedef struct {
-    boolean valid;
-    char name[100];
-    char surname[100];
-  } Person;
-
-  FlashStorage(my_flash_store, Person);
-  // Create a "Person" variable and call it "owner"
-  Person owner;
-  // Note: the area of flash memory reserved lost every time the sketch is uploaded on the board.
-#endif
+boolean print_mem = false;
 
 // Setup
 void setup() {
@@ -112,29 +95,6 @@ void setup() {
     Serial.println("Failed to initialize IMU!");
     while (1);
   }
-
-  #ifdef USE_EEPROM
-
-    // Read the content of "my_flash_store" into the "owner" variable
-    owner = my_flash_store.read();
-
-
-    Serial.print("EEPROM size: "); Serial.println(my_flash_store.size());
-    Serial.print("EEPROM PAGE_SIZE: "); Serial.println(my_flash_store.page_size());
-    Serial.print("EEPROM PAGES: "); Serial.println(my_flash_store.pages());
-    Serial.print("EEPROM MAX_FLASH: "); Serial.println(my_flash_store.max_flash());
-    Serial.print("EEPROM ROW_SIZE: "); Serial.println(my_flash_store.row_size());
-
-    // If this is the first run the "valid" value should be "false"...
-    if (owner.valid == false)
-    {
-      populate_owner();
-    }
-    else
-    {
-      homecoming();
-    }
-  #endif
 
   // Time to start serial monitor not Arduino IDE
   delay(5);
@@ -192,6 +152,17 @@ void loop()
     Serial.print("num reg entries NREG="); Serial.println(NREG);
     Serial.print("iR="); Serial.println(L->iR());
     Serial.print("iRg="); Serial.println(L->iRg());
+  }
+
+  if ( print_mem )
+  {
+    Serial.print("size of ram NDATUM="); Serial.println(NDATUM);
+    Serial.print("num precursors NHOLD="); Serial.println(NHOLD);
+    Serial.print("num reg entries NREG="); Serial.println(NREG);
+    Serial.print("iR="); Serial.println(L->iR());
+    Serial.print("iRg="); Serial.println(L->iRg());
+    Serial.print("Data_st size: "); Serial.println(L->size());
+    print_mem = false;  // print once
   }
 
   // Read sensors
@@ -378,6 +349,13 @@ void loop()
           Serial.println("ph - print history");
           Serial.println("pr - print registers");
           Serial.println("m  - print all");
+          Serial.println("s  - print sizes for all (will vary depending on history of collision)");
+          Serial.println("UTxxxxxxx - set time to x (x is integer from https://www.epochconverter.com/)");
+          Serial.println("vvX  - verbosity debug level");
+          Serial.println("  vv9  - time trace in Sensors");
+          break;
+        case ( 's' ):  // s - sizes for all
+          print_mem = true;
           break;
         case ( 'U' ):
           switch ( letter_1 )
@@ -506,49 +484,6 @@ void say_hello()
   Serial.println("Set time using command 'UTxxxxxxx' where 'xxxxxx' is integer from https://www.epochconverter.com/");
   Serial.println("Check time using command 'vv9;vv0;");
 }
-
-#ifdef USE_EEPROM
-  // Populate owner structure first time
-  void populate_owner()
-  {
-    // ...in this case we ask for user data.
-    SERIAL_PORT_MONITOR.setTimeout(30000);
-    SERIAL_PORT_MONITOR.println("Insert your name:");
-    String name = SERIAL_PORT_MONITOR.readStringUntil('\n');
-    SERIAL_PORT_MONITOR.println("Insert your surname:");
-    String surname = SERIAL_PORT_MONITOR.readStringUntil('\n');
-
-    // Fill the "owner" structure with the data entered by the user...
-    name.toCharArray(owner.name, 100);
-    surname.toCharArray(owner.surname, 100);
-    // set "valid" to true, so the next time we know that we
-    // have valid data inside
-    owner.valid = true;
-
-    // ...and finally save everything into "my_flash_store"
-    my_flash_store.write(owner);
-
-    // Print a confirmation of the data inserted.
-    SERIAL_PORT_MONITOR.println();
-    SERIAL_PORT_MONITOR.print("Your name: ");
-    SERIAL_PORT_MONITOR.println(owner.name);
-    SERIAL_PORT_MONITOR.print("and your surname: ");
-    SERIAL_PORT_MONITOR.println(owner.surname);
-    SERIAL_PORT_MONITOR.println("have been saved. Thank you!");
-  }
-
-  // Prodigal son returns!
-  void homecoming()
-  {
-    // Say hello to the returning user!
-    SERIAL_PORT_MONITOR.println();
-    SERIAL_PORT_MONITOR.print("Hi ");
-    SERIAL_PORT_MONITOR.print(owner.name);
-    SERIAL_PORT_MONITOR.print(" ");
-    SERIAL_PORT_MONITOR.print(owner.surname);
-    SERIAL_PORT_MONITOR.println(", nice to see you again :-)");
-  }
-#endif
 
 // Time synchro so printed decimal times align with hms rolls
 void sync_time(unsigned long long *last_sync, unsigned long long *millis_flip)

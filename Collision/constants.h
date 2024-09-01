@@ -29,10 +29,8 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
-#undef USE_EEPROM
 #undef USE_ARDUINO
 #undef SAVE_RAW
-
 
 // Setup
 #include "local_config.h"
