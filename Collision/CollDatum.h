@@ -106,11 +106,12 @@ public:
 class Data_st
 {
 public:
-  Data_st() : iR_(0), nR_(0), iP_(0), nP_(0), iRg_(0), iStart_(0), nRg_(0) {};
+  Data_st() : iR_(0), nR_(0), iP_(0), nP_(0), iRg_(0), iStart_(0), nRg_(0), nAR_(0) {};
   Data_st(uint16_t ram_datums, uint16_t pre_datums, uint16_t reg_registers) :
    iR_(ram_datums), nR_(ram_datums),
    iP_(pre_datums), nP_(pre_datums),
-   iRg_(reg_registers), nRg_(reg_registers)
+   iRg_(reg_registers), nRg_(reg_registers),
+   nAR_(0)
   {
     int j;
     Precursor = new Datum_st*[nP_];
@@ -140,6 +141,7 @@ public:
   uint16_t iRg(){ return iRg_; };
   uint16_t nR(){ return nR_; };
   void move_precursor();
+  int num_active_registers(){ return int(nAR_); };
   void plot_latest_ram();
   void print_latest_datum();
   void print_latest_ram();
@@ -162,6 +164,7 @@ protected:
   Register_st **Reg, *CurrentRegPtr_;    // Register for Ram
   uint16_t iR_, iP_, iRg_, iStart_;
   uint16_t nR_, nP_, nRg_;
+  uint8_t nAR_;
 };
 
 

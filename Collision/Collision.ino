@@ -90,6 +90,10 @@ void setup() {
   Serial.begin(SERIAL_BAUD);
   while (!Serial);
 
+  // LED
+  pinMode(LED_BUILTIN, OUTPUT);
+
+  // IMU
   if ( !IMU.begin() )
   {
     Serial.println("Failed to initialize IMU!");
@@ -115,8 +119,13 @@ void loop()
   static Sync *ReadSensors = new Sync(READ_DELAY);
   boolean publishing;
   static Sync *Plotting = new Sync(PLOT_DELAY);
-  boolean control;
+  boolean control = false;
   static Sync *ControlSync = new Sync(CONTROL_DELAY);
+  boolean blink = false;
+  boolean blink_on = false;
+  static Sync *BlinkSync = new Sync(BLINK_DELAY);
+  boolean active = false;
+  static Sync *ActiveSync = new Sync(ACTIVE_DELAY);
   unsigned long long elapsed = 0;
   static boolean reset = true;
   static unsigned long long time_start = millis();
@@ -141,6 +150,8 @@ void loop()
   chitchat = Talk->update(millis(), reset);
   elapsed = ReadSensors->now() - time_start;
   control = ControlSync->update(millis(), reset);
+  blink = BlinkSync->update(millis(), reset);
+  active = ActiveSync->update(millis(), reset);
   publishing = Plotting->update(millis(), reset);
   plotting = plotting_all;
   boolean inhibit_talk = plotting_all && plot_num==7;
@@ -277,6 +288,36 @@ void loop()
 
   // Initialize complete once sensors and models started and summary written
   if ( read ) reset = false;
+
+  if ( blink )
+  {
+    if ( !logging )
+    {
+      blink_on = false;
+    }
+    else
+    {
+      blink_on = !blink_on;
+    }
+    if ( blink_on ) digitalWrite(LED_BUILTIN, HIGH);
+    else digitalWrite(LED_BUILTIN, LOW);
+  }
+
+  if ( active )
+  {
+    static int i_count = 0;
+
+    // Blink number of stored registers
+    if ( L->num_active_registers() > 0 )   // num_active_registers
+    {
+      if ( i_count < L->num_active_registers() ) blink_on = !blink_on;
+      if ( blink_on ) digitalWrite(LED_BUILTIN, HIGH);
+      else digitalWrite(LED_BUILTIN, LOW);
+ 
+      // Reset counter on over-wrap
+      if ( ++i_count >= int(NREG) ) i_count = 0;
+    }
+  }
 
   if ( chitchat )
   {

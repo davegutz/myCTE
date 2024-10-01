@@ -174,6 +174,7 @@ void Data_st::move_precursor()
     if ( Precursor[j]->t_ms == 1ULL ) continue;
     put_ram(Precursor[j]);
   }
+  nAR_ = min(nAR_+1, NREG);  // This is  not perfect
 }
 
 void Data_st::plot_latest_ram()
