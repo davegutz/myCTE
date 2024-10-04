@@ -201,7 +201,7 @@ void loop()
       log_size = 0;
     }
 
-    // Log data
+    // Log data - full resolution since part of 'read' frame
     if ( logging && !logging_past)
     {
       L->register_lock(inhibit_talk, Sen);  // after move_precursor so has values on first save
@@ -228,7 +228,6 @@ void loop()
       }
       else if ( plotting_all && plot_num==7 )
       {
-
         L->plot_latest_ram();  // pa7
       }
     }
@@ -289,6 +288,7 @@ void loop()
   // Initialize complete once sensors and models started and summary written
   if ( read ) reset = false;
 
+  // Blink when threshold breached and therefore logging
   if ( blink )
   {
     if ( !logging )
