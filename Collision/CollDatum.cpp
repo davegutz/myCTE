@@ -86,23 +86,23 @@ void Datum_st::nominal()
 void Datum_st::plot(const uint16_t i)
 {
   #ifndef SAVE_RAW
-    Serial.print("T_rot_filt*100:"); Serial.print(float(T_rot_int) * 100. / T_SCL);
-    Serial.print("\ta_filt:"); Serial.print(float(a_int) / O_SCL);
-    Serial.print("\tb_filt:"); Serial.print(float(b_int) / O_SCL);
-    Serial.print("\tc_filt:"); Serial.print(float(c_int) / O_SCL);
-    Serial.print("\tT_acc_filt*100:"); Serial.print(float(T_acc_int) * 100. / T_SCL);
-    Serial.print("\tx_filt:"); Serial.print(float(x_int) / G_SCL);
-    Serial.print("\ty_filt:"); Serial.print(float(y_int) / G_SCL);
-    Serial.print("\tz_filt:"); Serial.println(float(z_int) / G_SCL);
+    Serial.print("T_rot_filt*100:"); Serial.print(float(T_rot_int) * 100. / T_SCL, 3);
+    Serial.print("\ta_filt:"); Serial.print(float(a_int) / O_SCL, 3);
+    Serial.print("\tb_filt:"); Serial.print(float(b_int) / O_SCL, 3);
+    Serial.print("\tc_filt:"); Serial.print(float(c_int) / O_SCL, 3);
+    Serial.print("\tT_acc_filt*100:"); Serial.print(float(T_acc_int) * 100. / T_SCL, 3);
+    Serial.print("\tx_filt:"); Serial.print(float(x_int) / G_SCL, 3);
+    Serial.print("\ty_filt:"); Serial.print(float(y_int) / G_SCL, 3);
+    Serial.print("\tz_filt:"); Serial.println(float(z_int) / G_SCL, 3);
   #else
-    Serial.print("T_rot_raw*100:"); Serial.print(float(T_rot_int) * 100. / T_SCL);
-    Serial.print("\ta_raw:"); Serial.print(float(a_int) / O_SCL);
-    Serial.print("\tb_raw:"); Serial.print(float(b_int) / O_SCL);
-    Serial.print("\tc_raw:"); Serial.print(float(c_int) / O_SCL);
-    Serial.print("\tT_acc_raw*100:"); Serial.print(float(T_acc_int) * 100. / T_SCL);
-    Serial.print("\tx_raw:"); Serial.print(float(x_int) / G_SCL);
-    Serial.print("\ty_raw:"); Serial.print(float(y_int) / G_SCL);
-    Serial.print("\tz_raw:"); Serial.println(float(z_int) / G_SCL);
+    Serial.print("T_rot_raw*100:"); Serial.print(float(T_rot_int) * 100. / T_SCL, 3);
+    Serial.print("\ta_raw:"); Serial.print(float(a_int) / O_SCL, 3);
+    Serial.print("\tb_raw:"); Serial.print(float(b_int) / O_SCL, 3);
+    Serial.print("\tc_raw:"); Serial.print(float(c_int) / O_SCL, 3);
+    Serial.print("\tT_acc_raw*100:"); Serial.print(float(T_acc_int) * 100. / T_SCL, 3);
+    Serial.print("\tx_raw:"); Serial.print(float(x_int) / G_SCL, 3);
+    Serial.print("\ty_raw:"); Serial.print(float(y_int) / G_SCL, 3);
+    Serial.print("\tz_raw:"); Serial.println(float(z_int) / G_SCL, 3);
   #endif
 }
 
@@ -116,22 +116,22 @@ void Datum_st::print(const uint16_t i)
   Serial.print(" "); Serial.print(prn_buff);
   #ifndef SAVE_RAW
     Serial.print(" T_rot_filt "); Serial.print(float(T_rot_int) / T_SCL, 3);
-    Serial.print(" a_filt "); Serial.print(float(a_int) / O_SCL);
-    Serial.print(" b_filt "); Serial.print(float(b_int) / O_SCL);
-    Serial.print(" c_filt "); Serial.print(float(c_int) / O_SCL);
+    Serial.print(" a_filt "); Serial.print(float(a_int) / O_SCL, 3);
+    Serial.print(" b_filt "); Serial.print(float(b_int) / O_SCL, 3);
+    Serial.print(" c_filt "); Serial.print(float(c_int) / O_SCL, 3);
     Serial.print(" T_acc_filt "); Serial.print(float(T_acc_int) / T_SCL, 3);
-    Serial.print(" x_filt "); Serial.print(float(x_int) / G_SCL);
-    Serial.print(" y_filt "); Serial.print(float(y_int) / G_SCL);
-    Serial.print(" z_filt "); Serial.println(float(z_int) / G_SCL);
+    Serial.print(" x_filt "); Serial.print(float(x_int) / G_SCL, 3);
+    Serial.print(" y_filt "); Serial.print(float(y_int) / G_SCL, 3);
+    Serial.print(" z_filt "); Serial.println(float(z_int) / G_SCL, 3);
   #else
-    Serial.print(" T_rot_raw "); Serial.print(float(T_rot_int) / T_SCL);
-    Serial.print(" a_raw "); Serial.print(float(a_int) / O_SCL);
-    Serial.print(" b_raw "); Serial.print(float(b_int) / O_SCL);
-    Serial.print(" c_raw "); Serial.print(float(c_int) / O_SCL);
-    Serial.print(" T_acc_raw "); Serial.print(float(T_acc_int) / T_SCL);
-    Serial.print(" x_raw "); Serial.print(float(x_int) / G_SCL);
-    Serial.print(" y_raw "); Serial.print(float(y_int) / G_SCL);
-    Serial.print(" z_raw "); Serial.println(float(z_int) / G_SCL);
+    Serial.print(" T_rot_raw "); Serial.print(float(T_rot_int) / T_SCL, 3);
+    Serial.print(" a_raw "); Serial.print(float(a_int) / O_SCL, 3);
+    Serial.print(" b_raw "); Serial.print(float(b_int) / O_SCL, 3);
+    Serial.print(" c_raw "); Serial.print(float(c_int) / O_SCL, 3);
+    Serial.print(" T_acc_raw "); Serial.print(float(T_acc_int) / T_SCL, 3);
+    Serial.print(" x_raw "); Serial.print(float(x_int) / G_SCL, 3);
+    Serial.print(" y_raw "); Serial.print(float(y_int) / G_SCL, 3);
+    Serial.print(" z_raw "); Serial.println(float(z_int) / G_SCL, 3);
   #endif
 }
 

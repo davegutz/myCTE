@@ -52,7 +52,7 @@ const float deg_to_rps = 0.0174533;
 #define W_MAX                  20.      // Max rotational value, rps (20.)
 #define T_MAX                 0.02      // Max expected update time, s (0.02)
 #define INPUT_BYTES            200      // Serial input buffer sizes (200)
-#define SERIAL_BAUD         115200      // Serial baud rate (115200)
+#define SERIAL_BAUD         115200      // Serial baud rate (115200).
 #define TAU_FILT              0.01      // Tau filter, sec (0.01)
 #define TAU_Q_FILT            0.01     // Quiet rate time constant, sec (0.01)
 #define MIN_Q_FILT            -20.      // Quiet filter minimum, g's / rps(-20)
