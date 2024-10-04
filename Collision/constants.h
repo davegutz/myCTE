@@ -30,7 +30,7 @@
 #define CONSTANTS_H_
 
 #undef USE_ARDUINO
-#undef SAVE_RAW
+#define SAVE_RAW
 
 // Setup
 #include "local_config.h"

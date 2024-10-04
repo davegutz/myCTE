@@ -39,9 +39,9 @@ void Datum_st::filt_from(Sensors *Sen)
   b_int = int16_t(Sen->b_filt * O_SCL);
   c_int = int16_t(Sen->c_filt * O_SCL);
   T_acc_int = int16_t(Sen->T_acc() * T_SCL);
-  x_int = int16_t(Sen->a_filt * G_SCL);
-  y_int = int16_t(Sen->b_filt * G_SCL);
-  z_int = int16_t(Sen->c_filt * G_SCL);
+  x_int = int16_t(Sen->x_filt * G_SCL);
+  y_int = int16_t(Sen->y_filt * G_SCL);
+  z_int = int16_t(Sen->z_filt * G_SCL);
 }
 void Datum_st::from(Datum_st input)
 {
@@ -63,9 +63,9 @@ void Datum_st::raw_from(Sensors *Sen)
   b_int = int16_t(Sen->b_raw * O_SCL);
   c_int = int16_t(Sen->c_raw * O_SCL);
   T_acc_int = int16_t(Sen->T_acc() * T_SCL);
-  x_int = int16_t(Sen->a_raw * G_SCL);
-  y_int = int16_t(Sen->b_raw * G_SCL);
-  z_int = int16_t(Sen->c_raw * G_SCL);
+  x_int = int16_t(Sen->x_raw * G_SCL);
+  y_int = int16_t(Sen->y_raw * G_SCL);
+  z_int = int16_t(Sen->z_raw * G_SCL);
 }
 
 // Nominal values
