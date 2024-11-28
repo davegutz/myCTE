@@ -88,7 +88,7 @@ void setup() {
 
   // Serial
   Serial.begin(SERIAL_BAUD);
-  while (!Serial);
+  // while (!Serial);
 
   // LED
   pinMode(LED_BUILTIN, OUTPUT);
