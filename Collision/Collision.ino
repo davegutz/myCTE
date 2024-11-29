@@ -7,6 +7,12 @@
   - Arduino Uno WiFi Rev 2 or Arduino Nano 33 IoT
   - USB for monitor and power
 
+  The Arduino Libraries:
+  - Arduino_LSM6DS3, AceCommon, AceCRC, AceRoutine, AceUtils, Adafruit BusIO, Adafruit LSMDS?, SafeString
+  
+  Arduino board for CTE Nano:
+  - Arduino Nano 33 IoT in Afduino SAMD library
+ 
   created 10 Jul 2024
   by Dave Gutz
 
