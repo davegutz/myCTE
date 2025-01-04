@@ -32,11 +32,8 @@
   #error "Only Arduino nano 33 iot has built in IMU"
   #include "application.h"  // Particle
 #endif
-
 #include "myFilters.h"
 extern int debug;
-
-
 
 // Sensors (like a big struct with public access)
 class Sensors
