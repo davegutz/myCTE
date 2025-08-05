@@ -3,6 +3,9 @@
         "string_view": "cpp",
         "array": "cpp",
         "initializer_list": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "type_traits": "cpp",
+        "compare": "cpp",
+        "limits": "cpp"
     }
 }
